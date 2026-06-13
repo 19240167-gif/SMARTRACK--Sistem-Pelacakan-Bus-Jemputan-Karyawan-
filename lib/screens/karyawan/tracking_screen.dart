@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/tracking_provider.dart';
-import '../../services/location_service.dart';
 import '../../utils/constants.dart';
 import '../../utils/helpers.dart';
 import '../../widgets/common/glass_card.dart';
@@ -22,7 +21,6 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
   GoogleMapController? _mapController;
   final Set<Marker> _markers = {};
   final Set<Polyline> _polylines = {};
-  bool _isMapReady = false;
   bool _followBus = true;
 
   static const LatLng _defaultLocation = LatLng(-6.200000, 106.816666);
@@ -36,7 +34,6 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
     _setMapStyle(controller);
-    setState(() => _isMapReady = true);
   }
 
   Future<void> _setMapStyle(GoogleMapController controller) async {
@@ -79,19 +76,22 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
     }
   }
 
-  void _addPickupMarker(double lat, double lng, String name) {
+  // Used to add pickup markers for route stops
+  void addPickupMarker(double lat, double lng, String name) {
     final markerId = MarkerId('pickup_$name');
-    _markers.add(
-      Marker(
-        markerId: markerId,
-        position: LatLng(lat, lng),
-        icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-        infoWindow: InfoWindow(
-          title: '📍 $name',
-          snippet: 'Titik Jemput',
+    setState(() {
+      _markers.add(
+        Marker(
+          markerId: markerId,
+          position: LatLng(lat, lng),
+          icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
+          infoWindow: InfoWindow(
+            title: '📍 $name',
+            snippet: 'Titik Jemput',
+          ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   @override

@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/rute_model.dart';
 import '../../utils/constants.dart';
-import '../../utils/helpers.dart';
 
 final ruteListProvider = StreamProvider<List<RuteModel>>((ref) {
   return FirebaseFirestore.instance.collection('rute').snapshots().map(

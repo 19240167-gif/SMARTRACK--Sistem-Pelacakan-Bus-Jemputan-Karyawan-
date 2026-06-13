@@ -22,7 +22,6 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _nipController = TextEditingController();
   final _divisiController = TextEditingController();
   String _selectedRole = 'karyawan';
-  int _currentStep = 0;
 
   @override
   void dispose() {
