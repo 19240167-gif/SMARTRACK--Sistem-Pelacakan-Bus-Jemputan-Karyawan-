@@ -1,0 +1,194 @@
+// lib/providers/tracking_provider.dart
+import 'dart:async';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:geolocator/geolocator.dart';
+import '../models/tracking_bus_model.dart';
+import '../services/tracking_service.dart';
+import '../services/location_service.dart';
+import 'auth_provider.dart';
+
+final trackingServiceProvider = Provider<TrackingService>((ref) => TrackingService());
+final locationServiceProvider = Provider<LocationService>((ref) => LocationService());
+
+// Stream provider untuk tracking satu bus
+final busTrackingStreamProvider = StreamProvider.family<TrackingBusModel?, String>(
+  (ref, busId) {
+    final trackingService = ref.watch(trackingServiceProvider);
+    return trackingService.getBusTracking(busId);
+  },
+);
+
+// Stream provider untuk semua bus (admin)
+final allBusTrackingStreamProvider = StreamProvider<List<TrackingBusModel>>(
+  (ref) {
+    final trackingService = ref.watch(trackingServiceProvider);
+    return trackingService.getAllActiveBusTracking();
+  },
+);
+
+// Driver tracking state
+class DriverTrackingState {
+  final bool isTracking;
+  final String statusPerjalanan;
+  final String perjalananId;
+  final Position? lastPosition;
+  final String? errorMessage;
+  final double totalJarak;
+  final DateTime? startTime;
+
+  const DriverTrackingState({
+    this.isTracking = false,
+    this.statusPerjalanan = 'Berangkat',
+    this.perjalananId = '',
+    this.lastPosition,
+    this.errorMessage,
+    this.totalJarak = 0,
+    this.startTime,
+  });
+
+  DriverTrackingState copyWith({
+    bool? isTracking,
+    String? statusPerjalanan,
+    String? perjalananId,
+    Position? lastPosition,
+    String? errorMessage,
+    double? totalJarak,
+    DateTime? startTime,
+    bool clearError = false,
+  }) {
+    return DriverTrackingState(
+      isTracking: isTracking ?? this.isTracking,
+      statusPerjalanan: statusPerjalanan ?? this.statusPerjalanan,
+      perjalananId: perjalananId ?? this.perjalananId,
+      lastPosition: lastPosition ?? this.lastPosition,
+      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      totalJarak: totalJarak ?? this.totalJarak,
+      startTime: startTime ?? this.startTime,
+    );
+  }
+}
+
+class DriverTrackingNotifier extends StateNotifier<DriverTrackingState> {
+  final TrackingService _trackingService;
+  final LocationService _locationService;
+  final String? _busId;
+  StreamSubscription<Position>? _positionSubscription;
+  Timer? _updateTimer;
+
+  DriverTrackingNotifier(
+    this._trackingService,
+    this._locationService,
+    this._busId,
+  ) : super(const DriverTrackingState());
+
+  Future<void> mulaiPerjalanan() async {
+    if (_busId == null) return;
+    
+    try {
+      final hasPermission = await _locationService.requestPermission();
+      if (!hasPermission) {
+        state = state.copyWith(errorMessage: 'Izin GPS ditolak');
+        return;
+      }
+
+      final perjalananId = DateTime.now().millisecondsSinceEpoch.toString();
+      state = state.copyWith(
+        isTracking: true,
+        statusPerjalanan: 'Berangkat',
+        perjalananId: perjalananId,
+        startTime: DateTime.now(),
+        clearError: true,
+      );
+
+      // Update lokasi setiap 5 detik
+      _updateTimer = Timer.periodic(const Duration(seconds: 5), (_) async {
+        await _updateLocation();
+      });
+
+      // Initial update
+      await _updateLocation();
+    } catch (e) {
+      state = state.copyWith(errorMessage: e.toString());
+    }
+  }
+
+  Future<void> _updateLocation() async {
+    if (!state.isTracking || _busId == null) return;
+    
+    try {
+      final position = await _locationService.getCurrentPosition();
+      
+      // Hitung jarak
+      double tambahJarak = 0;
+      if (state.lastPosition != null) {
+        tambahJarak = _locationService.calculateDistance(
+          startLat: state.lastPosition!.latitude,
+          startLng: state.lastPosition!.longitude,
+          endLat: position.latitude,
+          endLng: position.longitude,
+        );
+      }
+
+      state = state.copyWith(
+        lastPosition: position,
+        totalJarak: state.totalJarak + tambahJarak,
+      );
+
+      await _trackingService.updateBusLocation(
+        busId: _busId!,
+        latitude: position.latitude,
+        longitude: position.longitude,
+        kecepatan: (position.speed * 3.6), // m/s to km/h
+        statusPerjalanan: state.statusPerjalanan,
+        heading: position.heading,
+      );
+    } catch (e) {
+      // Silently fail for location updates
+    }
+  }
+
+  Future<void> ubahStatus(String newStatus) async {
+    if (!state.isTracking || _busId == null) return;
+    
+    state = state.copyWith(statusPerjalanan: newStatus);
+    await _trackingService.updateBusStatus(
+      busId: _busId!,
+      statusPerjalanan: newStatus,
+    );
+  }
+
+  Future<void> selesaiPerjalanan() async {
+    if (_busId == null) return;
+    
+    _updateTimer?.cancel();
+    _positionSubscription?.cancel();
+    
+    await _trackingService.updateBusStatus(
+      busId: _busId!,
+      statusPerjalanan: 'Tiba',
+    );
+
+    await Future.delayed(const Duration(seconds: 3));
+    await _trackingService.clearBusTracking(_busId!);
+    
+    state = const DriverTrackingState();
+  }
+
+  @override
+  void dispose() {
+    _updateTimer?.cancel();
+    _positionSubscription?.cancel();
+    super.dispose();
+  }
+}
+
+final driverTrackingProvider = StateNotifierProvider<DriverTrackingNotifier, DriverTrackingState>(
+  (ref) {
+    final user = ref.watch(currentUserProvider);
+    return DriverTrackingNotifier(
+      ref.watch(trackingServiceProvider),
+      ref.watch(locationServiceProvider),
+      user?.busId,
+    );
+  },
+);
