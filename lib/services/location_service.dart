@@ -1,83 +1,248 @@
 // lib/services/location_service.dart
 import 'dart:async';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:geolocator/geolocator.dart';
+import 'firebase_service.dart';
 
+/// Service untuk menangani GPS tracking dan lokasi real-time
 class LocationService {
+  final FirebaseService _firebaseService = FirebaseService();
   StreamSubscription<Position>? _positionSubscription;
-  Timer? _locationTimer;
+  Timer? _locationUpdateTimer;
+  
+  DatabaseReference get _busLocations => _firebaseService.busLocations;
+  DatabaseReference get _activeTrips => _firebaseService.activeTrips;
 
-  /// Meminta izin lokasi dari pengguna
-  Future<bool> requestPermission() async {
-    LocationPermission permission = await Geolocator.checkPermission();
-    
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-    
-    if (permission == LocationPermission.deniedForever) {
+  /// Check dan request permission lokasi
+  Future<bool> checkLocationPermission() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      print('❌ Location services are disabled');
       return false;
     }
-    
-    return permission == LocationPermission.whileInUse ||
-        permission == LocationPermission.always;
-  }
 
-  /// Mendapatkan posisi saat ini
-  Future<Position> getCurrentPosition() async {
-    final hasPermission = await requestPermission();
-    if (!hasPermission) {
-      throw Exception('Izin lokasi ditolak');
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        print('❌ Location permissions are denied');
+        return false;
+      }
     }
-    
-    return await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
+
+    if (permission == LocationPermission.deniedForever) {
+      print('❌ Location permissions are permanently denied');
+      return false;
+    }
+
+    print('✅ Location permission granted');
+    return true;
   }
 
-  /// Stream posisi GPS (update setiap 5 detik)
-  Stream<Position> getPositionStream() {
-    return Geolocator.getPositionStream(
-      locationSettings: const LocationSettings(
+  /// Mulai tracking lokasi bus
+  Future<bool> startBusTracking({
+    required String busId,
+    required String tripId,
+    required String driverId,
+  }) async {
+    if (!await checkLocationPermission()) {
+      return false;
+    }
+
+    try {
+      // Stop existing tracking jika ada
+      await stopTracking();
+
+      print('🚌 Starting bus tracking for: $busId');
+
+      // Set up location settings
+      const LocationSettings locationSettings = LocationSettings(
         accuracy: LocationAccuracy.high,
-        distanceFilter: 10, // update setiap 10 meter bergerak
-        timeLimit: Duration(seconds: 5),
-      ),
-    );
+        distanceFilter: 10, // Update setiap 10 meter
+      );
+
+      // Start listening to position updates
+      _positionSubscription = Geolocator.getPositionStream(
+        locationSettings: locationSettings,
+      ).listen(
+        (Position position) {
+          _updateBusLocation(busId, tripId, driverId, position);
+        },
+        onError: (e) {
+          print('❌ Location stream error: $e');
+        },
+      );
+
+      // Set up periodic updates (backup jika GPS tidak berubah)
+      _locationUpdateTimer = Timer.periodic(
+        const Duration(seconds: 30),
+        (_) async {
+          try {
+            Position position = await Geolocator.getCurrentPosition();
+            _updateBusLocation(busId, tripId, driverId, position);
+          } catch (e) {
+            print('❌ Periodic location update error: $e');
+          }
+        },
+      );
+
+      return true;
+    } catch (e) {
+      print('❌ Error starting bus tracking: $e');
+      return false;
+    }
   }
 
-  /// Menghitung jarak antara dua titik (meter)
-  double calculateDistance({
-    required double startLat,
-    required double startLng,
-    required double endLat,
-    required double endLng,
-  }) {
-    return Geolocator.distanceBetween(startLat, startLng, endLat, endLng);
+  /// Update lokasi bus ke Firebase Realtime Database
+  void _updateBusLocation(
+    String busId,
+    String tripId,
+    String driverId,
+    Position position,
+  ) {
+    final locationData = {
+      'busId': busId,
+      'tripId': tripId,
+      'driverId': driverId,
+      'latitude': position.latitude,
+      'longitude': position.longitude,
+      'accuracy': position.accuracy,
+      'altitude': position.altitude,
+      'speed': position.speed * 3.6, // Convert m/s to km/h
+      'heading': position.heading,
+      'timestamp': ServerValue.timestamp,
+      'lastUpdate': DateTime.now().toIso8601String(),
+    };
+
+    // Update current location
+    _busLocations.child(busId).set(locationData);
+    
+    // Add to location history
+    _busLocations.child(busId).child('history').push().set({
+      'latitude': position.latitude,
+      'longitude': position.longitude,
+      'speed': position.speed * 3.6,
+      'timestamp': ServerValue.timestamp,
+    });
+
+    print('📍 Location updated: ${position.latitude}, ${position.longitude}');
   }
 
-  /// Menghitung bearing (arah) antara dua titik
-  double calculateBearing({
-    required double startLat,
-    required double startLng,
-    required double endLat,
-    required double endLng,
-  }) {
-    return Geolocator.bearingBetween(startLat, startLng, endLat, endLng);
-  }
-
-  /// Menghitung ETA berdasarkan kecepatan dan jarak
-  int calculateETA({
-    required double distanceMeters,
-    required double speedKmh,
-  }) {
-    if (speedKmh <= 0) return 0;
-    final distanceKm = distanceMeters / 1000;
-    final hours = distanceKm / speedKmh;
-    return (hours * 60).ceil(); // dalam menit
-  }
-
-  void dispose() {
+  /// Stop tracking lokasi
+  Future<void> stopTracking() async {
     _positionSubscription?.cancel();
-    _locationTimer?.cancel();
+    _positionSubscription = null;
+    
+    _locationUpdateTimer?.cancel();
+    _locationUpdateTimer = null;
+
+    print('🛑 Location tracking stopped');
+  }
+
+  /// Get current position
+  Future<Position?> getCurrentPosition() async {
+    if (!await checkLocationPermission()) {
+      return null;
+    }
+
+    try {
+      return await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+    } catch (e) {
+      print('❌ Error getting current position: $e');
+      return null;
+    }
+  }
+
+  /// Listen to bus location updates
+  Stream<Map<String, dynamic>?> listenToBusLocation(String busId) {
+    return _busLocations.child(busId).onValue.map((event) {
+      if (event.snapshot.exists) {
+        return Map<String, dynamic>.from(event.snapshot.value as Map);
+      }
+      return null;
+    });
+  }
+
+  /// Listen to all active buses
+  Stream<Map<String, dynamic>> listenToAllBuses() {
+    return _busLocations.onValue.map((event) {
+      if (event.snapshot.exists) {
+        return Map<String, dynamic>.from(event.snapshot.value as Map);
+      }
+      return {};
+    });
+  }
+
+  /// Calculate distance between two points
+  double calculateDistance(
+    double lat1, double lon1,
+    double lat2, double lon2,
+  ) {
+    return Geolocator.distanceBetween(lat1, lon1, lat2, lon2);
+  }
+
+  /// Check if bus is near stop
+  bool isBusNearStop(
+    double busLat, double busLon,
+    double stopLat, double stopLon,
+    {double radiusMeters = 100}
+  ) {
+    double distance = calculateDistance(busLat, busLon, stopLat, stopLon);
+    return distance <= radiusMeters;
+  }
+
+  /// Update trip status
+  Future<void> updateTripStatus(String tripId, String status) async {
+    await _activeTrips.child(tripId).update({
+      'status': status,
+      'lastUpdate': ServerValue.timestamp,
+      'updatedAt': DateTime.now().toIso8601String(),
+    });
+  }
+
+  /// Start a new trip
+  Future<void> startTrip({
+    required String tripId,
+    required String busId,
+    required String routeId,
+    required String driverId,
+    required List<Map<String, dynamic>> stops,
+  }) async {
+    await _activeTrips.child(tripId).set({
+      'tripId': tripId,
+      'busId': busId,
+      'routeId': routeId,
+      'driverId': driverId,
+      'stops': stops,
+      'currentStopIndex': 0,
+      'status': 'started',
+      'startTime': ServerValue.timestamp,
+      'startedAt': DateTime.now().toIso8601String(),
+    });
+
+    print('🚀 Trip started: $tripId');
+  }
+
+  /// End trip
+  Future<void> endTrip(String tripId) async {
+    await _activeTrips.child(tripId).update({
+      'status': 'completed',
+      'endTime': ServerValue.timestamp,
+      'completedAt': DateTime.now().toIso8601String(),
+    });
+
+    // Remove from active trips after a delay
+    Timer(const Duration(minutes: 5), () {
+      _activeTrips.child(tripId).remove();
+    });
+
+    print('🏁 Trip completed: $tripId');
+  }
+
+  /// Dispose resources
+  void dispose() {
+    stopTracking();
   }
 }

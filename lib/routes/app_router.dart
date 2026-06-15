@@ -16,6 +16,7 @@ import '../screens/admin/manajemen_bus_screen.dart';
 import '../screens/admin/manajemen_driver_screen.dart';
 import '../screens/admin/manajemen_karyawan_screen.dart';
 import '../screens/admin/manajemen_rute_screen.dart';
+import '../screens/debug_screen.dart';
 import '../utils/constants.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -71,6 +72,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.register,
         builder: (context, state) => const RegisterScreen(),
+      ),
+      
+      // Debug screen (untuk testing Firebase)
+      GoRoute(
+        path: '/debug',
+        builder: (context, state) => const DebugScreen(),
       ),
 
       // Karyawan routes

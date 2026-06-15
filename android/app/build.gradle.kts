@@ -2,7 +2,7 @@ plugins {
     id("com.android.application")
     id("kotlin-android")
     id("dev.flutter.flutter-gradle-plugin")
-    id("com.google.gms.google-services")
+    id("com.google.gms.google-services") // Aktifkan kembali
 }
 
 android {
@@ -21,7 +21,7 @@ android {
 
     defaultConfig {
         applicationId = "com.smartrack.smartrack"
-        minSdk = 21
+        minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
@@ -42,17 +42,11 @@ flutter {
 }
 
 dependencies {
-    // Firebase BOM — versi diatur secara terpusat
-    implementation(platform("com.google.firebase:firebase-bom:32.7.4"))
+    // Firebase BOM - minimal untuk test
+    implementation(platform("com.google.firebase:firebase-bom:34.14.1"))
     implementation("com.google.firebase:firebase-analytics-ktx")
-    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-auth-ktx") 
     implementation("com.google.firebase:firebase-firestore-ktx")
-    implementation("com.google.firebase:firebase-database-ktx")
-    implementation("com.google.firebase:firebase-messaging-ktx")
-
-    // Google Maps & Location
-    implementation("com.google.android.gms:play-services-maps:18.2.0")
-    implementation("com.google.android.gms:play-services-location:21.2.0")
 
     // MultiDex
     implementation("androidx.multidex:multidex:2.0.1")

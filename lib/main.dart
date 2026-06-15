@@ -7,6 +7,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'firebase/firebase_options.dart';
 import 'routes/app_router.dart';
 import 'services/notification_service.dart';
+import 'services/firebase_service.dart';
 import 'utils/app_theme.dart';
 
 void main() async {
@@ -26,17 +27,35 @@ void main() async {
     systemNavigationBarIconBrightness: Brightness.light,
   ));
 
-  // Initialize Firebase
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  try {
+    // Nonaktifkan Firebase initialization dulu untuk testing
+    /*
+    // Initialize Firebase
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    print('🔥 Firebase initialized successfully');
 
-  // Initialize locale data for intl
-  await initializeDateFormatting('id_ID', null);
+    // Initialize Firebase services
+    final firebaseService = FirebaseService();
+    await firebaseService.initialize();
+    */
 
-  // Initialize notifications
-  final notificationService = NotificationService();
-  await notificationService.initialize();
+    // Initialize locale data for intl
+    await initializeDateFormatting('id_ID', null);
+
+    // Initialize notifications
+    final notificationService = NotificationService();
+    await notificationService.initialize();
+
+    print('✅ Basic services initialized successfully');
+  } catch (e, stackTrace) {
+    print('❌ Initialization error: $e');
+    print('Stack trace: $stackTrace');
+    
+    // Show error dialog atau fallback handling
+    // Untuk sekarang kita print saja, nanti bisa ditambah error handling UI
+  }
 
   runApp(
     const ProviderScope(

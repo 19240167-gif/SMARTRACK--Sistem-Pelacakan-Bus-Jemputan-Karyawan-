@@ -266,6 +266,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               ],
                             ),
                           ),
+                          
+                          // Debug button (Development only)
+                          if (const bool.fromEnvironment('dart.vm.product') == false)
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.only(top: 16),
+                                child: TextButton.icon(
+                                  onPressed: () => context.go('/debug'),
+                                  icon: const Icon(Icons.bug_report, size: 16),
+                                  label: const Text('Firebase Debug'),
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: Colors.orange,
+                                    textStyle: const TextStyle(fontSize: 12),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          
                           const SizedBox(height: 24),
                         ],
                       ),
