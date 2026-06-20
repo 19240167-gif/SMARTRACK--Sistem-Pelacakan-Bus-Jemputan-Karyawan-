@@ -1,4 +1,6 @@
 // lib/screens/debug_screen.dart
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../utils/firebase_test.dart';
 
@@ -97,16 +99,18 @@ class _DebugScreenState extends State<DebugScreen> {
       });
     }
 
-    // Override print temporarily
-    var originalPrint = print;
-    print = capturePrint;
-
     try {
-      await FirebaseTest.testAllConnections();
+      await runZoned(
+        () => FirebaseTest.testAllConnections(),
+        zoneSpecification: ZoneSpecification(
+          print: (self, parent, zone, line) {
+            capturePrint(line);
+          },
+        ),
+      );
     } catch (e) {
       capturePrint('❌ Test error: $e');
     } finally {
-      print = originalPrint;
       setState(() {
         _isTesting = false;
         _testOutput += '\n\nTest completed!';
@@ -129,15 +133,18 @@ class _DebugScreenState extends State<DebugScreen> {
       });
     }
 
-    var originalPrint = print;
-    print = capturePrint;
-
     try {
-      await FirebaseTest.runCompleteTest();
+      await runZoned(
+        () => FirebaseTest.runCompleteTest(),
+        zoneSpecification: ZoneSpecification(
+          print: (self, parent, zone, line) {
+            capturePrint(line);
+          },
+        ),
+      );
     } catch (e) {
       capturePrint('❌ Test error: $e');
     } finally {
-      print = originalPrint;
       setState(() {
         _isTesting = false;
         _testOutput += '\n\nComplete test finished!';

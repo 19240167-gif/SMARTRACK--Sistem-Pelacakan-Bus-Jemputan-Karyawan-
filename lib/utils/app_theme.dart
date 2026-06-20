@@ -23,7 +23,8 @@ class AppTheme {
         surfaceContainerHighest: AppColors.surfaceVariant,
       ),
       scaffoldBackgroundColor: AppColors.background,
-      fontFamily: 'Inter',
+      // Gunakan Roboto (default Flutter) karena Inter belum ada
+      // fontFamily: 'Roboto',
       
       // AppBar
       appBarTheme: const AppBarTheme(
@@ -32,7 +33,7 @@ class AppTheme {
         elevation: 0,
         centerTitle: false,
         titleTextStyle: TextStyle(
-          fontFamily: 'Inter',
+          // fontFamily: 'Inter',
           fontSize: 18,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
@@ -67,7 +68,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(AppDimensions.radiusM),
           ),
           textStyle: const TextStyle(
-            fontFamily: 'Inter',
+            // fontFamily: 'Inter',
             fontSize: 15,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.3,
@@ -85,7 +86,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(AppDimensions.radiusM),
           ),
           textStyle: const TextStyle(
-            fontFamily: 'Inter',
+            // fontFamily: 'Inter',
             fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
@@ -97,7 +98,7 @@ class AppTheme {
         style: TextButton.styleFrom(
           foregroundColor: AppColors.accent,
           textStyle: const TextStyle(
-            fontFamily: 'Inter',
+            // fontFamily: 'Inter',
             fontSize: 14,
             fontWeight: FontWeight.w500,
           ),
@@ -143,12 +144,12 @@ class AppTheme {
         type: BottomNavigationBarType.fixed,
         elevation: 0,
         selectedLabelStyle: TextStyle(
-          fontFamily: 'Inter',
+          // fontFamily: 'Inter',
           fontSize: 11,
           fontWeight: FontWeight.w600,
         ),
         unselectedLabelStyle: TextStyle(
-          fontFamily: 'Inter',
+          // fontFamily: 'Inter',
           fontSize: 11,
         ),
       ),
@@ -166,14 +167,14 @@ class AppTheme {
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return const TextStyle(
-              fontFamily: 'Inter',
+              // fontFamily: 'Inter',
               fontSize: 11,
               fontWeight: FontWeight.w600,
               color: AppColors.accent,
             );
           }
           return const TextStyle(
-            fontFamily: 'Inter',
+            // fontFamily: 'Inter',
             fontSize: 11,
             color: AppColors.textSecondary,
           );
@@ -185,7 +186,7 @@ class AppTheme {
         backgroundColor: AppColors.surfaceVariant,
         selectedColor: AppColors.accent.withValues(alpha: 0.3),
         labelStyle: const TextStyle(
-          fontFamily: 'Inter',
+          // fontFamily: 'Inter',
           fontSize: 12,
           color: AppColors.textPrimary,
         ),
@@ -200,23 +201,23 @@ class AppTheme {
         thickness: 0.5,
       ),
 
-      // Text theme
+      // Text theme - menggunakan default font (Roboto)
       textTheme: const TextTheme(
-        displayLarge: TextStyle(fontFamily: 'Inter', fontSize: 32, fontWeight: FontWeight.w700, color: AppColors.textPrimary, letterSpacing: -0.5),
-        displayMedium: TextStyle(fontFamily: 'Inter', fontSize: 28, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-        displaySmall: TextStyle(fontFamily: 'Inter', fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-        headlineLarge: TextStyle(fontFamily: 'Inter', fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-        headlineMedium: TextStyle(fontFamily: 'Inter', fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-        headlineSmall: TextStyle(fontFamily: 'Inter', fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-        titleLarge: TextStyle(fontFamily: 'Inter', fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-        titleMedium: TextStyle(fontFamily: 'Inter', fontSize: 15, fontWeight: FontWeight.w500, color: AppColors.textPrimary),
-        titleSmall: TextStyle(fontFamily: 'Inter', fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.textPrimary),
-        bodyLarge: TextStyle(fontFamily: 'Inter', fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.textPrimary),
-        bodyMedium: TextStyle(fontFamily: 'Inter', fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.textSecondary),
-        bodySmall: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w400, color: AppColors.textTertiary),
-        labelLarge: TextStyle(fontFamily: 'Inter', fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-        labelMedium: TextStyle(fontFamily: 'Inter', fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.textSecondary),
-        labelSmall: TextStyle(fontFamily: 'Inter', fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.textTertiary),
+        displayLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.w700, color: AppColors.textPrimary, letterSpacing: -0.5),
+        displayMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+        displaySmall: TextStyle(fontSize: 24, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+        headlineLarge: TextStyle(fontSize: 22, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+        headlineMedium: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+        headlineSmall: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+        titleLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+        titleMedium: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppColors.textPrimary),
+        titleSmall: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.textPrimary),
+        bodyLarge: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.textPrimary),
+        bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w400, color: AppColors.textSecondary),
+        bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, color: AppColors.textTertiary),
+        labelLarge: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+        labelMedium: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.textSecondary),
+        labelSmall: TextStyle(fontSize: 11, fontWeight: FontWeight.w500, color: AppColors.textTertiary),
       ),
     );
   }

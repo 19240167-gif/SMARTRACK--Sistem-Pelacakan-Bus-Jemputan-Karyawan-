@@ -12,33 +12,27 @@ class FirebaseService {
   factory FirebaseService() => _instance;
   FirebaseService._internal();
 
-  // Firebase services instances
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseDatabase _database = FirebaseDatabase.instance;
-  final FirebaseMessaging _messaging = FirebaseMessaging.instance;
-
-  // Getters untuk akses Firebase services
-  FirebaseAuth get auth => _auth;
-  FirebaseFirestore get firestore => _firestore;
-  FirebaseDatabase get database => _database;
-  FirebaseMessaging get messaging => _messaging;
+  // Getters untuk akses Firebase services (Lazy initialization)
+  FirebaseAuth get auth => FirebaseAuth.instance;
+  FirebaseFirestore get firestore => FirebaseFirestore.instance;
+  FirebaseDatabase get database => FirebaseDatabase.instance;
+  FirebaseMessaging get messaging => FirebaseMessaging.instance;
 
   // Helper getters untuk collections yang sering digunakan
-  CollectionReference get users => _firestore.collection('users');
-  CollectionReference get buses => _firestore.collection('buses');
-  CollectionReference get routes => _firestore.collection('routes');
-  CollectionReference get trips => _firestore.collection('trips');
-  CollectionReference get employees => _firestore.collection('employees');
+  CollectionReference get users => firestore.collection('users');
+  CollectionReference get buses => firestore.collection('buses');
+  CollectionReference get routes => firestore.collection('routes');
+  CollectionReference get trips => firestore.collection('trips');
+  CollectionReference get employees => firestore.collection('employees');
 
   // Realtime Database references untuk tracking
-  DatabaseReference get busLocations => _database.ref('bus_locations');
-  DatabaseReference get activeTrips => _database.ref('active_trips');
+  DatabaseReference get busLocations => database.ref('bus_locations');
+  DatabaseReference get activeTrips => database.ref('active_trips');
 
   /// Initialize Firebase services
   Future<void> initialize() async {
     // Request notification permission
-    NotificationSettings settings = await _messaging.requestPermission(
+    NotificationSettings settings = await messaging.requestPermission(
       alert: true,
       announcement: false,
       badge: true,
@@ -51,19 +45,19 @@ class FirebaseService {
     print('📱 Notification permission: ${settings.authorizationStatus}');
 
     // Configure Firestore settings
-    _firestore.settings = const Settings(
+    firestore.settings = const Settings(
       persistenceEnabled: true, // Enable offline persistence
       cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
     );
 
     // Configure Realtime Database
-    _database.setPersistenceEnabled(true);
+    database.setPersistenceEnabled(true);
     
     print('🔥 Firebase services initialized successfully');
   }
 
   /// Get current user
-  User? get currentUser => _auth.currentUser;
+  User? get currentUser => auth.currentUser;
 
   /// Check if user is authenticated
   bool get isAuthenticated => currentUser != null;
@@ -85,11 +79,11 @@ class FirebaseService {
   }
 
   /// Listen to authentication state changes
-  Stream<User?> get authStateChanges => _auth.authStateChanges();
+  Stream<User?> get authStateChanges => auth.authStateChanges();
 
   /// Sign out
   Future<void> signOut() async {
-    await _auth.signOut();
+    await auth.signOut();
     print('👋 User signed out');
   }
 
@@ -98,7 +92,7 @@ class FirebaseService {
     if (!isAuthenticated) return;
     
     try {
-      String? token = await _messaging.getToken();
+      String? token = await messaging.getToken();
       if (token != null) {
         await users.doc(currentUser!.uid).update({
           'fcmToken': token,
@@ -115,10 +109,10 @@ class FirebaseService {
   Future<bool> checkConnection() async {
     try {
       // Test Firestore connection
-      await _firestore.doc('test/connection').get();
+      await firestore.doc('test/connection').get();
       
       // Test Realtime Database connection
-      await _database.ref('test').once();
+      await database.ref('test').once();
       
       print('✅ Firebase connection OK');
       return true;

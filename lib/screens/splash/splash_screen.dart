@@ -60,7 +60,32 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     await Future.delayed(const Duration(milliseconds: 1500));
     
     if (mounted) {
-      await ref.read(authProvider.notifier).checkAuthState();
+      try {
+        await ref.read(authProvider.notifier).checkAuthState();
+      } catch (e) {
+        print('❌ Auth check error: $e');
+      }
+      if (mounted) {
+        final authState = ref.read(authProvider);
+        if (!authState.isAuthenticated) {
+          context.go('/login');
+        } else {
+          final role = authState.user?.role ?? '';
+          switch (role) {
+            case 'karyawan':
+              context.go(AppRoutes.dashboardKaryawan);
+              break;
+            case 'driver':
+              context.go(AppRoutes.dashboardDriver);
+              break;
+            case 'admin':
+              context.go(AppRoutes.dashboardAdmin);
+              break;
+            default:
+              context.go(AppRoutes.dashboardKaryawan); // Safe fallback
+          }
+        }
+      }
     }
   }
 

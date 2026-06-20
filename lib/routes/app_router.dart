@@ -19,13 +19,25 @@ import '../screens/admin/manajemen_rute_screen.dart';
 import '../screens/debug_screen.dart';
 import '../utils/constants.dart';
 
+class GoRouterRefreshListenable extends ChangeNotifier {
+  void refresh() {
+    notifyListeners();
+  }
+}
+
 final routerProvider = Provider<GoRouter>((ref) {
-  final authState = ref.watch(authProvider);
+  final refreshListenable = GoRouterRefreshListenable();
+  
+  ref.listen(authProvider, (previous, next) {
+    refreshListenable.refresh();
+  });
 
   return GoRouter(
     initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
+    refreshListenable: refreshListenable,
     redirect: (context, state) {
+      final authState = ref.read(authProvider);
       final isLoading = authState.isLoading;
       final isAuthenticated = authState.isAuthenticated;
       final role = authState.user?.role ?? '';
@@ -45,7 +57,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             case 'admin':
               return AppRoutes.dashboardAdmin;
             default:
-              return AppRoutes.login;
+              return AppRoutes.dashboardKaryawan; // Safe fallback to avoid infinite redirect loops
           }
         }
       }

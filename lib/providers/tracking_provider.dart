@@ -85,7 +85,7 @@ class DriverTrackingNotifier extends StateNotifier<DriverTrackingState> {
     if (_busId == null) return;
     
     try {
-      final hasPermission = await _locationService.requestPermission();
+      final hasPermission = await _locationService.checkLocationPermission();
       if (!hasPermission) {
         state = state.copyWith(errorMessage: 'Izin GPS ditolak');
         return;
@@ -117,15 +117,16 @@ class DriverTrackingNotifier extends StateNotifier<DriverTrackingState> {
     
     try {
       final position = await _locationService.getCurrentPosition();
+      if (position == null) return;
       
       // Hitung jarak
       double tambahJarak = 0;
       if (state.lastPosition != null) {
         tambahJarak = _locationService.calculateDistance(
-          startLat: state.lastPosition!.latitude,
-          startLng: state.lastPosition!.longitude,
-          endLat: position.latitude,
-          endLng: position.longitude,
+          state.lastPosition!.latitude,
+          state.lastPosition!.longitude,
+          position.latitude,
+          position.longitude,
         );
       }
 

@@ -4,7 +4,7 @@ import 'package:firebase_database/firebase_database.dart';
 import '../models/tracking_bus_model.dart';
 
 class TrackingService {
-  final FirebaseDatabase _database = FirebaseDatabase.instance;
+  FirebaseDatabase get _database => FirebaseDatabase.instance;
 
   /// Stream tracking bus secara real-time dari Realtime Database
   Stream<TrackingBusModel?> getBusTracking(String busId) {

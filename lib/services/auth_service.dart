@@ -2,6 +2,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_service.dart';
+import '../models/user_model.dart';
 
 /// Authentication service untuk SmarTrack
 /// Handle login, registration, dan user management
@@ -10,6 +11,7 @@ class AuthService {
   
   FirebaseAuth get _auth => _firebaseService.auth;
   CollectionReference get _users => _firebaseService.users;
+  User? get currentUser => _firebaseService.currentUser;
 
   /// Sign in dengan email dan password
   Future<AuthResult> signInWithEmail(String email, String password) async {
@@ -151,6 +153,105 @@ class AuthService {
 
   /// Listen to auth state changes
   Stream<User?> get authStateChanges => _auth.authStateChanges();
+
+  /// Kompatibilitas untuk provider lama.
+  Future<UserModel?> getUserModel(String uid) async {
+    try {
+      final doc = await _users.doc(uid).get();
+      if (!doc.exists) return null;
+
+      final data = Map<String, dynamic>.from(doc.data() as Map);
+      return _mapToUserModel(data, uid);
+    } catch (e) {
+      throw Exception('Gagal memuat profil user: $e');
+    }
+  }
+
+  /// Kompatibilitas untuk provider lama.
+  Future<UserModel> login(String email, String password) async {
+    final result = await signInWithEmail(email, password);
+    if (!result.isSuccess || result.user == null) {
+      throw Exception(result.message ?? 'Login gagal');
+    }
+
+    final user = await getUserModel(result.user!.uid);
+    if (user == null) {
+      throw Exception('Data profil user tidak ditemukan');
+    }
+    return user;
+  }
+
+  /// Kompatibilitas untuk provider lama.
+  Future<UserModel> register({
+    required String email,
+    required String password,
+    required String nama,
+    required String role,
+    String? perusahaanId,
+    String? titikJemputId,
+    String? nip,
+    String? divisi,
+    String? telepon,
+  }) async {
+    final result = await registerWithEmail(
+      email: email,
+      password: password,
+      name: nama,
+      role: role,
+      additionalData: {
+        'nama': nama,
+        'perusahaan_id': perusahaanId,
+        'titik_jemput_id': titikJemputId,
+        'nip': nip,
+        'divisi': divisi,
+        'telepon': telepon,
+      }..removeWhere((key, value) => value == null),
+    );
+
+    if (!result.isSuccess || result.user == null) {
+      throw Exception(result.message ?? 'Registrasi gagal');
+    }
+
+    final user = await getUserModel(result.user!.uid);
+    if (user == null) {
+      throw Exception('Data profil user tidak ditemukan setelah registrasi');
+    }
+    return user;
+  }
+
+  /// Kompatibilitas untuk provider lama.
+  Future<void> logout() => signOut();
+
+  UserModel _mapToUserModel(Map<String, dynamic> data, String uid) {
+    final createdAtRaw =
+        data['created_at'] ?? data['createdAt'] ?? data['lastLoginAt'];
+    final createdAt = _parseDateTime(createdAtRaw);
+
+    return UserModel(
+      uid: uid,
+      email: (data['email'] ?? '').toString(),
+      nama: (data['nama'] ?? data['name'] ?? '').toString(),
+      role: (data['role'] ?? 'karyawan').toString(),
+      perusahaanId: data['perusahaan_id']?.toString() ?? data['perusahaanId']?.toString(),
+      busId: data['bus_id']?.toString() ?? data['busId']?.toString(),
+      titikJemputId: data['titik_jemput_id']?.toString() ?? data['titikJemputId']?.toString(),
+      photoUrl: data['photo_url']?.toString() ?? data['photoUrl']?.toString(),
+      createdAt: createdAt,
+    );
+  }
+
+  DateTime _parseDateTime(dynamic value) {
+    if (value is Timestamp) {
+      return value.toDate();
+    }
+    if (value is int) {
+      return DateTime.fromMillisecondsSinceEpoch(value);
+    }
+    if (value is String) {
+      return DateTime.tryParse(value) ?? DateTime.now();
+    }
+    return DateTime.now();
+  }
 
   /// Convert Firebase Auth error codes ke pesan yang user-friendly
   String _getAuthErrorMessage(String errorCode) {

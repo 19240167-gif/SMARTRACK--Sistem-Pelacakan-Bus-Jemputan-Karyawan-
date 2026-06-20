@@ -51,7 +51,7 @@ class FirebaseTestScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              Icons.firebase,
+              Icons.local_fire_department_rounded,
               size: 100,
               color: Colors.orange,
             ),
