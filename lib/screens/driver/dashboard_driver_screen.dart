@@ -126,27 +126,31 @@ class _DashboardDriverScreenState
             padding: const EdgeInsets.all(20),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // Status card
-                _buildStatusCard(driverState),
-                const SizedBox(height: 20),
+                if (user?.busId == null || user!.busId!.isEmpty)
+                  _buildNoBusWarning()
+                else ...[
+                  // Status card
+                  _buildStatusCard(driverState),
+                  const SizedBox(height: 20),
 
-                // Main action buttons
-                if (!driverState.isTracking)
-                  _buildStartButton(driverNotifier)
-                else
-                  _buildActiveTrackingSection(driverState, driverNotifier),
+                  // Main action buttons
+                  if (!driverState.isTracking)
+                    _buildStartButton(driverNotifier)
+                  else
+                    _buildActiveTrackingSection(driverState, driverNotifier),
 
-                const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-                // GPS info
-                if (driverState.isTracking && driverState.lastPosition != null)
-                  _buildGpsCard(driverState),
+                  // GPS info
+                  if (driverState.isTracking && driverState.lastPosition != null)
+                    _buildGpsCard(driverState),
 
-                const SizedBox(height: 20),
+                  const SizedBox(height: 20),
 
-                // Report issue
-                _buildReportCard(context),
-                const SizedBox(height: 40),
+                  // Report issue
+                  _buildReportCard(context),
+                  const SizedBox(height: 40),
+                ],
               ]),
             ),
           ),
@@ -642,5 +646,77 @@ class _DashboardDriverScreenState
     final s = duration.inSeconds % 60;
     if (h > 0) return '${h}j ${m}m';
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+  }
+
+
+  Widget _buildNoBusWarning() {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: AppColors.statusMacet.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(
+            color: AppColors.statusMacet.withValues(alpha: 0.3), width: 1),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              color: AppColors.statusMacet.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: const Icon(Icons.no_transfer_rounded,
+                color: AppColors.statusMacet, size: 36),
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Bus Belum Di-Assign',
+            style: TextStyle(
+              fontFamily: 'Inter',
+              color: AppColors.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 8),
+          const Text(
+            'Akun Anda belum di-assign ke bus manapun.\nHubungi admin perusahaan untuk mengatur bus yang akan Anda kemudikan.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              color: AppColors.textSecondary,
+              fontSize: 13,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: AppColors.surfaceVariant,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.info_outline_rounded,
+                    size: 16, color: AppColors.textSecondary),
+                SizedBox(width: 8),
+                Text(
+                  'Admin mengatur assign bus di Manajemen Driver',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

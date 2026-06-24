@@ -219,6 +219,21 @@ class AuthService {
       throw Exception(result.message ?? 'Registrasi gagal');
     }
 
+    // Jika role adalah driver, buat dokumen di collection 'driver'
+    if (role == 'driver') {
+      try {
+        await FirebaseFirestore.instance.collection('driver').add({
+          'nama': nama,
+          'telepon': telepon ?? '',
+          'email': email.trim().toLowerCase(),
+          'status': 'aktif',
+          'user_id': result.user!.uid,
+        });
+      } catch (e) {
+        debugPrint('Failed to sync driver record: $e');
+      }
+    }
+
     final user = await getUserModel(result.user!.uid);
     if (user == null) {
       throw Exception('Data profil user tidak ditemukan setelah registrasi');

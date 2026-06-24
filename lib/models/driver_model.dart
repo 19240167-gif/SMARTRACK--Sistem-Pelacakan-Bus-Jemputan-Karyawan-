@@ -1,4 +1,4 @@
-// lib/models/driver_model.dart
+﻿// lib/models/driver_model.dart
 class DriverModel {
   final String id;
   final String nama;
@@ -8,6 +8,7 @@ class DriverModel {
   final String? perusahaanId;
   final String status; // 'aktif', 'nonaktif'
   final String? photoUrl;
+  final String? userId; // uid Firebase Auth - untuk link ke collection 'users'
 
   const DriverModel({
     required this.id,
@@ -18,6 +19,7 @@ class DriverModel {
     this.perusahaanId,
     required this.status,
     this.photoUrl,
+    this.userId,
   });
 
   factory DriverModel.fromMap(Map<String, dynamic> map, String id) {
@@ -30,6 +32,7 @@ class DriverModel {
       perusahaanId: map['perusahaan_id'],
       status: map['status'] ?? 'aktif',
       photoUrl: map['photo_url'],
+      userId: map['user_id'],
     );
   }
 
@@ -42,6 +45,7 @@ class DriverModel {
       'perusahaan_id': perusahaanId,
       'status': status,
       'photo_url': photoUrl,
+      'user_id': userId,
     };
   }
 
@@ -54,6 +58,7 @@ class DriverModel {
     String? perusahaanId,
     String? status,
     String? photoUrl,
+    String? userId,
   }) {
     return DriverModel(
       id: id ?? this.id,
@@ -64,6 +69,7 @@ class DriverModel {
       perusahaanId: perusahaanId ?? this.perusahaanId,
       status: status ?? this.status,
       photoUrl: photoUrl ?? this.photoUrl,
+      userId: userId ?? this.userId,
     );
   }
 }
