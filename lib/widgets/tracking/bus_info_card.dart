@@ -1,4 +1,4 @@
-// lib/widgets/tracking/bus_info_card.dart
+﻿// lib/widgets/tracking/bus_info_card.dart
 import 'package:flutter/material.dart';
 import '../../models/bus_model.dart';
 import '../../models/tracking_bus_model.dart';
@@ -34,10 +34,10 @@ class BusInfoCard extends StatelessWidget {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppColors.accent.withOpacity(0.15),
+                  color: AppColors.accent.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppColors.accent.withOpacity(0.3),
+                    color: AppColors.accent.withValues(alpha: 0.3),
                   ),
                 ),
                 child: const Icon(

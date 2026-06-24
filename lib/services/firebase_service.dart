@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 // lib/services/firebase_service.dart
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -32,28 +33,41 @@ class FirebaseService {
   /// Initialize Firebase services
   Future<void> initialize() async {
     // Request notification permission
-    NotificationSettings settings = await messaging.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
-    );
-
-    print('📱 Notification permission: ${settings.authorizationStatus}');
+    try {
+      NotificationSettings settings = await messaging.requestPermission(
+        alert: true,
+        announcement: false,
+        badge: true,
+        carPlay: false,
+        criticalAlert: false,
+        provisional: false,
+        sound: true,
+      );
+      debugPrint('Notification permission: ${settings.authorizationStatus}');
+    } catch (e) {
+      debugPrint('Bypassed notification permission check: $e');
+    }
 
     // Configure Firestore settings
-    firestore.settings = const Settings(
-      persistenceEnabled: true, // Enable offline persistence
-      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
-    );
+    try {
+      firestore.settings = const Settings(
+        persistenceEnabled: true, // Enable offline persistence
+        cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+      );
+    } catch (e) {
+      debugPrint('Firestore settings error: ');
+    }
 
     // Configure Realtime Database
-    database.setPersistenceEnabled(true);
+    if (!kIsWeb) {
+      try {
+        database.setPersistenceEnabled(true);
+      } catch (e) {
+        debugPrint('Realtime Database persistence error: $e');
+      }
+    }
     
-    print('🔥 Firebase services initialized successfully');
+    debugPrint('Firebase services initialized successfully');
   }
 
   /// Get current user
@@ -73,7 +87,7 @@ class FirebaseService {
         return data['role'] as String?;
       }
     } catch (e) {
-      print('❌ Error getting user role: $e');
+      debugPrint('❌ Error getting user role: $e');
     }
     return null;
   }
@@ -84,7 +98,7 @@ class FirebaseService {
   /// Sign out
   Future<void> signOut() async {
     await auth.signOut();
-    print('👋 User signed out');
+    debugPrint('👋 User signed out');
   }
 
   /// Update FCM token for current user
@@ -98,10 +112,10 @@ class FirebaseService {
           'fcmToken': token,
           'lastTokenUpdate': FieldValue.serverTimestamp(),
         });
-        print('🔔 FCM token updated: ${token.substring(0, 20)}...');
+        debugPrint('🔔 FCM token updated: ${token.substring(0, 20)}...');
       }
     } catch (e) {
-      print('❌ Error updating FCM token: $e');
+      debugPrint('❌ Error updating FCM token: $e');
     }
   }
 
@@ -114,10 +128,10 @@ class FirebaseService {
       // Test Realtime Database connection
       await database.ref('test').once();
       
-      print('✅ Firebase connection OK');
+      debugPrint('✅ Firebase connection OK');
       return true;
     } catch (e) {
-      print('❌ Firebase connection failed: $e');
+      debugPrint('❌ Firebase connection failed: $e');
       return false;
     }
   }
@@ -128,6 +142,6 @@ class FirebaseService {
   /// Dispose resources
   void dispose() {
     // Firebase services are managed by Firebase SDK
-    print('🗑️ Firebase service disposed');
+    debugPrint('🗑️ Firebase service disposed');
   }
 }

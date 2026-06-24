@@ -1,4 +1,4 @@
-// lib/screens/karyawan/riwayat_screen.dart
+﻿// lib/screens/karyawan/riwayat_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -44,13 +44,13 @@ class RiwayatScreen extends ConsumerWidget {
             );
           }
           if (snapshot.hasError) {
-            return Center(
+            return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.error_outline_rounded,
+                  Icon(Icons.error_outline_rounded,
                       size: 64, color: AppColors.error),
-                  const SizedBox(height: 16),
+                  SizedBox(height: 16),
                   Text('Gagal memuat data',
                       style: TextStyle(color: AppColors.textSecondary)),
                 ],
@@ -108,7 +108,7 @@ class RiwayatScreen extends ConsumerWidget {
         border: Border.all(color: AppColors.divider, width: 0.5),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               blurRadius: 10,
               offset: const Offset(0, 4))
         ],
@@ -118,7 +118,7 @@ class RiwayatScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.primaryLight.withOpacity(0.3),
+              color: AppColors.primaryLight.withValues(alpha: 0.3),
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(16)),
             ),
@@ -128,7 +128,7 @@ class RiwayatScreen extends ConsumerWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                      color: AppColors.accent.withOpacity(0.2),
+                      color: AppColors.accent.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12)),
                   child: const Icon(Icons.directions_bus_rounded,
                       color: AppColors.accent, size: 22),
@@ -156,10 +156,10 @@ class RiwayatScreen extends ConsumerWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.15),
+                    color: statusColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(20),
                     border:
-                        Border.all(color: statusColor.withOpacity(0.3)),
+                        Border.all(color: statusColor.withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     isSelesai ? 'Selesai' : 'Dibatalkan',

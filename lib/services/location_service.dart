@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 // lib/services/location_service.dart
 import 'dart:async';
 import 'package:firebase_database/firebase_database.dart';
@@ -15,27 +16,38 @@ class LocationService {
 
   /// Check dan request permission lokasi
   Future<bool> checkLocationPermission() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      print('❌ Location services are disabled');
-      return false;
-    }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        print('❌ Location permissions are denied');
-        return false;
+    if (!kIsWeb) {
+      try {
+        bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+        if (!serviceEnabled) {
+          debugPrint('Location services are disabled');
+          return false;
+        }
+      } catch (e) {
+        debugPrint('Location service check failed: $e');
       }
     }
 
-    if (permission == LocationPermission.deniedForever) {
-      print('❌ Location permissions are permanently denied');
+    try {
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          debugPrint('Location permissions are denied');
+          return false;
+        }
+      }
+
+      if (permission == LocationPermission.deniedForever) {
+        debugPrint('Location permissions are permanently denied');
+        return false;
+      }
+    } catch (e) {
+      debugPrint('Location permission exception: $e');
       return false;
     }
 
-    print('✅ Location permission granted');
+    debugPrint('Location permission granted');
     return true;
   }
 
@@ -53,7 +65,7 @@ class LocationService {
       // Stop existing tracking jika ada
       await stopTracking();
 
-      print('🚌 Starting bus tracking for: $busId');
+      debugPrint('🚌 Starting bus tracking for: $busId');
 
       // Set up location settings
       const LocationSettings locationSettings = LocationSettings(
@@ -69,7 +81,7 @@ class LocationService {
           _updateBusLocation(busId, tripId, driverId, position);
         },
         onError: (e) {
-          print('❌ Location stream error: $e');
+          debugPrint('❌ Location stream error: $e');
         },
       );
 
@@ -81,14 +93,14 @@ class LocationService {
             Position position = await Geolocator.getCurrentPosition();
             _updateBusLocation(busId, tripId, driverId, position);
           } catch (e) {
-            print('❌ Periodic location update error: $e');
+            debugPrint('❌ Periodic location update error: $e');
           }
         },
       );
 
       return true;
     } catch (e) {
-      print('❌ Error starting bus tracking: $e');
+      debugPrint('❌ Error starting bus tracking: $e');
       return false;
     }
   }
@@ -125,7 +137,7 @@ class LocationService {
       'timestamp': ServerValue.timestamp,
     });
 
-    print('📍 Location updated: ${position.latitude}, ${position.longitude}');
+    debugPrint('📍 Location updated: ${position.latitude}, ${position.longitude}');
   }
 
   /// Stop tracking lokasi
@@ -136,7 +148,7 @@ class LocationService {
     _locationUpdateTimer?.cancel();
     _locationUpdateTimer = null;
 
-    print('🛑 Location tracking stopped');
+    debugPrint('🛑 Location tracking stopped');
   }
 
   /// Get current position
@@ -150,7 +162,7 @@ class LocationService {
         desiredAccuracy: LocationAccuracy.high,
       );
     } catch (e) {
-      print('❌ Error getting current position: $e');
+      debugPrint('❌ Error getting current position: $e');
       return null;
     }
   }
@@ -222,7 +234,7 @@ class LocationService {
       'startedAt': DateTime.now().toIso8601String(),
     });
 
-    print('🚀 Trip started: $tripId');
+    debugPrint('🚀 Trip started: $tripId');
   }
 
   /// End trip
@@ -238,7 +250,7 @@ class LocationService {
       _activeTrips.child(tripId).remove();
     });
 
-    print('🏁 Trip completed: $tripId');
+    debugPrint('🏁 Trip completed: $tripId');
   }
 
   /// Dispose resources

@@ -1,4 +1,4 @@
-// lib/screens/admin/manajemen_driver_screen.dart
+﻿// lib/screens/admin/manajemen_driver_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/driver_model.dart';
@@ -35,14 +35,14 @@ class ManajemenDriverScreen extends ConsumerWidget {
                 style: const TextStyle(color: AppColors.error))),
         data: (list) {
           if (list.isEmpty) {
-            return Center(
+            return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.drive_eta_outlined,
+                  Icon(Icons.drive_eta_outlined,
                       size: 64, color: AppColors.textSecondary),
-                  const SizedBox(height: 16),
-                  const Text('Belum ada data driver',
+                  SizedBox(height: 16),
+                  Text('Belum ada data driver',
                       style: TextStyle(color: AppColors.textSecondary)),
                 ],
               ),
@@ -124,9 +124,9 @@ class ManajemenDriverScreen extends ConsumerWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: statusColor.withOpacity(0.15),
+                  color: statusColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: statusColor.withOpacity(0.3)),
+                  border: Border.all(color: statusColor.withValues(alpha: 0.3)),
                 ),
                 child: Text(driver.status,
                     style: TextStyle(
@@ -144,7 +144,7 @@ class ManajemenDriverScreen extends ConsumerWidget {
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
-                        color: AppColors.accent.withOpacity(0.1),
+                        color: AppColors.accent.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.edit_outlined,
@@ -169,7 +169,7 @@ class ManajemenDriverScreen extends ConsumerWidget {
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
-                        color: AppColors.error.withOpacity(0.1),
+                        color: AppColors.error.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.delete_outline_rounded,
@@ -217,7 +217,7 @@ class ManajemenDriverScreen extends ConsumerWidget {
                     type: TextInputType.emailAddress),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
-                  value: status,
+                  initialValue: status,
                   dropdownColor: AppColors.surfaceVariant,
                   style: const TextStyle(
                       fontFamily: 'Inter', color: AppColors.textPrimary),

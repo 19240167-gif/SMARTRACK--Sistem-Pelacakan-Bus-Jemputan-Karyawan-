@@ -1,4 +1,4 @@
-// lib/widgets/common/app_button.dart
+﻿// lib/widgets/common/app_button.dart
 import 'package:flutter/material.dart';
 import '../../utils/constants.dart';
 
@@ -53,7 +53,7 @@ class AppButton extends StatelessWidget {
               : LinearGradient(
                   colors: [
                     color ?? AppColors.accent,
-                    (color ?? AppColors.accent).withOpacity(0.8),
+                    (color ?? AppColors.accent).withValues(alpha: 0.8),
                   ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
@@ -62,7 +62,7 @@ class AppButton extends StatelessWidget {
           boxShadow: onPressed != null && !isLoading
               ? [
                   BoxShadow(
-                    color: (color ?? AppColors.accent).withOpacity(0.3),
+                    color: (color ?? AppColors.accent).withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   )

@@ -1,4 +1,5 @@
 // lib/providers/auth_provider.dart
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/user_model.dart';
 import '../services/auth_service.dart';
@@ -49,7 +50,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         final user = await _authService.getUserModel(firebaseUser.uid).timeout(
           const Duration(seconds: 3),
           onTimeout: () {
-            print('⏱️ getUserModel timed out, returning null (fallback to unauthenticated)');
+            debugPrint('⏱️ getUserModel timed out, returning null (fallback to unauthenticated)');
             return null;
           },
         );

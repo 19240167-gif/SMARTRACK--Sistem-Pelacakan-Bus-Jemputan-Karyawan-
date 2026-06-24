@@ -1,4 +1,4 @@
-// lib/screens/admin/dashboard_admin_screen.dart
+﻿// lib/screens/admin/dashboard_admin_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -110,10 +110,10 @@ class DashboardAdminScreen extends ConsumerWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10, vertical: 4),
                         decoration: BoxDecoration(
-                          color: AppColors.statusBerangkat.withOpacity(0.15),
+                          color: AppColors.statusBerangkat.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(
-                              color: AppColors.statusBerangkat.withOpacity(0.3)),
+                              color: AppColors.statusBerangkat.withValues(alpha: 0.3)),
                         ),
                         child: Text('${list.length} aktif',
                             style: const TextStyle(
@@ -179,7 +179,7 @@ class DashboardAdminScreen extends ConsumerWidget {
                                 height: 44,
                                 decoration: BoxDecoration(
                                   color: AppHelpers.getStatusColor(t.statusPerjalanan)
-                                      .withOpacity(0.15),
+                                      .withValues(alpha: 0.15),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Icon(
@@ -225,7 +225,7 @@ class DashboardAdminScreen extends ConsumerWidget {
                                     decoration: BoxDecoration(
                                       color: AppHelpers.getStatusColor(
                                               t.statusPerjalanan)
-                                          .withOpacity(0.15),
+                                          .withValues(alpha: 0.15),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     child: Text(t.statusPerjalanan,
@@ -292,7 +292,7 @@ class DashboardAdminScreen extends ConsumerWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: color, size: 22),
@@ -355,7 +355,7 @@ class DashboardAdminScreen extends ConsumerWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: item.$3.withOpacity(0.15),
+                    color: item.$3.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(item.$2, color: item.$3, size: 24),

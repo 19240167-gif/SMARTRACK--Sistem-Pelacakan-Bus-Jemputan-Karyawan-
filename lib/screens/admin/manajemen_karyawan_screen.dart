@@ -1,4 +1,4 @@
-// lib/screens/admin/manajemen_karyawan_screen.dart
+﻿// lib/screens/admin/manajemen_karyawan_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/karyawan_model.dart';
@@ -35,14 +35,14 @@ class ManajemenKaryawanScreen extends ConsumerWidget {
                 style: const TextStyle(color: AppColors.error))),
         data: (list) {
           if (list.isEmpty) {
-            return Center(
+            return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.people_outline,
+                  Icon(Icons.people_outline,
                       size: 64, color: AppColors.textSecondary),
-                  const SizedBox(height: 16),
-                  const Text('Belum ada data karyawan',
+                  SizedBox(height: 16),
+                  Text('Belum ada data karyawan',
                       style: TextStyle(color: AppColors.textSecondary)),
                 ],
               ),
@@ -79,9 +79,9 @@ class ManajemenKaryawanScreen extends ConsumerWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.2),
+              color: color.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: color.withOpacity(0.3)),
+              border: Border.all(color: color.withValues(alpha: 0.3)),
             ),
             child: Center(
               child: Text(
@@ -137,7 +137,7 @@ class ManajemenKaryawanScreen extends ConsumerWidget {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: AppColors.accent.withOpacity(0.1),
+                    color: AppColors.accent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(Icons.edit_outlined,
@@ -159,7 +159,7 @@ class ManajemenKaryawanScreen extends ConsumerWidget {
                   width: 32,
                   height: 32,
                   decoration: BoxDecoration(
-                    color: AppColors.error.withOpacity(0.1),
+                    color: AppColors.error.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Icon(Icons.delete_outline_rounded,

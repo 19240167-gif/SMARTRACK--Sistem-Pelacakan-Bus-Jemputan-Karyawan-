@@ -1,4 +1,4 @@
-// lib/screens/admin/manajemen_rute_screen.dart
+﻿// lib/screens/admin/manajemen_rute_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -42,14 +42,14 @@ class ManajemenRuteScreen extends ConsumerWidget {
                 style: const TextStyle(color: AppColors.error))),
         data: (list) {
           if (list.isEmpty) {
-            return Center(
+            return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.map_outlined,
+                  Icon(Icons.map_outlined,
                       size: 64, color: AppColors.textSecondary),
-                  const SizedBox(height: 16),
-                  const Text('Belum ada data rute',
+                  SizedBox(height: 16),
+                  Text('Belum ada data rute',
                       style: TextStyle(color: AppColors.textSecondary)),
                 ],
               ),
@@ -83,7 +83,7 @@ class ManajemenRuteScreen extends ConsumerWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.statusMendekati.withOpacity(0.15),
+                  color: AppColors.statusMendekati.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.map_rounded,
@@ -112,9 +112,9 @@ class ManajemenRuteScreen extends ConsumerWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.accent.withOpacity(0.15),
+                  color: AppColors.accent.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.accent.withOpacity(0.3)),
+                  border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
                 ),
                 child: Text('${rute.daftarTitik.length} titik',
                     style: const TextStyle(

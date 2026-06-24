@@ -239,7 +239,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
           padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
           decoration: BoxDecoration(
             color: isSelected
-                ? AppColors.accent.withOpacity(0.15)
+                ? AppColors.accent.withValues(alpha: 0.15)
                 : AppColors.surfaceVariant,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(

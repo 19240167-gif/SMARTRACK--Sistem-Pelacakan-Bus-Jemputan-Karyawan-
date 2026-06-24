@@ -1,4 +1,5 @@
-// lib/services/auth_service.dart
+﻿// lib/services/auth_service.dart
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_service.dart';
@@ -120,7 +121,7 @@ class AuthService {
         return doc.data() as Map<String, dynamic>;
       }
     } catch (e) {
-      print('❌ Error getting user data: $e');
+      debugPrint('❌ Error getting user data: $e');
     }
     return null;
   }
@@ -136,7 +137,7 @@ class AuthService {
       });
       return true;
     } catch (e) {
-      print('❌ Error updating user profile: $e');
+      debugPrint('❌ Error updating user profile: $e');
       return false;
     }
   }
@@ -144,9 +145,15 @@ class AuthService {
   /// Check if email exists
   Future<bool> isEmailRegistered(String email) async {
     try {
-      var methods = await _auth.fetchSignInMethodsForEmail(email.trim());
-      return methods.isNotEmpty;
-    } catch (e) {
+      await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: '__probe_invalid_pass__',
+      );
+      return true;
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') return false;
+      return true;
+    } catch (_) {
       return false;
     }
   }

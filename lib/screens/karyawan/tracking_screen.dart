@@ -1,5 +1,4 @@
-// lib/screens/karyawan/tracking_screen.dart
-import 'dart:async';
+﻿// lib/screens/karyawan/tracking_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -33,27 +32,10 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
 
   void _onMapCreated(GoogleMapController controller) {
     _mapController = controller;
-    _setMapStyle(controller);
-  }
-
-  Future<void> _setMapStyle(GoogleMapController controller) async {
-    // Dark map style
-    controller.setMapStyle('''[
-      {"elementType":"geometry","stylers":[{"color":"#0a0e1a"}]},
-      {"elementType":"labels.text.fill","stylers":[{"color":"#94a3b8"}]},
-      {"elementType":"labels.text.stroke","stylers":[{"color":"#0a0e1a"}]},
-      {"featureType":"road","elementType":"geometry","stylers":[{"color":"#1e3a5f"}]},
-      {"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#1a3d70"}]},
-      {"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#0d2b55"}]},
-      {"featureType":"water","elementType":"geometry","stylers":[{"color":"#0a1628"}]},
-      {"featureType":"poi","elementType":"geometry","stylers":[{"color":"#0f1e35"}]},
-      {"featureType":"transit","elementType":"geometry","stylers":[{"color":"#132040"}]},
-      {"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#1e3a5f"}]}
-    ]''');
   }
 
   void _updateBusMarker(double lat, double lng, String status) {
-    final markerId = const MarkerId('bus');
+    const markerId = MarkerId('bus');
     setState(() {
       _markers.removeWhere((m) => m.markerId == markerId);
       _markers.add(
@@ -126,6 +108,18 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
             compassEnabled: true,
             trafficEnabled: false,
             buildingsEnabled: true,
+            style: '''[
+      {"elementType":"geometry","stylers":[{"color":"#0a0e1a"}]},
+      {"elementType":"labels.text.fill","stylers":[{"color":"#94a3b8"}]},
+      {"elementType":"labels.text.stroke","stylers":[{"color":"#0a0e1a"}]},
+      {"featureType":"road","elementType":"geometry","stylers":[{"color":"#1e3a5f"}]},
+      {"featureType":"road.arterial","elementType":"geometry","stylers":[{"color":"#1a3d70"}]},
+      {"featureType":"road.highway","elementType":"geometry","stylers":[{"color":"#0d2b55"}]},
+      {"featureType":"water","elementType":"geometry","stylers":[{"color":"#0a1628"}]},
+      {"featureType":"poi","elementType":"geometry","stylers":[{"color":"#0f1e35"}]},
+      {"featureType":"transit","elementType":"geometry","stylers":[{"color":"#132040"}]},
+      {"featureType":"administrative","elementType":"geometry.stroke","stylers":[{"color":"#1e3a5f"}]}
+    ]''',
           ),
 
           // Top bar
@@ -138,10 +132,10 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
-                    GlassCard(
-                      padding: const EdgeInsets.all(10),
+                    const GlassCard(
+                      padding: EdgeInsets.all(10),
                       borderRadius: 12,
-                      child: const Icon(
+                      child: Icon(
                         Icons.arrow_back_ios_rounded,
                         color: AppColors.textPrimary,
                         size: 20,
@@ -194,16 +188,16 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
             left: 16,
             right: 16,
             child: trackingAsync.when(
-              loading: () => GlassCard(
+              loading: () => const GlassCard(
                 child: Row(
                   children: [
-                    const SizedBox(
+                    SizedBox(
                       width: 24,
                       height: 24,
                       child: CircularProgressIndicator(strokeWidth: 2),
                     ),
-                    const SizedBox(width: 12),
-                    const Text(
+                    SizedBox(width: 12),
+                    Text(
                       'Mencari lokasi bus...',
                       style: TextStyle(color: AppColors.textSecondary),
                     ),
@@ -216,13 +210,13 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
               ),
               data: (tracking) {
                 if (tracking == null) {
-                  return GlassCard(
+                  return const GlassCard(
                     child: Column(
                       children: [
-                        const Icon(Icons.directions_bus_outlined,
+                        Icon(Icons.directions_bus_outlined,
                             color: AppColors.textSecondary, size: 40),
-                        const SizedBox(height: 8),
-                        const Text(
+                        SizedBox(height: 8),
+                        Text(
                           'Bus belum memulai perjalanan',
                           style: TextStyle(
                             fontFamily: 'Inter',
@@ -245,10 +239,10 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
                             width: 48,
                             height: 48,
                             decoration: BoxDecoration(
-                              color: AppColors.accent.withOpacity(0.2),
+                              color: AppColors.accent.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: AppColors.accent.withOpacity(0.3),
+                                color: AppColors.accent.withValues(alpha: 0.3),
                               ),
                             ),
                             child: const Icon(
@@ -389,7 +383,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen> {
           border: Border.all(color: AppColors.divider, width: 0.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),

@@ -1,4 +1,4 @@
-// lib/widgets/common/glass_card.dart
+﻿// lib/widgets/common/glass_card.dart
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../utils/constants.dart';
@@ -95,12 +95,12 @@ class PremiumCard extends StatelessWidget {
           boxShadow: hasShadow
               ? [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.3),
+                    color: Colors.black.withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 4),
                   ),
                   BoxShadow(
-                    color: AppColors.accent.withOpacity(0.05),
+                    color: AppColors.accent.withValues(alpha: 0.05),
                     blurRadius: 40,
                     offset: const Offset(0, 8),
                   ),

@@ -1,4 +1,4 @@
-// lib/screens/karyawan/profil_screen.dart
+﻿// lib/screens/karyawan/profil_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/auth_provider.dart';
@@ -41,7 +41,7 @@ class ProfilScreen extends ConsumerWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           gradient: RadialGradient(colors: [
-                            AppColors.accent.withOpacity(0.2),
+                            AppColors.accent.withValues(alpha: 0.2),
                             Colors.transparent
                           ]),
                         ),
@@ -61,7 +61,7 @@ class ProfilScreen extends ConsumerWidget {
                               borderRadius: BorderRadius.circular(24),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.accent.withOpacity(0.4),
+                                  color: AppColors.accent.withValues(alpha: 0.4),
                                   blurRadius: 20,
                                   offset: const Offset(0, 6),
                                 )
@@ -92,10 +92,10 @@ class ProfilScreen extends ConsumerWidget {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 14, vertical: 4),
                             decoration: BoxDecoration(
-                              color: AppColors.accent.withOpacity(0.2),
+                              color: AppColors.accent.withValues(alpha: 0.2),
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
-                                  color: AppColors.accent.withOpacity(0.3)),
+                                  color: AppColors.accent.withValues(alpha: 0.3)),
                             ),
                             child: Text(
                               _roleLabel(user?.role ?? 'karyawan'),
@@ -139,10 +139,10 @@ class ProfilScreen extends ConsumerWidget {
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: AppColors.error.withOpacity(0.08),
+                      color: AppColors.error.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                          color: AppColors.error.withOpacity(0.3), width: 0.5),
+                          color: AppColors.error.withValues(alpha: 0.3), width: 0.5),
                     ),
                     child: Row(
                       children: [
@@ -150,7 +150,7 @@ class ProfilScreen extends ConsumerWidget {
                           width: 40,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: AppColors.error.withOpacity(0.15),
+                            color: AppColors.error.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Icon(Icons.logout_rounded,
@@ -246,7 +246,7 @@ class ProfilScreen extends ConsumerWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: AppColors.accent.withOpacity(0.1),
+                color: AppColors.accent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Icon(icon, color: AppColors.accent, size: 20),

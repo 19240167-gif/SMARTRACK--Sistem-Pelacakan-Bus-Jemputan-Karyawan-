@@ -1,4 +1,4 @@
-// lib/screens/splash/splash_screen.dart
+﻿// lib/screens/splash/splash_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -63,7 +63,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
       try {
         await ref.read(authProvider.notifier).checkAuthState();
       } catch (e) {
-        print('❌ Auth check error: $e');
+        debugPrint('❌ Auth check error: $e');
       }
       if (mounted) {
         final authState = ref.read(authProvider);
@@ -124,7 +124,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      AppColors.accent.withOpacity(0.15),
+                      AppColors.accent.withValues(alpha: 0.15),
                       Colors.transparent,
                     ],
                   ),
@@ -141,7 +141,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      AppColors.secondary.withOpacity(0.1),
+                      AppColors.secondary.withValues(alpha: 0.1),
                       Colors.transparent,
                     ],
                   ),
@@ -169,7 +169,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                         borderRadius: BorderRadius.circular(28),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.accent.withOpacity(0.4),
+                            color: AppColors.accent.withValues(alpha: 0.4),
                             blurRadius: 30,
                             spreadRadius: 5,
                             offset: const Offset(0, 10),
@@ -240,7 +240,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.accent.withOpacity(0.5),
+                          AppColors.accent.withValues(alpha: 0.5),
                         ),
                       ),
                     ),

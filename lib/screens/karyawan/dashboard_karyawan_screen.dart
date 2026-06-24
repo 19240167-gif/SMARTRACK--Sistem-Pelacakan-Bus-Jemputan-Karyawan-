@@ -1,4 +1,4 @@
-// lib/screens/karyawan/dashboard_karyawan_screen.dart
+﻿// lib/screens/karyawan/dashboard_karyawan_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -52,7 +52,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              AppColors.accent.withOpacity(0.2),
+                              AppColors.accent.withValues(alpha: 0.2),
                               Colors.transparent,
                             ],
                           ),
@@ -233,16 +233,16 @@ class DashboardKaryawanScreen extends ConsumerWidget {
 
   Widget _buildTrackingCard(BuildContext context, WidgetRef ref, String? busId) {
     if (busId == null) {
-      return PremiumCard(
+      return const PremiumCard(
         child: Column(
           children: [
-            const Icon(
+            Icon(
               Icons.directions_bus_outlined,
               size: 48,
               color: AppColors.textSecondary,
             ),
-            const SizedBox(height: 12),
-            const Text(
+            SizedBox(height: 12),
+            Text(
               'Belum ada bus yang ditetapkan',
               style: TextStyle(
                 fontFamily: 'Inter',
@@ -266,7 +266,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: AppColors.accent.withOpacity(0.15),
+                color: AppColors.accent.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: const Icon(Icons.directions_bus_rounded,
@@ -303,10 +303,10 @@ class DashboardKaryawanScreen extends ConsumerWidget {
               end: Alignment.bottomRight,
             ),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.accent.withOpacity(0.3)),
+            border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
             boxShadow: [
               BoxShadow(
-                color: AppColors.accent.withOpacity(0.2),
+                color: AppColors.accent.withValues(alpha: 0.2),
                 blurRadius: 20,
                 offset: const Offset(0, 6),
               ),
@@ -320,10 +320,10 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                     width: 56,
                     height: 56,
                     decoration: BoxDecoration(
-                      color: AppColors.accent.withOpacity(0.2),
+                      color: AppColors.accent.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: AppColors.accent.withOpacity(0.3),
+                        color: AppColors.accent.withValues(alpha: 0.3),
                       ),
                     ),
                     child: const Icon(
@@ -333,11 +333,11 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  Expanded(
+                  const Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
+                        Text(
                           'Bus Anda',
                           style: TextStyle(
                             fontFamily: 'Inter',
@@ -345,7 +345,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                             fontSize: 12,
                           ),
                         ),
-                        const Text(
+                        Text(
                           'Bus A-01',
                           style: TextStyle(
                             fontFamily: 'Inter',
@@ -479,7 +479,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: 20),
@@ -537,7 +537,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: act.$3.withOpacity(0.15),
+                        color: act.$3.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(act.$4, color: act.$3, size: 18),
