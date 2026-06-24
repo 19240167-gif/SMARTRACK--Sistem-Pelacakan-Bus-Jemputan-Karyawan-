@@ -37,7 +37,7 @@ build/
 # Sensitive / generated files
 google-services.json
 GoogleService-Info.plist
-lib/firebase/firebase_options.dart
+# lib/firebase/firebase_options.dart
 
 # IDE
 .idea/
