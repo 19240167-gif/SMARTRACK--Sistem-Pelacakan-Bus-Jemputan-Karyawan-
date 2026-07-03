@@ -19,7 +19,6 @@ dependencies:
   firebase_analytics: ^10.8.5
 
   # Maps & Location
-  google_maps_flutter: ^2.5.3
   geolocator: ^11.0.0
   geocoding: ^3.0.0
 
