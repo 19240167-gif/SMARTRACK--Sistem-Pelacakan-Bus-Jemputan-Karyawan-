@@ -2,54 +2,55 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Primary palette - Simple Blue
-  static const Color primary = Color(0xFF1E88E5);
-  static const Color primaryLight = Color(0xFF42A5F5);
-  static const Color primaryDark = Color(0xFF1565C0);
-  static const Color accent = Color(0xFF1E88E5);
-  static const Color accentLight = Color(0xFF42A5F5);
+  // Primary palette - Fresh Green/Teal
+  static const Color primary = Color(0xFF059669); // Emerald green
+  static const Color primaryLight = Color(0xFF10B981);
+  static const Color primaryDark = Color(0xFF047857);
+  static const Color accent = Color(0xFF0891B2); // Cyan
+  static const Color accentLight = Color(0xFF06B6D4);
 
-  // Secondary
-  static const Color secondary = Color(0xFF26A69A);
-  static const Color secondaryLight = Color(0xFF4DB6AC);
+  // Secondary - Orange for contrast
+  static const Color secondary = Color(0xFFF59E0B);
+  static const Color secondaryLight = Color(0xFFFBBF24);
 
-  // Background - Clean Dark
-  static const Color background = Color(0xFF121212);
-  static const Color surface = Color(0xFF1E1E1E);
-  static const Color surfaceVariant = Color(0xFF2C2C2C);
-  static const Color card = Color(0xFF1E1E1E);
+  // Background - Clean White
+  static const Color background = Color(0xFFFAFAFA); // Off-white
+  static const Color surface = Color(0xFFFFFFFF); // Pure white
+  static const Color surfaceVariant = Color(0xFFF5F5F5); // Light gray
+  static const Color card = Color(0xFFFFFFFF); // White cards
 
-  // Text
-  static const Color textPrimary = Color(0xFFFFFFFF);
-  static const Color textSecondary = Color(0xFFB0BEC5);
-  static const Color textTertiary = Color(0xFF78909C);
+  // Text - Dark on light
+  static const Color textPrimary = Color(0xFF1F2937); // Dark gray
+  static const Color textSecondary = Color(0xFF6B7280); // Medium gray
+  static const Color textTertiary = Color(0xFF9CA3AF); // Light gray
 
-  // Status colors - More vibrant
-  static const Color statusBerangkat = Color(0xFF66BB6A);
-  static const Color statusDalamPerjalanan = Color(0xFF42A5F5);
-  static const Color statusMacet = Color(0xFFFF9800);
-  static const Color statusMendekati = Color(0xFFAB47BC);
-  static const Color statusTiba = Color(0xFF26A69A);
+  // Status colors - Vibrant & distinguishable
+  static const Color statusBerangkat = Color(0xFF10B981); // Green
+  static const Color statusDalamPerjalanan = Color(0xFF3B82F6); // Blue
+  static const Color statusMacet = Color(0xFFEF4444); // Red
+  static const Color statusMendekati = Color(0xFFF59E0B); // Orange
+  static const Color statusTiba = Color(0xFF8B5CF6); // Purple
 
   // Utility
-  static const Color success = Color(0xFF66BB6A);
-  static const Color warning = Color(0xFFFF9800);
-  static const Color error = Color(0xFFEF5350);
-  static const Color info = Color(0xFF42A5F5);
+  static const Color success = Color(0xFF10B981); // Green
+  static const Color warning = Color(0xFFF59E0B); // Orange
+  static const Color error = Color(0xFFEF4444); // Red
+  static const Color info = Color(0xFF3B82F6); // Blue
 
-  // Glass morphism
-  static const Color glass = Color(0x1AFFFFFF);
-  static const Color glassBorder = Color(0x40FFFFFF);
-  static const Color glassOverlay = Color(0x0DFFFFFF);
+  // Glass morphism (for overlays)
+  static const Color glass = Color(0x1A000000);
+  static const Color glassBorder = Color(0x40000000);
+  static const Color glassOverlay = Color(0x0D000000);
   static const Color glassShimmer = Color(0x33FFFFFF);
 
-  // Divider
-  static const Color divider = Color(0xFF333333);
+  // Divider - Subtle
+  static const Color divider = Color(0xFFE5E7EB);
   
-  // Gradient colors
-  static const List<Color> gradientPurple = [Color(0xFF6366F1), Color(0xFF8B5CF6)];
-  static const List<Color> gradientBlue = [Color(0xFF3B82F6), Color(0xFF06B6D4)];
-  static const List<Color> gradientPink = [Color(0xFFEC4899), Color(0xFF8B5CF6)];
+  // Gradient colors - Fresh & Modern
+  static const List<Color> gradientGreen = [Color(0xFF059669), Color(0xFF10B981)];
+  static const List<Color> gradientBlue = [Color(0xFF0891B2), Color(0xFF06B6D4)];
+  static const List<Color> gradientOrange = [Color(0xFFF59E0B), Color(0xFFFBBF24)];
+}
 }
 
 class AppDimensions {
