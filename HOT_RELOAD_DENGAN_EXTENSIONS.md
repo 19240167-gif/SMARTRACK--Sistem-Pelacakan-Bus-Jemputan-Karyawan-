@@ -20,28 +20,34 @@ Flutter punya mode `web-server` yang:
 
 ## 🚀 Cara Menggunakan (SIMPLE)
 
-### Method 1: PowerShell Script (RECOMMENDED) ⭐
+### Method 1: Batch Script (RECOMMENDED) ⭐
 
-**Step 1**: Buka PowerShell di folder project
-
-**Step 2**: Jalankan script:
-```powershell
-# Izinkan eksekusi script (sekali saja)
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-
-# Jalankan
-.\start_dev_server.ps1
+**Jalankan file:**
+```bash
+dev.bat
 ```
 
-**Step 3**: Tunggu hingga muncul "SERVER RUNNING"
+**Atau double-click** file `dev.bat` di Windows Explorer
 
-**Step 4**: Edge akan **otomatis terbuka** dengan profile Anda (extensions aktif!)
-
-**Step 5**: Edit code, lalu **tekan 'r'** di PowerShell untuk Hot Reload
+**Hasil:**
+- ✅ Flutter server start
+- ✅ Edge auto-open setelah 8 detik (dengan extensions!)
+- ✅ Hot Reload ready (tekan 'r')
 
 ---
 
-### Method 2: Manual (jika script error)
+### Method 2: PowerShell Script
+
+**Jalankan:**
+```powershell
+.\start_dev_server.ps1
+```
+
+**Hasil sama**, tapi dengan colored output.
+
+---
+
+### Method 3: Manual (paling reliable)
 
 **Terminal 1** - Start Flutter Server:
 ```bash
@@ -104,8 +110,13 @@ flutter run -d web-server --web-port=8080
 1. Edit file di VS Code
 2. **Save** (Ctrl+S)
 3. Kembali ke terminal
-4. Tekan **'r'**
-5. Lihat perubahan di Edge (refresh F5 jika perlu)
+4. Tekan **'r'** (lowercase)
+5. Lihat perubahan di Edge (tunggu 1-2 detik)
+
+**PENTING**: 
+- Pastikan Anda tekan 'r' di **terminal yang menjalankan flutter**
+- Bukan di terminal lain atau VS Code terminal yang berbeda
+- Hot reload kadang butuh refresh manual (F5) di browser
 
 ---
 
