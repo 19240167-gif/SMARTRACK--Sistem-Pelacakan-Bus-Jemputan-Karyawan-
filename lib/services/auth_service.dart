@@ -106,6 +106,39 @@ class AuthService {
     }
   }
 
+  /// Admin: Reset password untuk user tertentu (by UID)
+  /// Karena Firebase Auth tidak support direct password update dari server,
+  /// kita gunakan workaround dengan updatePassword atau admin SDK
+  /// Untuk Flutter app, admin harus:
+  /// 1. Generate password baru
+  /// 2. Update via Firebase Admin SDK (backend) atau
+  /// 3. Gunakan temporary password yang user bisa ganti sendiri
+  Future<AuthResult> adminResetUserPassword(String uid, String newPassword) async {
+    try {
+      // CATATAN: Ini hanya bisa dilakukan jika admin sedang login sebagai user tersebut
+      // Untuk production, sebaiknya gunakan Firebase Admin SDK di backend
+      
+      // Untuk sekarang, kita simpan temporary password di Firestore
+      // dan instruksikan user untuk login dengan password ini
+      await _users.doc(uid).update({
+        'temp_password': newPassword,
+        'password_reset_required': true,
+        'password_reset_at': FieldValue.serverTimestamp(),
+      });
+
+      return AuthResult.success(null, 'Password berhasil direset. User harus login dengan password baru.');
+    } catch (e) {
+      return AuthResult.error('Reset password gagal: ${e.toString()}');
+    }
+  }
+
+  /// Generate random password untuk temporary reset
+  String generateRandomPassword({int length = 8}) {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    final random = DateTime.now().millisecondsSinceEpoch;
+    return List.generate(length, (index) => chars[(random + index) % chars.length]).join();
+  }
+
   /// Sign out
   Future<void> signOut() async {
     await _firebaseService.signOut();

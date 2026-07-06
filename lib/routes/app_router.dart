@@ -16,6 +16,7 @@ import '../screens/admin/manajemen_bus_screen.dart';
 import '../screens/admin/manajemen_driver_screen.dart';
 import '../screens/admin/manajemen_karyawan_screen.dart';
 import '../screens/admin/manajemen_rute_screen.dart';
+import '../screens/admin/manajemen_titik_jemput_screen.dart';
 import '../screens/debug_screen.dart';
 import '../utils/constants.dart';
 
@@ -142,6 +143,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.manajemenRute,
         builder: (context, state) => const ManajemenRuteScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.manajemenTitikJemput,
+        builder: (context, state) => const ManajemenTitikJemputScreen(),
       ),
     ],
   );

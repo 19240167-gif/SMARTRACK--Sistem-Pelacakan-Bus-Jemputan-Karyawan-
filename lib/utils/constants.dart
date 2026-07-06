@@ -123,4 +123,5 @@ class AppRoutes {
   static const String manajemenDriver = '/admin/driver';
   static const String manajemenKaryawan = '/admin/karyawan';
   static const String manajemenRute = '/admin/rute';
+  static const String manajemenTitikJemput = '/admin/titik-jemput';
 }

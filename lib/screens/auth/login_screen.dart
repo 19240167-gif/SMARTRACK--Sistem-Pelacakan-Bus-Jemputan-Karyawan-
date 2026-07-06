@@ -198,24 +198,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                   },
                                 ),
                                 
-                                const SizedBox(height: 12),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: TextButton(
-                                    onPressed: () {
-                                      // TODO: forgot password dialog
-                                    },
-                                    child: const Text(
-                                      'Lupa Password?',
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: AppColors.accent,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                
-                                const SizedBox(height: 8),
+                                const SizedBox(height: 24),
                                 AppButton(
                                   label: 'Masuk',
                                   onPressed: _login,

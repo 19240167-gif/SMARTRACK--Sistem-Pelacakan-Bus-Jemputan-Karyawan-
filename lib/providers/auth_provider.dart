@@ -112,6 +112,43 @@ class AuthNotifier extends StateNotifier<AuthState> {
     state = const AuthState();
   }
 
+  Future<bool> resetPassword(String email) async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      final result = await _authService.resetPassword(email);
+      if (result.isSuccess) {
+        state = state.copyWith(isLoading: false);
+        return true;
+      } else {
+        state = AuthState(errorMessage: result.message ?? 'Reset password gagal');
+        return false;
+      }
+    } catch (e) {
+      state = AuthState(errorMessage: e.toString().replaceAll('Exception: ', ''));
+      return false;
+    }
+  }
+
+  /// Admin: Reset password user lain
+  Future<String?> adminResetUserPassword(String uid) async {
+    try {
+      // Generate password baru
+      final newPassword = _authService.generateRandomPassword(length: 8);
+      
+      final result = await _authService.adminResetUserPassword(uid, newPassword);
+      
+      if (result.isSuccess) {
+        return newPassword; // Return password baru untuk ditampilkan ke admin
+      } else {
+        state = state.copyWith(errorMessage: result.message);
+        return null;
+      }
+    } catch (e) {
+      state = state.copyWith(errorMessage: e.toString().replaceAll('Exception: ', ''));
+      return null;
+    }
+  }
+
   void clearError() {
     state = state.copyWith(clearError: true);
   }

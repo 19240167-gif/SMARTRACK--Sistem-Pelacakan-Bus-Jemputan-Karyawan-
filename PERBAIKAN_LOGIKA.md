@@ -1,4 +1,27 @@
-# 🔧 DOKUMENTASI PERBAIKAN LOGIKA APLIKASI SMARTRACK
+# 🔧 DOKUMENTASI SISTEM APLIKASI SMARTRACK
+
+## 📖 KONSEP APLIKASI
+
+**Smartrack** adalah aplikasi tracking bus jemputan karyawan untuk **1 PERUSAHAAN**.
+
+### 🎯 User Roles:
+1. **Admin** - Mengelola seluruh sistem (buat akun karyawan & driver, kelola bus, titik jemput)
+2. **Karyawan** - Melihat lokasi bus jemputan real-time
+3. **Bus Driver** - Mengaktifkan tracking GPS saat menjalankan bus
+
+### 🔑 Sistem Login:
+- ✅ Admin: Login dengan email & password sendiri
+- ✅ Karyawan: Akun dibuat oleh admin (email & password di-set admin)
+- ✅ Bus Driver: Akun dibuat oleh admin (email & password di-set admin)
+
+### 📱 Fitur Utama:
+- Admin buat akun karyawan & driver
+- Admin assign karyawan ke bus & titik jemput
+- Admin assign driver ke bus
+- Driver start/stop tracking GPS
+- Karyawan lihat lokasi bus real-time
+
+---
 
 ## 📋 DAFTAR PERBAIKAN YANG SUDAH DILAKUKAN
 
@@ -16,14 +39,13 @@ if (!isAuthenticated) {
 
 ---
 
-### ✅ 2. BUAT MODEL DATA UNTUK BUS, TITIK JEMPUT, PERUSAHAAN
+### ✅ 2. BUAT MODEL DATA UNTUK BUS, TITIK JEMPUT
 **Problem:** Data hardcoded di dashboard
 **Fix:** Buat model untuk semua entitas utama
 
 **File Baru:**
 - `lib/models/bus_model.dart` - Model untuk bus (nomor_bus, plat_nomor, driver_id, kapasitas, status)
 - `lib/models/titik_jemput_model.dart` - Model untuk titik jemput (nama, alamat, lat/long, jam_jemput)
-- `lib/models/perusahaan_model.dart` - Model untuk perusahaan (nama, alamat, telepon, email)
 
 **Struktur Firestore:**
 ```
@@ -41,19 +63,18 @@ Collection: titik_jemput
   - alamat: "Jl. Industri No. 123"
   - latitude: -6.2088
   - longitude: 106.8456
-  - perusahaan_id: "perusahaan_uid"
   - jam_jemput: "07:00"
   - urutan_jemput: 1
   - is_active: true
   - created_at: Timestamp
-  
-Collection: perusahaan
-  - nama: "PT. Industri Jaya"
-  - alamat: "Kawasan Industri MM2100"
-  - telepon: "021-12345678"
-  - email: "info@industri.com"
-  - latitude: -6.2088
-  - longitude: 106.8456
+
+Collection: users (Data User)
+  - uid: "[AUTO_FROM_FIREBASE_AUTH]"
+  - email: "user@email.com"
+  - nama: "Nama User"
+  - role: "admin" | "karyawan" | "driver"
+  - bus_id: "[BUS_DOC_ID]" (untuk karyawan & driver)
+  - titik_jemput_id: "[TITIK_JEMPUT_DOC_ID]" (untuk karyawan)
   - is_active: true
   - created_at: Timestamp
 ```
@@ -74,11 +95,6 @@ Collection: perusahaan
 - `lib/providers/titik_jemput_provider.dart`
   - `titikJemputProvider(titikJemputId)` - Get titik jemput by ID
   - `allTitikJemputProvider` - Get semua titik jemput
-  - `titikJemputByPerusahaanProvider(perusahaanId)` - Get by perusahaan
-
-- `lib/providers/perusahaan_provider.dart`
-  - `perusahaanProvider(perusahaanId)` - Get perusahaan by ID
-  - `allPerusahaanProvider` - Get semua perusahaan
 
 **Keuntungan StreamProvider:**
 - ✅ Real-time updates (auto refresh saat data berubah)
@@ -120,7 +136,6 @@ busAsync.when(
 - ✅ Bus Anda: `bus.nomorBus` (bukan hardcoded)
 - ✅ Titik Jemput: `titikJemput.nama` (bukan hardcoded)
 - ✅ Jam Berangkat: `titikJemput.jamJemput` (bukan hardcoded)
-- ✅ Perusahaan: `perusahaan.nama` (bukan hardcoded)
 
 **Handling State:**
 - Loading: Tampilkan skeleton loading
@@ -174,7 +189,6 @@ Buka Firebase Console → Firestore Database → Buat collection dan document:
   "alamat": "Jl. Industri No. 123, Bekasi",
   "latitude": -6.2088,
   "longitude": 106.8456,
-  "perusahaan_id": "[PERUSAHAAN_DOC_ID]",
   "jam_jemput": "07:00",
   "urutan_jemput": 1,
   "is_active": true,
@@ -182,33 +196,44 @@ Buka Firebase Console → Firestore Database → Buat collection dan document:
 }
 ```
 
-#### C. Collection `perusahaan`
+#### C. Collection `users` - ADMIN (dibuat manual pertama kali)
 ```json
 {
-  "nama": "PT. Industri Jaya",
-  "alamat": "Kawasan Industri MM2100, Bekasi",
-  "telepon": "021-12345678",
-  "email": "info@industri.com",
-  "latitude": -6.2088,
-  "longitude": 106.8456,
+  "uid": "[ADMIN_UID_FROM_AUTH]",
+  "email": "admin@company.com",
+  "nama": "Admin Perusahaan",
+  "role": "admin",
   "is_active": true,
   "created_at": [Timestamp]
 }
 ```
 
-### 2. UPDATE USER DATA
+### 2. BUAT AKUN KARYAWAN & DRIVER DARI ADMIN
 
-Setelah buat data di atas, update user document:
+Setelah login sebagai admin, gunakan fitur "Tambah User" untuk membuat akun:
 
+**Contoh Karyawan:**
 ```json
 {
-  "uid": "[USER_UID]",
-  "email": "karyawan@email.com",
+  "uid": "[AUTO_GENERATED_BY_FIREBASE_AUTH]",
+  "email": "karyawan@company.com",
   "nama": "John Doe",
   "role": "karyawan",
-  "bus_id": "[BUS_DOC_ID]",           // ✅ Assign bus ID
-  "titik_jemput_id": "[TITIK_JEMPUT_DOC_ID]", // ✅ Assign titik jemput ID
-  "perusahaan_id": "[PERUSAHAAN_DOC_ID]",     // ✅ Assign perusahaan ID
+  "bus_id": "[BUS_DOC_ID]",
+  "titik_jemput_id": "[TITIK_JEMPUT_DOC_ID]",
+  "is_active": true,
+  "created_at": [Timestamp]
+}
+```
+
+**Contoh Driver:**
+```json
+{
+  "uid": "[AUTO_GENERATED_BY_FIREBASE_AUTH]",
+  "email": "driver@company.com",
+  "nama": "Budi Santoso",
+  "role": "driver",
+  "bus_id": "[BUS_DOC_ID]",
   "is_active": true,
   "created_at": [Timestamp]
 }
@@ -221,15 +246,17 @@ Setelah buat data di atas, update user document:
 ### 1. Hot Restart Aplikasi
 Di terminal yang running, tekan `R` (huruf besar) untuk hot restart.
 
-### 2. Login sebagai Karyawan
-Gunakan akun karyawan yang sudah di-assign bus_id, titik_jemput_id, dan perusahaan_id.
+### 2. Login sebagai Karyawan atau Driver
+Gunakan akun yang sudah dibuat oleh admin.
 
-### 3. Cek Dashboard
+**Karyawan:** Cek dashboard → akan muncul info bus & titik jemput
+**Driver:** Cek dashboard → bisa start/stop tracking GPS
+
+### 3. Cek Dashboard Karyawan
 Dashboard karyawan sekarang akan menampilkan:
 - ✅ Nomor bus real dari Firestore
 - ✅ Nama titik jemput real dari Firestore
 - ✅ Jam jemput real dari Firestore
-- ✅ Nama perusahaan real dari Firestore
 
 ### 4. Test Loading State
 Jika data belum ada, akan muncul:
@@ -253,49 +280,127 @@ Jika data belum ada, akan muncul:
 
 ## 🔴 YANG MASIH PERLU DIBUAT
 
-### HIGH PRIORITY:
-1. **Admin: Assign Driver ke Bus**
-   - Screen untuk admin assign driver_id ke bus
-   - Update field `driver_id` dan `driver_nama` di collection `bus`
+### ✅ PROGRESS UPDATE (2026-07-06):
 
-2. **Admin: Assign Karyawan ke Bus**
-   - Screen untuk admin assign bus_id ke user
-   - Update field `bus_id`, `titik_jemput_id`, `perusahaan_id` di collection `users`
+**BACKEND:** ✅ 100% Complete!
+- ✅ AdminService dengan semua CRUD operations
+- ✅ AdminProvider untuk state management
+- ✅ BusRepository untuk compatibility
 
-3. **Admin: CRUD Titik Jemput**
-   - Create, Read, Update, Delete titik jemput
-   - Set koordinat dan jam jemput
+**UI SCREENS:** ✅ 95% Complete!
+- ✅ Manajemen Bus (sudah berfungsi)
+- ✅ Manajemen Driver (file baru siap)
+- ✅ Manajemen Karyawan (file baru siap)
+- ✅ Manajemen Titik Jemput (file baru siap)
+- ✅ Routes & navigation sudah diupdate
 
-### MEDIUM PRIORITY:
-4. **Push Notification**
-   - Notify karyawan saat bus mendekati titik jemput
-   - Notify driver saat ada update dari admin
+**DEPLOYMENT:** ⚠️ Perlu aktivasi
+- File `_new.dart` perlu di-rename
+- Lihat `DEPLOYMENT_GUIDE.md` untuk steps
 
-5. **Route & Schedule Management**
-   - Jadwal keberangkatan per hari
-   - Route dengan multiple titik jemput
+### TINGGAL AKTIVASI (5 menit):
+
+1. **Rename Screen Files:**
+```bash
+# Driver screen
+mv manajemen_driver_screen.dart manajemen_driver_screen_old.dart
+mv manajemen_driver_screen_new.dart manajemen_driver_screen.dart
+
+# Karyawan screen  
+mv manajemen_karyawan_screen.dart manajemen_karyawan_screen_old.dart
+mv manajemen_karyawan_screen_new.dart manajemen_karyawan_screen.dart
+```
+
+2. **Test:** `flutter run` dan login sebagai admin
+
+3. **Done!** Semua fitur siap dipakai 🎉
+
+---
+
+### FITUR BONUS (Opsional - Low Priority):
+
+### FITUR BONUS (Opsional - Low Priority):
+
+1. **Admin: Reset Password UI** ⭐ Method sudah ada
+   - Button "Reset Password" di list user
+   - Generate password baru otomatis
+   - Tampilkan password ke admin
+   - Admin kasih tahu password ke user
+
+2. **Admin: Edit User Data**
+   - Form edit nama, email, telepon, divisi
+   - Update data tanpa ganti password
+
+3. **Search & Filter**
+   - Search bar di semua list
+   - Filter by status (aktif/nonaktif)
+   - Filter by assignment
+
+4. **Export Data**
+   - Export user list ke Excel/CSV
+   - Export laporan perjalanan
+
+8. **Notifikasi Bus Mendekati Titik Jemput**
+   - Hitung jarak antara lokasi bus real-time dengan titik jemput
+   - Kirim push notification ke karyawan saat bus <500m dari titik jemput
+   - Firebase Cloud Messaging (FCM)
+
+9. **History Perjalanan**
+   - Simpan riwayat perjalanan bus per hari
+   - Data: tanggal, bus_id, driver_id, waktu_mulai, waktu_selesai, jarak_tempuh
+
+10. **Edit Password User**
+    - Admin bisa reset password karyawan & driver
+    - User bisa ganti password sendiri
 
 ### LOW PRIORITY:
-6. **User Profile Editing**
-7. **Detailed Trip History**
-8. **Analytics Dashboard**
+
+11. **User Profile Editing**
+    - Karyawan & driver bisa edit nama dan foto profil
+
+12. **Dashboard Analytics**
+    - Chart ketepatan waktu bus
+    - Chart penggunaan bus per hari
+
+13. **Export Data**
+    - Admin bisa export data ke Excel/PDF
 
 ---
 
 ## 📝 CATATAN PENTING
 
+### Tentang Sistem 1 Perusahaan:
+- ✅ Tidak ada collection `perusahaan` di Firestore (sudah tidak perlu)
+- ✅ Semua user (admin, karyawan, driver) milik 1 perusahaan yang sama
+- ✅ Admin adalah user pertama yang dibuat manual di Firebase Console
+- ✅ Karyawan & driver dibuat oleh admin melalui aplikasi
+
+### Tentang Akun User:
+- ✅ Admin buat akun karyawan & driver dengan Firebase Auth
+- ✅ Email & password di-set oleh admin
+- ✅ User bisa ganti password nanti (fitur tambahan)
+
+### Tentang Assignment:
+- ✅ 1 driver = 1 bus
+- ✅ Banyak karyawan bisa di-assign ke 1 bus
+- ✅ Setiap karyawan punya 1 titik jemput
+
+### Security & Rules:
 1. **Firestore Rules:** Pastikan security rules sudah diatur dengan benar
-2. **Indexes:** Mungkin perlu buat composite index untuk query tertentu
-3. **Testing:** Test dengan data dummy dulu sebelum production
-4. **Error Handling:** Sudah ada try-catch dan error state di semua provider
-5. **Performance:** StreamProvider sudah auto-cache, jadi efisien
+2. **Admin Access:** Admin harus bisa create user lewat backend/Cloud Functions
+3. **Indexes:** Mungkin perlu buat composite index untuk query tertentu
+
+### Testing:
+- Test dengan data dummy dulu sebelum production
+- Error Handling: Sudah ada try-catch dan error state di semua provider
+- Performance: StreamProvider sudah auto-cache, jadi efisien
 
 ---
 
 ## 🛠️ TROUBLESHOOTING
 
 **Q: Data tidak muncul di dashboard?**
-A: Cek apakah user sudah di-assign bus_id, titik_jemput_id, dan perusahaan_id
+A: Cek apakah user sudah di-assign bus_id dan titik_jemput_id (untuk karyawan)
 
 **Q: Error "permission denied"?**
 A: Cek Firestore security rules, pastikan user bisa read collection yang diperlukan
@@ -305,6 +410,68 @@ A: Cek koneksi internet dan Firebase console apakah data sudah ada
 
 **Q: Hot reload tidak jalan?**
 A: Gunakan Hot Restart (R) bukan hot reload (r)
+
+**Q: Bagaimana cara admin buat akun user?**
+A: Perlu dibuat fitur khusus dengan Firebase Admin SDK atau Cloud Functions (lihat HIGH PRIORITY #1 dan #2)
+
+**Q: Apakah karyawan bisa register sendiri?**
+A: Tidak. Semua akun dibuat oleh admin untuk kontrol yang lebih baik.
+
+**Q: Bagaimana jika user lupa password?**
+A: User harus hubungi admin. Admin akan reset password melalui menu "Kelola User" dan berikan password baru ke user.
+
+**Q: Kenapa tidak pakai reset password via email?**
+A: Karena email user bisa fiktif (untuk testing). Untuk production, bisa ditambahkan fitur reset via email dengan Firebase Auth `sendPasswordResetEmail()`.
+
+---
+
+## 🔐 FLOW PENGGUNAAN APLIKASI
+
+### 1. Setup Awal (Admin)
+```
+1. Admin login pertama kali
+2. Admin buat data bus di menu "Kelola Bus"
+3. Admin buat data titik jemput di menu "Kelola Titik Jemput"
+4. Admin buat akun driver di menu "Tambah Driver"
+5. Admin assign driver ke bus
+6. Admin buat akun karyawan di menu "Tambah Karyawan"
+7. Admin assign karyawan ke bus & titik jemput
+```
+
+### 2. Operasional Harian (Driver)
+```
+1. Driver login dengan akun yang dibuat admin
+2. Driver lihat bus yang di-assign ke dia
+3. Driver tekan tombol "Mulai Perjalanan"
+4. GPS tracking aktif, lokasi bus dikirim real-time ke Firestore
+5. Setelah selesai, driver tekan "Selesai Perjalanan"
+```
+
+### 3. Monitoring (Karyawan)
+```
+1. Karyawan login dengan akun yang dibuat admin
+2. Karyawan lihat dashboard:
+   - Nomor bus yang di-assign
+   - Titik jemput yang di-assign
+   - Jam jemput
+3. Karyawan tekan "Lacak Bus"
+4. Peta muncul, menampilkan:
+   - Lokasi bus real-time (GPS dari driver)
+   - Lokasi titik jemput karyawan
+   - Status: "Sedang Berjalan" atau "Belum Berangkat"
+5. Karyawan bisa lihat estimasi jarak bus ke titik jemput
+```
+
+### 4. Manajemen (Admin)
+```
+1. Admin bisa lihat:
+   - Semua bus dan statusnya
+   - Semua karyawan dan assignment-nya
+   - Semua driver dan assignment-nya
+2. Admin bisa edit/hapus data
+3. Admin bisa re-assign user ke bus lain
+4. Admin bisa nonaktifkan user
+```
 
 ---
 

@@ -58,3 +58,42 @@ final availableBusesProvider = StreamProvider<List<BusModel>>((ref) {
     }).toList();
   });
 });
+
+// Alias untuk compatibility
+final busListProvider = allBusesProvider;
+
+// Bus Repository untuk CRUD operations
+class BusRepository {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Future<void> createBus(BusModel bus) async {
+    await _firestore.collection('bus').add({
+      'nomor_bus': bus.nomorBus,
+      'plat_nomor': bus.platNomor,
+      'kapasitas': bus.kapasitas,
+      'status': bus.status,
+      'driver_id': null,
+      'driver_nama': null,
+      'created_at': FieldValue.serverTimestamp(),
+      'updated_at': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<void> updateBus(String? busId, BusModel bus) async {
+    if (busId == null || busId.isEmpty) return;
+    await _firestore.collection('bus').doc(busId).update({
+      'nomor_bus': bus.nomorBus,
+      'plat_nomor': bus.platNomor,
+      'kapasitas': bus.kapasitas,
+      'status': bus.status,
+      'updated_at': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<void> deleteBus(String? busId) async {
+    if (busId == null || busId.isEmpty) return;
+    await _firestore.collection('bus').doc(busId).delete();
+  }
+}
+
+final busRepositoryProvider = Provider<BusRepository>((ref) => BusRepository());
