@@ -243,13 +243,14 @@ class _SeedScreenState extends State<SeedScreen> {
                   SizedBox(height: 12),
                   Text(
                     '• Populate Data akan membuat:\n'
-                    '  - 1 Admin\n'
+                    '  - 1 Admin (admin@smartrack.com)\n'
                     '  - 3 Buses\n'
                     '  - 5 Titik Jemput\n'
                     '  - 3 Drivers\n'
                     '  - 10 Karyawan\n\n'
-                    '• Clear All akan menghapus semua data dari Firebase\n\n'
-                    '• Proses ini memakan waktu 30-60 detik',
+                    '• Clear All akan menghapus semua data kecuali user yang sedang login\n\n'
+                    '• Jika belum login, populate akan create admin otomatis\n\n'
+                    '• Proses memakan waktu 30-60 detik',
                     style: TextStyle(
                       color: AppColors.textSecondary,
                       fontSize: 13,

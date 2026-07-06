@@ -65,16 +65,6 @@ class SeedData {
     const password = 'admin123';
     
     try {
-      // Check if there's a currently logged in admin
-      final currentUser = _auth.currentUser;
-      if (currentUser != null) {
-        final userDoc = await _firestore.collection('users').doc(currentUser.uid).get();
-        if (userDoc.exists && userDoc.data()?['role'] == 'admin') {
-          debugPrint('  ℹ️ Already logged in as admin, skipping admin creation...');
-          return;
-        }
-      }
-      
       // Check if admin already exists in Firestore
       final existingUsers = await _firestore
           .collection('users')
@@ -87,16 +77,18 @@ class SeedData {
         return;
       }
       
-      // Save current user to restore later
+      // Get currently logged in user (if any) to restore session later
+      final currentUser = _auth.currentUser;
       final wasLoggedIn = currentUser != null;
+      final previousUserEmail = currentUser?.email;
       
-      // Create auth user
+      // Create admin auth user
       final userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
       
-      // Create Firestore document
+      // Create admin Firestore document
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
         'uid': userCredential.user!.uid,
         'email': email,
@@ -109,16 +101,17 @@ class SeedData {
       
       debugPrint('  ✅ Admin created: $email');
       
-      // Logout the newly created admin
+      // Sign out the newly created admin account
       await _auth.signOut();
       
-      // If there was a user logged in before, they need to login again manually
-      // (we can't restore the session automatically)
+      // If there was someone logged in before, inform them
       if (wasLoggedIn) {
-        debugPrint('  ⚠️ Previous session ended, please login again');
+        debugPrint('  ℹ️ Previous session ($previousUserEmail) has ended');
+        debugPrint('  ℹ️ You can login again with your credentials');
       }
     } catch (e) {
       debugPrint('  ⚠️ Error creating admin: $e');
+      // Don't rethrow - continue with other data creation
     }
   }
 
@@ -331,6 +324,7 @@ class SeedData {
   }
 
   /// Clear all data (untuk testing)
+  /// Note: User yang sedang login (jika ada) tidak akan dihapus
   static Future<void> clearAll() async {
     debugPrint('🗑️ Clearing all data...');
     
@@ -338,28 +332,40 @@ class SeedData {
       final currentUser = _auth.currentUser;
       final currentUserId = currentUser?.uid;
       
+      if (currentUserId != null) {
+        debugPrint('  ℹ️ Current user ($currentUserId) will be preserved');
+      }
+      
       // Delete users collection (EXCEPT currently logged in user)
       final users = await _firestore.collection('users').get();
+      int deletedUsers = 0;
       for (final doc in users.docs) {
         // Skip currently logged in user
         if (doc.id != currentUserId) {
           await doc.reference.delete();
+          deletedUsers++;
         }
       }
+      debugPrint('  ✅ Deleted $deletedUsers users');
       
       // Delete buses
       final buses = await _firestore.collection('bus').get();
       for (final doc in buses.docs) {
         await doc.reference.delete();
       }
+      debugPrint('  ✅ Deleted ${buses.docs.length} buses');
       
       // Delete titik jemput
       final titik = await _firestore.collection('titik_jemput').get();
       for (final doc in titik.docs) {
         await doc.reference.delete();
       }
+      debugPrint('  ✅ Deleted ${titik.docs.length} titik jemput');
       
-      debugPrint('✅ All data cleared (except current user)!');
+      debugPrint('✅ Clear all completed!');
+      if (currentUserId != null) {
+        debugPrint('ℹ️ Your current session is still active');
+      }
     } catch (e) {
       debugPrint('❌ Error clearing data: $e');
       rethrow;
