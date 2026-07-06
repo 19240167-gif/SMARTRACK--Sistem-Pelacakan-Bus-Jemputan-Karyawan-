@@ -2,11 +2,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../config/app_config.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/tracking_provider.dart';
 import '../../providers/bus_provider.dart';
 import '../../providers/titik_jemput_provider.dart';
-import '../../providers/perusahaan_provider.dart';
 import '../../utils/constants.dart';
 import '../../utils/helpers.dart';
 import '../../widgets/common/glass_card.dart';
@@ -600,11 +600,6 @@ class DashboardKaryawanScreen extends ConsumerWidget {
     final titikJemputAsync = user?.titikJemputId != null
         ? ref.watch(titikJemputProvider(user!.titikJemputId!))
         : const AsyncValue.data(null);
-    
-    // Get perusahaan data
-    final perusahaanAsync = user?.perusahaanId != null
-        ? ref.watch(perusahaanProvider(user!.perusahaanId!))
-        : const AsyncValue.data(null);
 
     return Column(
       children: [
@@ -673,22 +668,13 @@ class DashboardKaryawanScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 12),
-            // Perusahaan Card
+            // Perusahaan Card (Hardcoded dari AppConfig)
             Expanded(
-              child: perusahaanAsync.when(
-                data: (perusahaan) => _buildInfoCard(
-                  icon: Icons.business_rounded,
-                  title: 'Perusahaan',
-                  value: perusahaan?.nama ?? 'Belum Ditentukan',
-                  color: AppColors.statusMacet,
-                ),
-                loading: () => _buildInfoCardLoading(),
-                error: (_, __) => _buildInfoCard(
-                  icon: Icons.business_rounded,
-                  title: 'Perusahaan',
-                  value: 'Error',
-                  color: AppColors.error,
-                ),
+              child: _buildInfoCard(
+                icon: Icons.business_rounded,
+                title: 'Perusahaan',
+                value: AppConfig.perusahaanNama,
+                color: AppColors.statusMacet,
               ),
             ),
           ],

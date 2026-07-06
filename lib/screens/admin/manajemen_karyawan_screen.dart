@@ -1,8 +1,15 @@
 ﻿// lib/screens/admin/manajemen_karyawan_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/karyawan_model.dart';
+import '../../models/bus_model.dart';
+import '../../models/titik_jemput_model.dart';
+import '../../models/perusahaan_model.dart';
 import '../../providers/driver_provider.dart';
+import '../../providers/bus_provider.dart';
+import '../../providers/titik_jemput_provider.dart';
+import '../../providers/perusahaan_provider.dart';
 import '../../utils/constants.dart';
 import '../../utils/helpers.dart';
 
@@ -64,112 +71,236 @@ class ManajemenKaryawanScreen extends ConsumerWidget {
       AppColors.statusMendekati, AppColors.statusMacet,
     ];
     final color = colors[k.nama.codeUnitAt(0) % colors.length];
+    final hasAssignment = k.busId != null || k.titikJemputId != null || k.perusahaanId != null;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: AppColors.card,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.divider, width: 0.5),
       ),
-      child: Row(
+      child: Column(
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: color.withValues(alpha: 0.3)),
-            ),
-            child: Center(
-              child: Text(
-                k.nama.isNotEmpty ? k.nama[0].toUpperCase() : 'K',
-                style: TextStyle(
-                    fontFamily: 'Inter',
-                    color: color,
-                    fontSize: 20,
-                    fontWeight: FontWeight.w800),
-              ),
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
               children: [
-                Text(k.nama,
-                    style: const TextStyle(
-                        fontFamily: 'Inter',
-                        color: AppColors.textPrimary,
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700)),
-                Text(k.email,
-                    style: const TextStyle(
-                        fontFamily: 'Inter',
-                        color: AppColors.textSecondary,
-                        fontSize: 12)),
-                const SizedBox(height: 4),
                 Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  width: 48,
+                  height: 48,
                   decoration: BoxDecoration(
-                    color: AppColors.surfaceVariant,
-                    borderRadius: BorderRadius.circular(8),
+                    color: color.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: color.withOpacity(0.3)),
+                  ),
+                  child: Center(
+                    child: Text(
+                      k.nama.isNotEmpty ? k.nama[0].toUpperCase() : 'K',
+                      style: TextStyle(
+                          fontFamily: 'Inter',
+                          color: color,
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(k.nama,
+                          style: const TextStyle(
+                              fontFamily: 'Inter',
+                              color: AppColors.textPrimary,
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700)),
+                      Text(k.email,
+                          style: const TextStyle(
+                              fontFamily: 'Inter',
+                              color: AppColors.textSecondary,
+                              fontSize: 12)),
+                      if (k.divisi.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Container(
+                          padding:
+                              const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceVariant,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            k.divisi,
+                            style: const TextStyle(
+                                fontFamily: 'Inter',
+                                color: AppColors.textSecondary,
+                                fontSize: 11),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: hasAssignment
+                        ? AppColors.success.withOpacity(0.15)
+                        : AppColors.statusMacet.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: hasAssignment
+                          ? AppColors.success.withOpacity(0.3)
+                          : AppColors.statusMacet.withOpacity(0.3),
+                    ),
                   ),
                   child: Text(
-                    k.divisi.isNotEmpty ? k.divisi : 'Tidak ada divisi',
-                    style: const TextStyle(
+                    hasAssignment ? 'Assigned' : 'Belum Assign',
+                    style: TextStyle(
                         fontFamily: 'Inter',
-                        color: AppColors.textSecondary,
-                        fontSize: 11),
+                        color: hasAssignment ? AppColors.success : AppColors.statusMacet,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600),
                   ),
                 ),
               ],
             ),
           ),
-          Row(
-            children: [
-              GestureDetector(
-                onTap: () => _showDialog(context, ref, k),
-                child: Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: AppColors.accent.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(Icons.edit_outlined,
-                      color: AppColors.accent, size: 16),
-                ),
+
+          // Assignment info banners
+          if (hasAssignment) ...[
+            const Divider(height: 1, color: AppColors.divider),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              child: Column(
+                children: [
+                  if (k.busId != null)
+                    _AssignmentBanner(
+                      icon: Icons.directions_bus_rounded,
+                      label: 'Bus',
+                      busId: k.busId,
+                      color: AppColors.accent,
+                    ),
+                  if (k.busId != null &&
+                      (k.titikJemputId != null || k.perusahaanId != null))
+                    const SizedBox(height: 8),
+                  if (k.titikJemputId != null)
+                    _AssignmentBanner(
+                      icon: Icons.location_on_rounded,
+                      label: 'Titik Jemput',
+                      titikJemputId: k.titikJemputId,
+                      color: AppColors.secondary,
+                    ),
+                  if (k.titikJemputId != null && k.perusahaanId != null)
+                    const SizedBox(height: 8),
+                  if (k.perusahaanId != null)
+                    _AssignmentBanner(
+                      icon: Icons.business_rounded,
+                      label: 'Perusahaan',
+                      perusahaanId: k.perusahaanId,
+                      color: AppColors.statusMacet,
+                    ),
+                ],
               ),
-              const SizedBox(width: 8),
-              GestureDetector(
-                onTap: () async {
-                  final confirm = await AppHelpers.showConfirmDialog(context,
-                      title: 'Hapus Karyawan?',
-                      message: 'Data ${k.nama} akan dihapus permanen.',
-                      confirmText: 'Hapus');
-                  if (confirm) {
-                    ref.read(karyawanRepositoryProvider).deleteKaryawan(k.id);
-                  }
-                },
-                child: Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: AppColors.error.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
+            ),
+          ],
+
+          // Action buttons
+          const Divider(height: 1, color: AppColors.divider),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _showAssignSheet(context, ref, k),
+                    icon: const Icon(Icons.assignment_rounded, size: 16),
+                    label: Text(
+                      hasAssignment ? 'Ubah Assign' : 'Assign Data',
+                      style: const TextStyle(fontFamily: 'Inter', fontSize: 13),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.accent,
+                      side: const BorderSide(color: AppColors.accent),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
                   ),
-                  child: const Icon(Icons.delete_outline_rounded,
-                      color: AppColors.error, size: 16),
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                Expanded(
+                  child: OutlinedButton.icon(
+                    onPressed: () => _showDialog(context, ref, k),
+                    icon: const Icon(Icons.edit_outlined, size: 16),
+                    label: const Text('Edit',
+                        style: TextStyle(fontFamily: 'Inter', fontSize: 13)),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: AppColors.textSecondary,
+                      side: const BorderSide(color: AppColors.divider),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                OutlinedButton(
+                  onPressed: () => _confirmDelete(context, ref, k),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: AppColors.error,
+                    side: BorderSide(color: AppColors.error.withOpacity(0.4)),
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    minimumSize: const Size(0, 0),
+                  ),
+                  child: const Icon(Icons.delete_outline, size: 18),
+                ),
+              ],
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, WidgetRef ref, KaryawanModel k) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.card,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Hapus Karyawan',
+            style: TextStyle(
+                fontFamily: 'Inter',
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w700)),
+        content: Text(
+          'Hapus karyawan "${k.nama}"? Data tidak dapat dikembalikan.',
+          style: const TextStyle(
+              fontFamily: 'Inter', color: AppColors.textSecondary),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Batal')),
+          ElevatedButton(
+            onPressed: () async {
+              await ref.read(karyawanRepositoryProvider).deleteKaryawan(k.id);
+              if (ctx.mounted) Navigator.pop(ctx);
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAssignSheet(BuildContext context, WidgetRef ref, KaryawanModel k) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.card,
+      shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      isScrollControlled: true,
+      builder: (ctx) => _AssignKaryawanSheet(karyawan: k),
     );
   }
 

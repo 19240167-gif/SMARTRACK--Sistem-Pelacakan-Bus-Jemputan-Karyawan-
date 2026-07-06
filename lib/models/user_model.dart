@@ -4,7 +4,6 @@ class UserModel {
   final String email;
   final String nama;
   final String role; // 'karyawan', 'driver', 'admin'
-  final String? perusahaanId;
   final String? busId;
   final String? titikJemputId;
   final String? photoUrl;
@@ -15,7 +14,6 @@ class UserModel {
     required this.email,
     required this.nama,
     required this.role,
-    this.perusahaanId,
     this.busId,
     this.titikJemputId,
     this.photoUrl,
@@ -28,7 +26,6 @@ class UserModel {
       email: map['email'] ?? '',
       nama: map['nama'] ?? '',
       role: map['role'] ?? 'karyawan',
-      perusahaanId: map['perusahaan_id'],
       busId: map['bus_id'],
       titikJemputId: map['titik_jemput_id'],
       photoUrl: map['photo_url'],
@@ -43,7 +40,6 @@ class UserModel {
       'email': email,
       'nama': nama,
       'role': role,
-      'perusahaan_id': perusahaanId,
       'bus_id': busId,
       'titik_jemput_id': titikJemputId,
       'photo_url': photoUrl,
@@ -56,7 +52,6 @@ class UserModel {
     String? email,
     String? nama,
     String? role,
-    String? perusahaanId,
     String? busId,
     String? titikJemputId,
     String? photoUrl,
@@ -67,7 +62,6 @@ class UserModel {
       email: email ?? this.email,
       nama: nama ?? this.nama,
       role: role ?? this.role,
-      perusahaanId: perusahaanId ?? this.perusahaanId,
       busId: busId ?? this.busId,
       titikJemputId: titikJemputId ?? this.titikJemputId,
       photoUrl: photoUrl ?? this.photoUrl,
