@@ -1,389 +1,464 @@
-﻿// lib/screens/admin/manajemen_karyawan_screen.dart
+// lib/screens/admin/manajemen_karyawan_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../models/karyawan_model.dart';
-import '../../models/bus_model.dart';
-import '../../models/titik_jemput_model.dart';
-import '../../models/perusahaan_model.dart';
-import '../../providers/driver_provider.dart';
-import '../../providers/bus_provider.dart';
-import '../../providers/titik_jemput_provider.dart';
-import '../../providers/perusahaan_provider.dart';
+import '../../providers/admin_provider.dart';
 import '../../utils/constants.dart';
 import '../../utils/helpers.dart';
+import '../../widgets/common/app_text_field.dart';
 
 class ManajemenKaryawanScreen extends ConsumerWidget {
   const ManajemenKaryawanScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final karyawanListAsync = ref.watch(karyawanListProvider);
+    final karyawanAsync = ref.watch(allKaryawanStreamProvider);
+
+    // Show snackbar
+    ref.listen(adminProvider, (prev, next) {
+      if (next.successMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.successMessage!),
+            backgroundColor: AppColors.success,
+          ),
+        );
+        ref.read(adminProvider.notifier).clearMessages();
+      }
+      if (next.errorMessage != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(next.errorMessage!),
+            backgroundColor: AppColors.error,
+          ),
+        );
+        ref.read(adminProvider.notifier).clearMessages();
+      }
+    });
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        backgroundColor: AppColors.surface,
         title: const Text('Manajemen Karyawan'),
-        leading: const BackButton(),
+        backgroundColor: AppColors.primary,
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showDialog(context, ref, null),
-        backgroundColor: AppColors.secondary,
-        icon: const Icon(Icons.person_add_alt_1_rounded),
-        label: const Text('Tambah Karyawan',
-            style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600)),
+        onPressed: () => _showAddKaryawanDialog(context, ref),
+        backgroundColor: AppColors.accent,
+        icon: const Icon(Icons.add),
+        label: const Text('Tambah Karyawan'),
       ),
-      body: karyawanListAsync.when(
-        loading: () =>
-            const Center(child: CircularProgressIndicator(color: AppColors.accent)),
+      body: karyawanAsync.when(
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: AppColors.accent),
+        ),
         error: (e, _) => Center(
-            child: Text('Error: $e',
-                style: const TextStyle(color: AppColors.error))),
-        data: (list) {
-          if (list.isEmpty) {
-            return const Center(
+          child: Text('Error: $e', style: const TextStyle(color: AppColors.error)),
+        ),
+        data: (karyawanList) {
+          if (karyawanList.isEmpty) {
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.people_outline,
+                  const Icon(Icons.people_outlined,
                       size: 64, color: AppColors.textSecondary),
-                  SizedBox(height: 16),
-                  Text('Belum ada data karyawan',
-                      style: TextStyle(color: AppColors.textSecondary)),
+                  const SizedBox(height: 16),
+                  const Text('Belum ada karyawan',
+                      style: TextStyle(
+                          color: AppColors.textSecondary, fontSize: 16)),
+                  const SizedBox(height: 8),
+                  TextButton.icon(
+                    onPressed: () => _showAddKaryawanDialog(context, ref),
+                    icon: const Icon(Icons.add),
+                    label: const Text('Tambah Karyawan'),
+                  ),
                 ],
               ),
             );
           }
+
           return ListView.builder(
             padding: const EdgeInsets.all(16),
-            itemCount: list.length,
-            itemBuilder: (context, i) => _buildCard(context, ref, list[i]),
+            itemCount: karyawanList.length,
+            itemBuilder: (context, index) {
+              final karyawan = karyawanList[index];
+              final hasAssignment = karyawan.busId != null && karyawan.titikJemputId != null;
+
+              return Container(
+                margin: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.card,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.divider),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: AppColors.secondary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Center(
+                            child: Text(
+                              karyawan.nama.isNotEmpty ? karyawan.nama[0].toUpperCase() : 'K',
+                              style: const TextStyle(
+                                color: AppColors.secondary,
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                karyawan.nama,
+                                style: const TextStyle(
+                                  color: AppColors.textPrimary,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                karyawan.email,
+                                style: const TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (hasAssignment)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.success.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.check_circle,
+                                    size: 14, color: AppColors.success),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Assigned',
+                                  style: TextStyle(
+                                    color: AppColors.success,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: AppColors.statusMacet.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: const Text(
+                              'Belum Assign',
+                              style: TextStyle(
+                                color: AppColors.statusMacet,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    const Divider(height: 24),
+                    // Info detail
+                    if (karyawan.busId != null)
+                      _buildInfoRow(Icons.directions_bus, 'Bus: ${karyawan.busId}'),
+                    if (karyawan.titikJemputId != null)
+                      _buildInfoRow(Icons.location_on, 'Titik: ${karyawan.titikJemputId}'),
+                    
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () => _showAssignDialog(context, ref, karyawan),
+                            icon: Icon(hasAssignment ? Icons.edit : Icons.assignment, size: 18),
+                            label: Text(hasAssignment ? 'Reassign' : 'Assign'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.accent,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () async {
+                              final confirm = await AppHelpers.showConfirmDialog(
+                                context,
+                                title: 'Hapus Karyawan?',
+                                message: 'Yakin ingin menghapus ${karyawan.nama}?',
+                              );
+                              if (confirm) {
+                                ref.read(adminProvider.notifier).deleteUser(karyawan.uid);
+                              }
+                            },
+                            icon: const Icon(Icons.delete, size: 18),
+                            label: const Text('Hapus'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.error,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              );
+            },
           );
         },
       ),
     );
   }
 
-  Widget _buildCard(BuildContext context, WidgetRef ref, KaryawanModel k) {
-    final colors = [
-      AppColors.accent, AppColors.secondary, AppColors.statusBerangkat,
-      AppColors.statusMendekati, AppColors.statusMacet,
-    ];
-    final color = colors[k.nama.codeUnitAt(0) % colors.length];
-    final hasAssignment = k.busId != null || k.titikJemputId != null || k.perusahaanId != null;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      decoration: BoxDecoration(
-        color: AppColors.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.divider, width: 0.5),
-      ),
-      child: Column(
+  Widget _buildInfoRow(IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: color.withOpacity(0.3)),
-                  ),
-                  child: Center(
-                    child: Text(
-                      k.nama.isNotEmpty ? k.nama[0].toUpperCase() : 'K',
-                      style: TextStyle(
-                          fontFamily: 'Inter',
-                          color: color,
-                          fontSize: 20,
-                          fontWeight: FontWeight.w800),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(k.nama,
-                          style: const TextStyle(
-                              fontFamily: 'Inter',
-                              color: AppColors.textPrimary,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700)),
-                      Text(k.email,
-                          style: const TextStyle(
-                              fontFamily: 'Inter',
-                              color: AppColors.textSecondary,
-                              fontSize: 12)),
-                      if (k.divisi.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Container(
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppColors.surfaceVariant,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            k.divisi,
-                            style: const TextStyle(
-                                fontFamily: 'Inter',
-                                color: AppColors.textSecondary,
-                                fontSize: 11),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: hasAssignment
-                        ? AppColors.success.withOpacity(0.15)
-                        : AppColors.statusMacet.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: hasAssignment
-                          ? AppColors.success.withOpacity(0.3)
-                          : AppColors.statusMacet.withOpacity(0.3),
-                    ),
-                  ),
-                  child: Text(
-                    hasAssignment ? 'Assigned' : 'Belum Assign',
-                    style: TextStyle(
-                        fontFamily: 'Inter',
-                        color: hasAssignment ? AppColors.success : AppColors.statusMacet,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Assignment info banners
-          if (hasAssignment) ...[
-            const Divider(height: 1, color: AppColors.divider),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-              child: Column(
-                children: [
-                  if (k.busId != null)
-                    _AssignmentBanner(
-                      icon: Icons.directions_bus_rounded,
-                      label: 'Bus',
-                      busId: k.busId,
-                      color: AppColors.accent,
-                    ),
-                  if (k.busId != null &&
-                      (k.titikJemputId != null || k.perusahaanId != null))
-                    const SizedBox(height: 8),
-                  if (k.titikJemputId != null)
-                    _AssignmentBanner(
-                      icon: Icons.location_on_rounded,
-                      label: 'Titik Jemput',
-                      titikJemputId: k.titikJemputId,
-                      color: AppColors.secondary,
-                    ),
-                  if (k.titikJemputId != null && k.perusahaanId != null)
-                    const SizedBox(height: 8),
-                  if (k.perusahaanId != null)
-                    _AssignmentBanner(
-                      icon: Icons.business_rounded,
-                      label: 'Perusahaan',
-                      perusahaanId: k.perusahaanId,
-                      color: AppColors.statusMacet,
-                    ),
-                ],
+          Icon(icon, size: 16, color: AppColors.textSecondary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 13,
               ),
             ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
 
-          // Action buttons
-          const Divider(height: 1, color: AppColors.divider),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-            child: Row(
+  void _showAddKaryawanDialog(BuildContext context, WidgetRef ref) {
+    final formKey = GlobalKey<FormState>();
+    final namaController = TextEditingController();
+    final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+    final nipController = TextEditingController();
+    final divisiController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.card,
+        title: const Text('Tambah Karyawan Baru'),
+        content: Form(
+          key: formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _showAssignSheet(context, ref, k),
-                    icon: const Icon(Icons.assignment_rounded, size: 16),
-                    label: Text(
-                      hasAssignment ? 'Ubah Assign' : 'Assign Data',
-                      style: const TextStyle(fontFamily: 'Inter', fontSize: 13),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.accent,
-                      side: const BorderSide(color: AppColors.accent),
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                    ),
-                  ),
+                AppTextField(
+                  label: 'Nama Lengkap',
+                  hint: 'Nama karyawan',
+                  controller: namaController,
+                  prefixIcon: Icons.person,
+                  validator: (v) => v?.isEmpty ?? true ? 'Nama wajib diisi' : null,
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () => _showDialog(context, ref, k),
-                    icon: const Icon(Icons.edit_outlined, size: 16),
-                    label: const Text('Edit',
-                        style: TextStyle(fontFamily: 'Inter', fontSize: 13)),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: AppColors.textSecondary,
-                      side: const BorderSide(color: AppColors.divider),
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                    ),
-                  ),
+                const SizedBox(height: 12),
+                AppTextField(
+                  label: 'Email',
+                  hint: 'karyawan@email.com',
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  prefixIcon: Icons.email,
+                  validator: (v) {
+                    if (v?.isEmpty ?? true) return 'Email wajib diisi';
+                    if (!v!.contains('@')) return 'Email tidak valid';
+                    return null;
+                  },
                 ),
-                const SizedBox(width: 8),
-                OutlinedButton(
-                  onPressed: () => _confirmDelete(context, ref, k),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: AppColors.error,
-                    side: BorderSide(color: AppColors.error.withOpacity(0.4)),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                    minimumSize: const Size(0, 0),
-                  ),
-                  child: const Icon(Icons.delete_outline, size: 18),
+                const SizedBox(height: 12),
+                AppTextField(
+                  label: 'Password',
+                  hint: 'Min. 6 karakter',
+                  controller: passwordController,
+                  isPassword: true,
+                  prefixIcon: Icons.lock,
+                  validator: (v) {
+                    if (v?.isEmpty ?? true) return 'Password wajib diisi';
+                    if (v!.length < 6) return 'Password min. 6 karakter';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 12),
+                AppTextField(
+                  label: 'NIP (Opsional)',
+                  hint: 'EMP001',
+                  controller: nipController,
+                  prefixIcon: Icons.badge,
+                ),
+                const SizedBox(height: 12),
+                AppTextField(
+                  label: 'Divisi (Opsional)',
+                  hint: 'Produksi',
+                  controller: divisiController,
+                  prefixIcon: Icons.business,
                 ),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  void _confirmDelete(BuildContext context, WidgetRef ref, KaryawanModel k) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.card,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('Hapus Karyawan',
-            style: TextStyle(
-                fontFamily: 'Inter',
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w700)),
-        content: Text(
-          'Hapus karyawan "${k.nama}"? Data tidak dapat dikembalikan.',
-          style: const TextStyle(
-              fontFamily: 'Inter', color: AppColors.textSecondary),
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Batal')),
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Batal'),
+          ),
           ElevatedButton(
             onPressed: () async {
-              await ref.read(karyawanRepositoryProvider).deleteKaryawan(k.id);
-              if (ctx.mounted) Navigator.pop(ctx);
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: const Text('Hapus'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showAssignSheet(BuildContext context, WidgetRef ref, KaryawanModel k) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.card,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      isScrollControlled: true,
-      builder: (ctx) => _AssignKaryawanSheet(karyawan: k),
-    );
-  }
-
-  void _showDialog(BuildContext context, WidgetRef ref, KaryawanModel? existing) {
-    final namaCtrl = TextEditingController(text: existing?.nama);
-    final emailCtrl = TextEditingController(text: existing?.email);
-    final nipCtrl = TextEditingController(text: existing?.nip);
-    final divisiCtrl = TextEditingController(text: existing?.divisi);
-
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.card,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Text(existing == null ? 'Tambah Karyawan' : 'Edit Karyawan',
-            style: const TextStyle(
-                fontFamily: 'Inter',
-                color: AppColors.textPrimary,
-                fontWeight: FontWeight.w700)),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _field('Nama Lengkap', namaCtrl),
-              const SizedBox(height: 12),
-              _field('Email', emailCtrl, type: TextInputType.emailAddress),
-              const SizedBox(height: 12),
-              _field('NIP', nipCtrl),
-              const SizedBox(height: 12),
-              _field('Divisi / Departemen', divisiCtrl),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Batal')),
-          ElevatedButton(
-            onPressed: () async {
-              final karyawan = KaryawanModel(
-                id: existing?.id ?? '',
-                nama: namaCtrl.text.trim(),
-                email: emailCtrl.text.trim(),
-                perusahaanId: existing?.perusahaanId ?? '',
-                titikJemputId: existing?.titikJemputId ?? '',
-                nip: nipCtrl.text.trim(),
-                divisi: divisiCtrl.text.trim(),
-              );
-              final repo = ref.read(karyawanRepositoryProvider);
-              if (existing == null) {
-                await repo.createKaryawan(karyawan);
-              } else {
-                await repo.updateKaryawan(existing.id, karyawan);
+              if (formKey.currentState!.validate()) {
+                Navigator.pop(ctx);
+                await ref.read(adminProvider.notifier).createKaryawan(
+                      email: emailController.text.trim(),
+                      password: passwordController.text,
+                      nama: namaController.text.trim(),
+                      nip: nipController.text.trim(),
+                      divisi: divisiController.text.trim(),
+                    );
               }
-              if (ctx.mounted) Navigator.pop(ctx);
             },
-            child: Text(existing == null ? 'Tambah' : 'Simpan'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.accent,
+            ),
+            child: const Text('Simpan'),
           ),
         ],
       ),
     );
   }
 
-  Widget _field(String label, TextEditingController ctrl,
-      {TextInputType type = TextInputType.text}) {
-    return TextField(
-      controller: ctrl,
-      keyboardType: type,
-      style: const TextStyle(color: AppColors.textPrimary, fontFamily: 'Inter'),
-      decoration: InputDecoration(
-        labelText: label,
-        filled: true,
-        fillColor: AppColors.surfaceVariant,
-        labelStyle: const TextStyle(color: AppColors.textSecondary),
-        border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.divider)),
-        enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.divider)),
-        focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: AppColors.accent)),
+  void _showAssignDialog(BuildContext context, WidgetRef ref, dynamic karyawan) {
+    String? selectedBusId = karyawan.busId;
+    String? selectedTitikJemputId = karyawan.titikJemputId;
+
+    final busesAsync = ref.read(allBusesStreamProvider);
+    final titikJemputAsync = ref.read(allTitikJemputStreamProvider);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setState) => AlertDialog(
+          backgroundColor: AppColors.card,
+          title: const Text('Assign Karyawan'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Karyawan: ${karyawan.nama}',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text('Pilih Bus:', style: TextStyle(fontSize: 13)),
+                const SizedBox(height: 8),
+                busesAsync.when(
+                  loading: () => const CircularProgressIndicator(),
+                  error: (e, _) => Text('Error: $e'),
+                  data: (buses) {
+                    return DropdownButtonFormField<String>(
+                      value: selectedBusId,
+                      hint: const Text('Pilih Bus'),
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      items: buses.map((bus) {
+                        return DropdownMenuItem(
+                          value: bus.id,
+                          child: Text('${bus.nomorBus} - ${bus.platNomor}'),
+                        );
+                      }).toList(),
+                      onChanged: (v) => setState(() => selectedBusId = v),
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
+                const Text('Pilih Titik Jemput:', style: TextStyle(fontSize: 13)),
+                const SizedBox(height: 8),
+                titikJemputAsync.when(
+                  loading: () => const CircularProgressIndicator(),
+                  error: (e, _) => Text('Error: $e'),
+                  data: (titikJemputList) {
+                    return DropdownButtonFormField<String>(
+                      value: selectedTitikJemputId,
+                      hint: const Text('Pilih Titik Jemput'),
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      ),
+                      items: titikJemputList.map((titik) {
+                        return DropdownMenuItem(
+                          value: titik.id,
+                          child: Text('${titik.nama} (${titik.jamJemput})'),
+                        );
+                      }).toList(),
+                      onChanged: (v) => setState(() => selectedTitikJemputId = v),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Batal'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (selectedBusId != null && selectedTitikJemputId != null) {
+                  Navigator.pop(ctx);
+                  await ref.read(adminProvider.notifier).assignKaryawan(
+                        userId: karyawan.uid,
+                        busId: selectedBusId!,
+                        titikJemputId: selectedTitikJemputId!,
+                      );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Pilih bus dan titik jemput terlebih dahulu'),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.accent,
+              ),
+              child: const Text('Simpan'),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -79,7 +79,6 @@ class AppStrings {
 
   // Auth
   static const String login = 'Masuk';
-  static const String register = 'Daftar';
   static const String email = 'Email';
   static const String password = 'Password';
   static const String forgotPassword = 'Lupa Password?';
@@ -106,7 +105,6 @@ class AppStrings {
 class AppRoutes {
   static const String splash = '/';
   static const String login = '/login';
-  static const String register = '/register';
   
   // Karyawan
   static const String dashboardKaryawan = '/karyawan/dashboard';

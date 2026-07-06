@@ -211,30 +211,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                           
                           const Spacer(),
                           
-                          // Register link
+                          // Info text - accounts created by admin
                           Center(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Text(
-                                  'Belum punya akun? ',
-                                  style: TextStyle(
-                                    color: AppColors.textSecondary,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () => context.go(AppRoutes.register),
-                                  child: const Text(
-                                    'Daftar',
-                                    style: TextStyle(
-                                      color: AppColors.accent,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w700,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                            child: Text(
+                              'Akun dibuat oleh Admin',
+                              style: TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 13,
+                                fontStyle: FontStyle.italic,
+                              ),
                             ),
                           ),
                           

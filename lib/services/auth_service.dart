@@ -293,7 +293,6 @@ class AuthService {
       email: (data['email'] ?? '').toString(),
       nama: (data['nama'] ?? data['name'] ?? '').toString(),
       role: (data['role'] ?? 'karyawan').toString(),
-      perusahaanId: data['perusahaan_id']?.toString(),
       busId: data['bus_id']?.toString(),
       titikJemputId: data['titik_jemput_id']?.toString(),
       photoUrl: data['photo_url']?.toString(),

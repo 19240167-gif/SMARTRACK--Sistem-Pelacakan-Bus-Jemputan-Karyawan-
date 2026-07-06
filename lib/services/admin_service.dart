@@ -395,11 +395,10 @@ class AdminService {
           role: data['role'] ?? '',
           busId: data['bus_id'],
           titikJemputId: data['titik_jemput_id'],
-          telepon: data['telepon'],
           photoUrl: data['photo_url'],
           createdAt: (data['created_at'] as Timestamp?)?.toDate() ?? DateTime.now(),
         );
-      }).toList();
+      }).toList().cast<UserModel>();
     });
   }
 
@@ -461,10 +460,11 @@ class AdminService {
           nama: data['nama'] ?? '',
           role: data['role'] ?? '',
           busId: data['bus_id'],
-          telepon: data['telepon'],
+          titikJemputId: data['titik_jemput_id'],
+          photoUrl: data['photo_url'],
           createdAt: (data['created_at'] as Timestamp?)?.toDate() ?? DateTime.now(),
         );
-      }).toList();
+      }).toList().cast<UserModel>();
     });
   }
 }

@@ -255,6 +255,8 @@ class ManajemenBusScreen extends ConsumerWidget {
                   platNomor: platCtrl.text.trim(),
                   kapasitas: int.tryParse(kapCtrl.text) ?? 0,
                   status: status,
+                  createdAt: existing?.createdAt ?? DateTime.now(),
+                  updatedAt: DateTime.now(),
                 );
                 final repo = ref.read(busRepositoryProvider);
                 if (existing == null) {

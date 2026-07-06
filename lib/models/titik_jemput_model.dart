@@ -8,7 +8,7 @@ class TitikJemputModel {
   final double latitude;
   final double longitude;
   final String? perusahaanId;
-  final String? jamJemput; // Format: "07:00"
+  final String jamJemput; // Format: "07:00" - made non-nullable
   final int urutanJemput; // Urutan dalam rute
   final bool isActive;
   final DateTime createdAt;
@@ -20,7 +20,7 @@ class TitikJemputModel {
     required this.latitude,
     required this.longitude,
     this.perusahaanId,
-    this.jamJemput,
+    required this.jamJemput,
     required this.urutanJemput,
     required this.isActive,
     required this.createdAt,
@@ -34,7 +34,7 @@ class TitikJemputModel {
       latitude: (map['latitude'] ?? 0.0).toDouble(),
       longitude: (map['longitude'] ?? 0.0).toDouble(),
       perusahaanId: map['perusahaan_id'],
-      jamJemput: map['jam_jemput'],
+      jamJemput: map['jam_jemput'] ?? '07:00',
       urutanJemput: map['urutan_jemput'] ?? 0,
       isActive: map['is_active'] ?? true,
       createdAt: _parseDateTime(map['created_at']),

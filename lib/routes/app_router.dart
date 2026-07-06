@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/auth_provider.dart';
 import '../screens/splash/splash_screen.dart';
 import '../screens/auth/login_screen.dart';
-import '../screens/auth/register_screen.dart';
 import '../screens/karyawan/dashboard_karyawan_screen.dart';
 import '../screens/karyawan/tracking_screen.dart';
 import '../screens/karyawan/riwayat_screen.dart';
@@ -50,7 +49,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       // Redirect user yang sudah login menjauh dari halaman auth/splash
       if (isAuthenticated) {
-        if (location == AppRoutes.login || location == AppRoutes.register || location == AppRoutes.splash) {
+        if (location == AppRoutes.login || location == AppRoutes.splash) {
           switch (role) {
             case 'karyawan':
               return AppRoutes.dashboardKaryawan;
@@ -67,7 +66,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       // Redirect user yang belum login ke login (kecuali halaman auth & splash)
       if (!isAuthenticated && 
           location != AppRoutes.login && 
-          location != AppRoutes.register &&
           location != AppRoutes.splash) {
         return AppRoutes.login;
       }
@@ -82,10 +80,6 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.login,
         builder: (context, state) => const LoginScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.register,
-        builder: (context, state) => const RegisterScreen(),
       ),
       
       // Debug screen (untuk testing Firebase)
