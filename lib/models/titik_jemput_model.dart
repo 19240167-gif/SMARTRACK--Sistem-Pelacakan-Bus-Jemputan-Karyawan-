@@ -1,38 +1,41 @@
-// lib/models/perusahaan_model.dart
+// lib/models/titik_jemput_model.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class PerusahaanModel {
+class TitikJemputModel {
   final String id;
   final String nama;
   final String alamat;
-  final String? telepon;
-  final String? email;
-  final double? latitude;
-  final double? longitude;
+  final double latitude;
+  final double longitude;
+  final String? perusahaanId;
+  final String? jamJemput; // Format: "07:00"
+  final int urutanJemput; // Urutan dalam rute
   final bool isActive;
   final DateTime createdAt;
 
-  const PerusahaanModel({
+  const TitikJemputModel({
     required this.id,
     required this.nama,
     required this.alamat,
-    this.telepon,
-    this.email,
-    this.latitude,
-    this.longitude,
+    required this.latitude,
+    required this.longitude,
+    this.perusahaanId,
+    this.jamJemput,
+    required this.urutanJemput,
     required this.isActive,
     required this.createdAt,
   });
 
-  factory PerusahaanModel.fromMap(Map<String, dynamic> map, String id) {
-    return PerusahaanModel(
+  factory TitikJemputModel.fromMap(Map<String, dynamic> map, String id) {
+    return TitikJemputModel(
       id: id,
       nama: map['nama'] ?? '',
       alamat: map['alamat'] ?? '',
-      telepon: map['telepon'],
-      email: map['email'],
-      latitude: map['latitude']?.toDouble(),
-      longitude: map['longitude']?.toDouble(),
+      latitude: (map['latitude'] ?? 0.0).toDouble(),
+      longitude: (map['longitude'] ?? 0.0).toDouble(),
+      perusahaanId: map['perusahaan_id'],
+      jamJemput: map['jam_jemput'],
+      urutanJemput: map['urutan_jemput'] ?? 0,
       isActive: map['is_active'] ?? true,
       createdAt: _parseDateTime(map['created_at']),
     );
@@ -42,10 +45,11 @@ class PerusahaanModel {
     return {
       'nama': nama,
       'alamat': alamat,
-      'telepon': telepon,
-      'email': email,
       'latitude': latitude,
       'longitude': longitude,
+      'perusahaan_id': perusahaanId,
+      'jam_jemput': jamJemput,
+      'urutan_jemput': urutanJemput,
       'is_active': isActive,
       'created_at': Timestamp.fromDate(createdAt),
     };

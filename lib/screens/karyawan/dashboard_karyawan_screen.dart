@@ -4,6 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/tracking_provider.dart';
+import '../../providers/bus_provider.dart';
+import '../../providers/titik_jemput_provider.dart';
+import '../../providers/perusahaan_provider.dart';
 import '../../utils/constants.dart';
 import '../../utils/helpers.dart';
 import '../../widgets/common/glass_card.dart';
@@ -165,49 +168,10 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildInfoCard(
-                        icon: Icons.directions_bus_rounded,
-                        title: 'Bus Anda',
-                        value: 'Bus A-01',
-                        color: AppColors.accent,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildInfoCard(
-                        icon: Icons.location_on_rounded,
-                        title: 'Titik Jemput',
-                        value: 'Gerbang Utama',
-                        color: AppColors.secondary,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildInfoCard(
-                        icon: Icons.access_time_rounded,
-                        title: 'Jam Berangkat',
-                        value: '07:00 WIB',
-                        color: AppColors.statusBerangkat,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildInfoCard(
-                        icon: Icons.business_rounded,
-                        title: 'Perusahaan',
-                        value: 'PT. Industri',
-                        color: AppColors.statusMacet,
-                      ),
-                    ),
-                  ],
-                ),
+                
+                // Info cards dengan data real dari Firestore
+                _buildInfoCardsSection(ref, user),
+                
                 const SizedBox(height: 20),
 
                 // Recent activity
@@ -232,8 +196,8 @@ class DashboardKaryawanScreen extends ConsumerWidget {
   }
 
   Widget _buildTrackingCard(BuildContext context, WidgetRef ref, String? busId) {
-    if (busId == null) {
-      return const PremiumCard(
+    if (busId == null || busId.isEmpty) {
+      return PremiumCard(
         child: Column(
           children: [
             Icon(
@@ -241,7 +205,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
               size: 48,
               color: AppColors.textSecondary,
             ),
-            SizedBox(height: 12),
+            const SizedBox(height: 12),
             Text(
               'Belum ada bus yang ditetapkan',
               style: TextStyle(
@@ -251,14 +215,25 @@ class DashboardKaryawanScreen extends ConsumerWidget {
               ),
               textAlign: TextAlign.center,
             ),
+            const SizedBox(height: 8),
+            Text(
+              'Hubungi admin untuk assign bus',
+              style: TextStyle(
+                fontFamily: 'Inter',
+                color: AppColors.textTertiary,
+                fontSize: 12,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ],
         ),
       );
     }
 
     final trackingAsync = ref.watch(busTrackingStreamProvider(busId));
+    final busAsync = ref.watch(busProvider(busId));
 
-    return trackingAsync.when(
+    return busAsync.when(
       loading: () => PremiumCard(
         child: Row(
           children: [
@@ -266,25 +241,25 @@ class DashboardKaryawanScreen extends ConsumerWidget {
               width: 56,
               height: 56,
               decoration: BoxDecoration(
-                color: AppColors.accent.withValues(alpha: 0.15),
+                color: AppColors.surfaceVariant,
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: const Icon(Icons.directions_bus_rounded,
-                  color: AppColors.accent, size: 32),
             ),
             const SizedBox(width: 16),
-            const Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Memuat data bus...',
-                    style: TextStyle(color: AppColors.textSecondary)),
-                SizedBox(height: 4),
-                SizedBox(
-                  width: 100,
-                  height: 8,
-                  child: LinearProgressIndicator(),
-                ),
-              ],
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Memuat data bus...',
+                      style: TextStyle(color: AppColors.textSecondary)),
+                  SizedBox(height: 8),
+                  SizedBox(
+                    width: 100,
+                    height: 4,
+                    child: LinearProgressIndicator(),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -292,142 +267,170 @@ class DashboardKaryawanScreen extends ConsumerWidget {
       error: (e, _) => PremiumCard(
         child: Text('Error: $e', style: const TextStyle(color: AppColors.error)),
       ),
-      data: (tracking) => GestureDetector(
-        onTap: () => context.go(AppRoutes.tracking),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            gradient: const LinearGradient(
-              colors: [Color(0xFF1A3D70), Color(0xFF0D2B55)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.accent.withValues(alpha: 0.2),
-                blurRadius: 20,
-                offset: const Offset(0, 6),
-              ),
-            ],
+      data: (bus) {
+        if (bus == null) {
+          return const PremiumCard(
+            child: Text('Data bus tidak ditemukan', 
+                style: TextStyle(color: AppColors.textSecondary)),
+          );
+        }
+
+        return trackingAsync.when(
+          loading: () => _buildTrackingCardUI(context, bus, null, true),
+          error: (e, _) => _buildTrackingCardUI(context, bus, null, false),
+          data: (tracking) => _buildTrackingCardUI(context, bus, tracking, false),
+        );
+      },
+    );
+  }
+
+  Widget _buildTrackingCardUI(
+    BuildContext context,
+    dynamic bus,
+    dynamic tracking,
+    bool isLoading,
+  ) {
+    return GestureDetector(
+      onTap: () => context.go(AppRoutes.tracking),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1A3D70), Color(0xFF0D2B55)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: AppColors.accent.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: AppColors.accent.withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.directions_bus_rounded,
-                      color: AppColors.accent,
-                      size: 32,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: AppColors.accent.withOpacity(0.3)),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.accent.withOpacity(0.2),
+              blurRadius: 20,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Container(
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: AppColors.accent.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: AppColors.accent.withOpacity(0.3),
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Bus Anda',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            color: AppColors.textSecondary,
-                            fontSize: 12,
-                          ),
+                  child: const Icon(
+                    Icons.directions_bus_rounded,
+                    color: AppColors.accent,
+                    size: 32,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Bus Anda',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          color: AppColors.textSecondary,
+                          fontSize: 12,
                         ),
+                      ),
+                      Text(
+                        bus.nomorBus,
+                        style: const TextStyle(
+                          fontFamily: 'Inter',
+                          color: AppColors.textPrimary,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                if (isLoading)
+                  const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                else if (tracking != null)
+                  AnimatedStatusBadge(status: tracking.statusPerjalanan)
+                else
+                  const StatusBadge(status: 'Menunggu'),
+              ],
+            ),
+            if (tracking != null) ...[
+              const SizedBox(height: 16),
+              const Divider(color: Color(0xFF2A4A70), height: 1),
+              const SizedBox(height: 16),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildTrackingStat(
+                    Icons.speed_rounded,
+                    '${tracking.kecepatan.toStringAsFixed(0)} km/h',
+                    'Kecepatan',
+                  ),
+                  _buildTrackingStat(
+                    Icons.gps_fixed,
+                    AppHelpers.formatTime(tracking.timestamp),
+                    'Update',
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: AppColors.accent,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.map_rounded,
+                            color: Colors.white, size: 16),
+                        SizedBox(width: 6),
                         Text(
-                          'Bus A-01',
+                          'Lihat Peta',
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            color: AppColors.textPrimary,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  if (tracking != null)
-                    AnimatedStatusBadge(status: tracking.statusPerjalanan)
-                  else
-                    const StatusBadge(status: 'Menunggu'),
                 ],
               ),
-              if (tracking != null) ...[
-                const SizedBox(height: 16),
-                const Divider(color: Color(0xFF2A4A70), height: 1),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildTrackingStat(
-                      Icons.speed_rounded,
-                      '${tracking.kecepatan.toStringAsFixed(0)} km/h',
-                      'Kecepatan',
+            ] else ...[
+              const SizedBox(height: 16),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.access_time_rounded,
+                      color: AppColors.textSecondary, size: 16),
+                  SizedBox(width: 6),
+                  Text(
+                    'Bus belum berangkat',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      color: AppColors.textSecondary,
+                      fontSize: 13,
                     ),
-                    _buildTrackingStat(
-                      Icons.gps_fixed,
-                      AppHelpers.formatTime(tracking.timestamp),
-                      'Update',
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: AppColors.accent,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.map_rounded,
-                              color: Colors.white, size: 16),
-                          SizedBox(width: 6),
-                          Text(
-                            'Lihat Peta',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              color: Colors.white,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ] else ...[
-                const SizedBox(height: 16),
-                const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.access_time_rounded,
-                        color: AppColors.textSecondary, size: 16),
-                    SizedBox(width: 6),
-                    Text(
-                      'Bus belum berangkat',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        color: AppColors.textSecondary,
-                        fontSize: 13,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                ],
+              ),
             ],
-          ),
+          ],
         ),
       ),
     );
@@ -584,5 +587,155 @@ class DashboardKaryawanScreen extends ConsumerWidget {
     if (hour < 15) return 'Siang';
     if (hour < 18) return 'Sore';
     return 'Malam';
+  }
+
+  // Build info cards dengan data real dari Firestore
+  Widget _buildInfoCardsSection(WidgetRef ref, dynamic user) {
+    // Get bus data
+    final busAsync = user?.busId != null 
+        ? ref.watch(busProvider(user!.busId!))
+        : const AsyncValue.data(null);
+    
+    // Get titik jemput data
+    final titikJemputAsync = user?.titikJemputId != null
+        ? ref.watch(titikJemputProvider(user!.titikJemputId!))
+        : const AsyncValue.data(null);
+    
+    // Get perusahaan data
+    final perusahaanAsync = user?.perusahaanId != null
+        ? ref.watch(perusahaanProvider(user!.perusahaanId!))
+        : const AsyncValue.data(null);
+
+    return Column(
+      children: [
+        Row(
+          children: [
+            // Bus Card
+            Expanded(
+              child: busAsync.when(
+                data: (bus) => _buildInfoCard(
+                  icon: Icons.directions_bus_rounded,
+                  title: 'Bus Anda',
+                  value: bus?.nomorBus ?? 'Belum Ditentukan',
+                  color: AppColors.accent,
+                ),
+                loading: () => _buildInfoCardLoading(),
+                error: (_, __) => _buildInfoCard(
+                  icon: Icons.directions_bus_rounded,
+                  title: 'Bus Anda',
+                  value: 'Error',
+                  color: AppColors.error,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Titik Jemput Card
+            Expanded(
+              child: titikJemputAsync.when(
+                data: (titikJemput) => _buildInfoCard(
+                  icon: Icons.location_on_rounded,
+                  title: 'Titik Jemput',
+                  value: titikJemput?.nama ?? 'Belum Ditentukan',
+                  color: AppColors.secondary,
+                ),
+                loading: () => _buildInfoCardLoading(),
+                error: (_, __) => _buildInfoCard(
+                  icon: Icons.location_on_rounded,
+                  title: 'Titik Jemput',
+                  value: 'Error',
+                  color: AppColors.error,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            // Jam Jemput Card
+            Expanded(
+              child: titikJemputAsync.when(
+                data: (titikJemput) => _buildInfoCard(
+                  icon: Icons.access_time_rounded,
+                  title: 'Jam Berangkat',
+                  value: titikJemput?.jamJemput != null 
+                      ? '${titikJemput!.jamJemput} WIB' 
+                      : 'Belum Ditentukan',
+                  color: AppColors.statusBerangkat,
+                ),
+                loading: () => _buildInfoCardLoading(),
+                error: (_, __) => _buildInfoCard(
+                  icon: Icons.access_time_rounded,
+                  title: 'Jam Berangkat',
+                  value: 'Error',
+                  color: AppColors.error,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Perusahaan Card
+            Expanded(
+              child: perusahaanAsync.when(
+                data: (perusahaan) => _buildInfoCard(
+                  icon: Icons.business_rounded,
+                  title: 'Perusahaan',
+                  value: perusahaan?.nama ?? 'Belum Ditentukan',
+                  color: AppColors.statusMacet,
+                ),
+                loading: () => _buildInfoCardLoading(),
+                error: (_, __) => _buildInfoCard(
+                  icon: Icons.business_rounded,
+                  title: 'Perusahaan',
+                  value: 'Error',
+                  color: AppColors.error,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInfoCardLoading() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.divider, width: 0.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              color: AppColors.surfaceVariant,
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Container(
+            height: 10,
+            width: 60,
+            decoration: BoxDecoration(
+              color: AppColors.surfaceVariant,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const SizedBox(height: 6),
+          Container(
+            height: 12,
+            width: 80,
+            decoration: BoxDecoration(
+              color: AppColors.surfaceVariant,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

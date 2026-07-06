@@ -1,50 +1,60 @@
 // lib/providers/bus_provider.dart
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/bus_model.dart';
 
-final busListProvider = StreamProvider<List<BusModel>>((ref) {
+// Provider untuk get bus by ID
+final busProvider = StreamProvider.family<BusModel?, String>((ref, busId) {
+  if (busId.isEmpty) return Stream.value(null);
+  
   return FirebaseFirestore.instance
       .collection('bus')
+      .doc(busId)
       .snapshots()
-      .map((snapshot) => snapshot.docs
-          .map((doc) => BusModel.fromMap(doc.data(), doc.id))
-          .toList());
-});
-
-final busByIdProvider = FutureProvider.family<BusModel?, String>((ref, busId) async {
-  final doc = await FirebaseFirestore.instance.collection('bus').doc(busId).get();
-  if (doc.exists && doc.data() != null) {
+      .map((doc) {
+    if (!doc.exists) return null;
     return BusModel.fromMap(doc.data()!, doc.id);
-  }
-  return null;
+  });
 });
 
-// CRUD operations for buses
-class BusRepository {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+// Provider untuk get semua bus
+final allBusesProvider = StreamProvider<List<BusModel>>((ref) {
+  return FirebaseFirestore.instance
+      .collection('bus')
+      .orderBy('nomor_bus')
+      .snapshots()
+      .map((snapshot) {
+    return snapshot.docs.map((doc) {
+      return BusModel.fromMap(doc.data(), doc.id);
+    }).toList();
+  });
+});
 
-  Future<void> createBus(BusModel bus) async {
-    await _firestore.collection('bus').add(bus.toMap());
-  }
+// Provider untuk get bus yang aktif saja
+final activeBusesProvider = StreamProvider<List<BusModel>>((ref) {
+  return FirebaseFirestore.instance
+      .collection('bus')
+      .where('status', isEqualTo: 'aktif')
+      .orderBy('nomor_bus')
+      .snapshots()
+      .map((snapshot) {
+    return snapshot.docs.map((doc) {
+      return BusModel.fromMap(doc.data(), doc.id);
+    }).toList();
+  });
+});
 
-  Future<void> updateBus(String id, BusModel bus) async {
-    await _firestore.collection('bus').doc(id).update(bus.toMap());
-  }
-
-  Future<void> deleteBus(String id) async {
-    await _firestore.collection('bus').doc(id).delete();
-  }
-
-  Stream<List<BusModel>> getBusByPerusahaan(String perusahaanId) {
-    return _firestore
-        .collection('bus')
-        .where('perusahaan_id', isEqualTo: perusahaanId)
-        .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => BusModel.fromMap(doc.data(), doc.id))
-            .toList());
-  }
-}
-
-final busRepositoryProvider = Provider<BusRepository>((ref) => BusRepository());
+// Provider untuk get bus yang belum punya driver
+final availableBusesProvider = StreamProvider<List<BusModel>>((ref) {
+  return FirebaseFirestore.instance
+      .collection('bus')
+      .where('status', isEqualTo: 'aktif')
+      .where('driver_id', isNull: true)
+      .orderBy('nomor_bus')
+      .snapshots()
+      .map((snapshot) {
+    return snapshot.docs.map((doc) {
+      return BusModel.fromMap(doc.data(), doc.id);
+    }).toList();
+  });
+});
