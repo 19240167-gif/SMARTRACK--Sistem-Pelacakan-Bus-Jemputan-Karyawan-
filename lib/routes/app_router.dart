@@ -17,6 +17,7 @@ import '../screens/admin/manajemen_karyawan_screen.dart';
 import '../screens/admin/manajemen_rute_screen.dart';
 import '../screens/admin/manajemen_titik_jemput_screen.dart';
 import '../screens/debug_screen.dart';
+import '../screens/seed_screen.dart';
 import '../utils/constants.dart';
 
 class GoRouterRefreshListenable extends ChangeNotifier {
@@ -86,6 +87,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/debug',
         builder: (context, state) => const DebugScreen(),
+      ),
+      
+      // Seed screen (untuk populate data dummy)
+      GoRoute(
+        path: '/seed',
+        builder: (context, state) => const SeedScreen(),
       ),
 
       // Karyawan routes

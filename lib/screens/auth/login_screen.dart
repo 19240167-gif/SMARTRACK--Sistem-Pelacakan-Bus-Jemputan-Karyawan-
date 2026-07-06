@@ -228,14 +228,29 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             Center(
                               child: Padding(
                                 padding: const EdgeInsets.only(top: 16),
-                                child: TextButton.icon(
-                                  onPressed: () => context.go('/debug'),
-                                  icon: const Icon(Icons.bug_report, size: 16),
-                                  label: const Text('Firebase Debug'),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.orange,
-                                    textStyle: const TextStyle(fontSize: 12),
-                                  ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    TextButton.icon(
+                                      onPressed: () => context.go('/debug'),
+                                      icon: const Icon(Icons.bug_report, size: 16),
+                                      label: const Text('Firebase Debug'),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.orange,
+                                        textStyle: const TextStyle(fontSize: 12),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    TextButton.icon(
+                                      onPressed: () => context.go('/seed'),
+                                      icon: const Icon(Icons.cloud_upload, size: 16),
+                                      label: const Text('Seed Data'),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.green,
+                                        textStyle: const TextStyle(fontSize: 12),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
