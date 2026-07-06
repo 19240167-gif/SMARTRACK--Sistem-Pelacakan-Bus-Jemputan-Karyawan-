@@ -1,15 +1,21 @@
-// File ini adalah placeholder untuk Firebase Options
-// Untuk development web, gunakan config dummy ini
-// Untuk production, ganti dengan config dari Firebase Console
+// File generated from Firebase Console
+// Project: Smartrack (smartrack-67d7a)
+// Last updated: 2025
 
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
-/// Default FirebaseOptions for current platform
-/// 
-/// ⚠️ PENTING: Ganti nilai-nilai ini dengan config dari Firebase Console
-/// Lihat FIREBASE_SETUP.md untuk panduan lengkap
+/// Default [FirebaseOptions] for use with your Firebase apps.
+///
+/// Example:
+/// ```dart
+/// import 'firebase_options.dart';
+/// // ...
+/// await Firebase.initializeApp(
+///   options: DefaultFirebaseOptions.currentPlatform,
+/// );
+/// ```
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
@@ -21,9 +27,15 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        return macos;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for macos - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.windows:
-        return windows;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for windows - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -37,46 +49,29 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDummyKeyForDevelopment',
-    appId: '1:123456789:web:abcdef',
-    messagingSenderId: '123456789',
-    projectId: 'smartrack-development',
-    authDomain: 'smartrack-development.firebaseapp.com',
-    storageBucket: 'smartrack-development.appspot.com',
-    measurementId: 'G-DUMMYMEASUREMENTID',
+    apiKey: 'AIzaSyAPY7aEAfDcj6hDJryWeomYuW45ahwa5zc',
+    appId: '1:30358731314:web:cc833890047e459de5da2b',
+    messagingSenderId: '30358731314',
+    projectId: 'smartrack-67d7a',
+    authDomain: 'smartrack-67d7a.firebaseapp.com',
+    storageBucket: 'smartrack-67d7a.firebasestorage.app',
+    measurementId: 'G-MCP002PNJP',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDummyKeyForDevelopment',
-    appId: '1:123456789:android:abcdef',
-    messagingSenderId: '123456789',
-    projectId: 'smartrack-development',
-    storageBucket: 'smartrack-development.appspot.com',
+    apiKey: 'AIzaSyAPY7aEAfDcj6hDJryWeomYuW45ahwa5zc',
+    appId: '1:30358731314:android:f2f9bf01492ddb8ce5da2b',
+    messagingSenderId: '30358731314',
+    projectId: 'smartrack-67d7a',
+    storageBucket: 'smartrack-67d7a.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDummyKeyForDevelopment',
-    appId: '1:123456789:ios:abcdef',
-    messagingSenderId: '123456789',
-    projectId: 'smartrack-development',
-    storageBucket: 'smartrack-development.appspot.com',
+    apiKey: 'AIzaSyAPY7aEAfDcj6hDJryWeomYuW45ahwa5zc',
+    appId: '1:30358731314:ios:placeholder',
+    messagingSenderId: '30358731314',
+    projectId: 'smartrack-67d7a',
+    storageBucket: 'smartrack-67d7a.firebasestorage.app',
     iosBundleId: 'com.smartrack.smartrack',
-  );
-
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyDummyKeyForDevelopment',
-    appId: '1:123456789:macos:abcdef',
-    messagingSenderId: '123456789',
-    projectId: 'smartrack-development',
-    storageBucket: 'smartrack-development.appspot.com',
-    iosBundleId: 'com.smartrack.smartrack',
-  );
-
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDummyKeyForDevelopment',
-    appId: '1:123456789:windows:abcdef',
-    messagingSenderId: '123456789',
-    projectId: 'smartrack-development',
-    storageBucket: 'smartrack-development.appspot.com',
   );
 }
