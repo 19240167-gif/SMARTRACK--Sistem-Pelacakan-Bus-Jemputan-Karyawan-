@@ -106,6 +106,7 @@ class LocationService {
   }
 
   /// Update lokasi bus ke Firebase Realtime Database
+  /// Menggunakan format yang selaras dengan TrackingService & TrackingBusModel
   void _updateBusLocation(
     String busId,
     String tripId,
@@ -113,31 +114,19 @@ class LocationService {
     Position position,
   ) {
     final locationData = {
-      'busId': busId,
-      'tripId': tripId,
-      'driverId': driverId,
+      'bus_id': busId,
       'latitude': position.latitude,
       'longitude': position.longitude,
-      'accuracy': position.accuracy,
-      'altitude': position.altitude,
-      'speed': position.speed * 3.6, // Convert m/s to km/h
+      'kecepatan': position.speed * 3.6, // Convert m/s ke km/h
       'heading': position.heading,
+      'status_perjalanan': 'Dalam Perjalanan',
       'timestamp': ServerValue.timestamp,
-      'lastUpdate': DateTime.now().toIso8601String(),
     };
 
-    // Update current location
+    // Update lokasi saat ini (menimpa data lama)
     _busLocations.child(busId).set(locationData);
-    
-    // Add to location history
-    _busLocations.child(busId).child('history').push().set({
-      'latitude': position.latitude,
-      'longitude': position.longitude,
-      'speed': position.speed * 3.6,
-      'timestamp': ServerValue.timestamp,
-    });
 
-    debugPrint('📍 Location updated: ${position.latitude}, ${position.longitude}');
+    debugPrint('📍 Lokasi diperbarui: ${position.latitude}, ${position.longitude}');
   }
 
   /// Stop tracking lokasi

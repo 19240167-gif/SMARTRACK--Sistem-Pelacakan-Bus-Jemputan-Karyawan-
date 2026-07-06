@@ -80,12 +80,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     return Scaffold(
       backgroundColor: AppColors.background,
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Color(0xFF0D2B55), Color(0xFF060D1A)],
-            stops: [0.0, 0.6],
+            colors: [
+              AppColors.background,
+              AppColors.surface,
+            ],
           ),
         ),
         child: SafeArea(
@@ -110,45 +112,39 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             child: Column(
                               children: [
                                 Container(
-                                  width: 80,
-                                  height: 80,
+                                  width: 70,
+                                  height: 70,
                                   decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [AppColors.accent, AppColors.secondary],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                    ),
-                                    borderRadius: BorderRadius.circular(22),
+                                    color: AppColors.accent,
+                                    borderRadius: BorderRadius.circular(20),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: AppColors.accent.withValues(alpha: 0.4),
-                                        blurRadius: 25,
-                                        offset: const Offset(0, 8),
+                                        color: AppColors.accent.withOpacity(0.3),
+                                        blurRadius: 15,
+                                        offset: const Offset(0, 5),
                                       ),
                                     ],
                                   ),
                                   child: const Icon(
                                     Icons.directions_bus_rounded,
                                     color: Colors.white,
-                                    size: 44,
+                                    size: 40,
                                   ),
                                 ),
                                 const SizedBox(height: 20),
                                 const Text(
                                   'SMARTRACK',
                                   style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontSize: 28,
-                                    fontWeight: FontWeight.w800,
+                                    fontSize: 26,
+                                    fontWeight: FontWeight.bold,
                                     color: AppColors.textPrimary,
-                                    letterSpacing: 3,
+                                    letterSpacing: 2,
                                   ),
                                 ),
                                 const SizedBox(height: 6),
                                 const Text(
                                   'Masuk ke akun Anda',
                                   style: TextStyle(
-                                    fontFamily: 'Inter',
                                     fontSize: 14,
                                     color: AppColors.textSecondary,
                                   ),
@@ -164,18 +160,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             padding: const EdgeInsets.all(24),
                             decoration: BoxDecoration(
                               color: AppColors.card,
-                              borderRadius: BorderRadius.circular(24),
+                              borderRadius: BorderRadius.circular(20),
                               border: Border.all(
                                 color: AppColors.divider,
-                                width: 0.5,
+                                width: 1,
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.3),
-                                  blurRadius: 30,
-                                  offset: const Offset(0, 10),
-                                ),
-                              ],
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -219,7 +208,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     child: const Text(
                                       'Lupa Password?',
                                       style: TextStyle(
-                                        fontFamily: 'Inter',
                                         fontSize: 13,
                                         color: AppColors.accent,
                                       ),

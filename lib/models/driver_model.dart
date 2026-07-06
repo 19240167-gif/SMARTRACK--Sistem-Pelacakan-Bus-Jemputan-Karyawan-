@@ -32,7 +32,8 @@ class DriverModel {
       perusahaanId: map['perusahaan_id'],
       status: map['status'] ?? 'aktif',
       photoUrl: map['photo_url'],
-      userId: map['user_id'],
+      // 'uid' adalah field baru; fallback ke 'user_id' untuk data lama
+      userId: map['uid']?.toString() ?? map['user_id']?.toString(),
     );
   }
 
@@ -45,7 +46,7 @@ class DriverModel {
       'perusahaan_id': perusahaanId,
       'status': status,
       'photo_url': photoUrl,
-      'user_id': userId,
+      'uid': userId, // gunakan 'uid' sebagai standar baru
     };
   }
 

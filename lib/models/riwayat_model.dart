@@ -1,4 +1,6 @@
 // lib/models/riwayat_model.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class RiwayatModel {
   final String id;
   final String busId;
@@ -39,13 +41,9 @@ class RiwayatModel {
       nomorBus: map['nomor_bus'] ?? '',
       driverId: map['driver_id'] ?? '',
       namaDriver: map['nama_driver'] ?? '',
-      tanggalBerangkat: DateTime.fromMillisecondsSinceEpoch(
-        (map['tanggal_berangkat'] as num).toInt(),
-      ),
+      tanggalBerangkat: _parseDate(map['tanggal_berangkat']),
       tanggalSelesai: map['tanggal_selesai'] != null
-          ? DateTime.fromMillisecondsSinceEpoch(
-              (map['tanggal_selesai'] as num).toInt(),
-            )
+          ? _parseDate(map['tanggal_selesai'])
           : null,
       status: map['status'] ?? 'selesai',
       ruteId: map['rute_id'] ?? '',
@@ -55,6 +53,14 @@ class RiwayatModel {
       durasiMenit: map['durasi_menit'],
       catatan: map['catatan'],
     );
+  }
+
+  /// Parse DateTime dari Firestore Timestamp, int epoch, atau String ISO
+  static DateTime _parseDate(dynamic value) {
+    if (value is Timestamp) return value.toDate();
+    if (value is num) return DateTime.fromMillisecondsSinceEpoch(value.toInt());
+    if (value is String) return DateTime.tryParse(value) ?? DateTime.now();
+    return DateTime.now();
   }
 
   Map<String, dynamic> toMap() {

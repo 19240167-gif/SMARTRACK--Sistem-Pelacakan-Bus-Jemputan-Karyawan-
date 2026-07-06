@@ -2,48 +2,54 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Primary palette - Industrial Blue
-  static const Color primary = Color(0xFF0D2B55);
-  static const Color primaryLight = Color(0xFF1A3D70);
-  static const Color primaryDark = Color(0xFF071A36);
-  static const Color accent = Color(0xFF2563EB);
-  static const Color accentLight = Color(0xFF3B82F6);
+  // Primary palette - Simple Blue
+  static const Color primary = Color(0xFF1E88E5);
+  static const Color primaryLight = Color(0xFF42A5F5);
+  static const Color primaryDark = Color(0xFF1565C0);
+  static const Color accent = Color(0xFF1E88E5);
+  static const Color accentLight = Color(0xFF42A5F5);
 
   // Secondary
-  static const Color secondary = Color(0xFF0EA5E9);
-  static const Color secondaryLight = Color(0xFF38BDF8);
+  static const Color secondary = Color(0xFF26A69A);
+  static const Color secondaryLight = Color(0xFF4DB6AC);
 
-  // Background
-  static const Color background = Color(0xFF060D1A);
-  static const Color surface = Color(0xFF0F1E35);
-  static const Color surfaceVariant = Color(0xFF162440);
-  static const Color card = Color(0xFF132040);
+  // Background - Clean Dark
+  static const Color background = Color(0xFF121212);
+  static const Color surface = Color(0xFF1E1E1E);
+  static const Color surfaceVariant = Color(0xFF2C2C2C);
+  static const Color card = Color(0xFF1E1E1E);
 
   // Text
-  static const Color textPrimary = Color(0xFFF0F6FF);
-  static const Color textSecondary = Color(0xFF94A3B8);
-  static const Color textTertiary = Color(0xFF64748B);
+  static const Color textPrimary = Color(0xFFFFFFFF);
+  static const Color textSecondary = Color(0xFFB0BEC5);
+  static const Color textTertiary = Color(0xFF78909C);
 
-  // Status colors
-  static const Color statusBerangkat = Color(0xFF10B981);
-  static const Color statusDalamPerjalanan = Color(0xFF2563EB);
-  static const Color statusMacet = Color(0xFFF59E0B);
-  static const Color statusMendekati = Color(0xFF8B5CF6);
-  static const Color statusTiba = Color(0xFF06B6D4);
+  // Status colors - More vibrant
+  static const Color statusBerangkat = Color(0xFF66BB6A);
+  static const Color statusDalamPerjalanan = Color(0xFF42A5F5);
+  static const Color statusMacet = Color(0xFFFF9800);
+  static const Color statusMendekati = Color(0xFFAB47BC);
+  static const Color statusTiba = Color(0xFF26A69A);
 
   // Utility
-  static const Color success = Color(0xFF10B981);
-  static const Color warning = Color(0xFFF59E0B);
-  static const Color error = Color(0xFFEF4444);
-  static const Color info = Color(0xFF3B82F6);
+  static const Color success = Color(0xFF66BB6A);
+  static const Color warning = Color(0xFFFF9800);
+  static const Color error = Color(0xFFEF5350);
+  static const Color info = Color(0xFF42A5F5);
 
-  // Glass
+  // Glass morphism
   static const Color glass = Color(0x1AFFFFFF);
-  static const Color glassBorder = Color(0x33FFFFFF);
+  static const Color glassBorder = Color(0x40FFFFFF);
   static const Color glassOverlay = Color(0x0DFFFFFF);
+  static const Color glassShimmer = Color(0x33FFFFFF);
 
   // Divider
-  static const Color divider = Color(0xFF1E3A5F);
+  static const Color divider = Color(0xFF333333);
+  
+  // Gradient colors
+  static const List<Color> gradientPurple = [Color(0xFF6366F1), Color(0xFF8B5CF6)];
+  static const List<Color> gradientBlue = [Color(0xFF3B82F6), Color(0xFF06B6D4)];
+  static const List<Color> gradientPink = [Color(0xFFEC4899), Color(0xFF8B5CF6)];
 }
 
 class AppDimensions {

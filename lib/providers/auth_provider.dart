@@ -48,12 +48,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
       final firebaseUser = _authService.currentUser;
       if (firebaseUser != null) {
         final user = await _authService.getUserModel(firebaseUser.uid).timeout(
-          const Duration(seconds: 3),
-          onTimeout: () {
-            debugPrint('⏱️ getUserModel timed out, returning null (fallback to unauthenticated)');
-            return null;
-          },
-        );
+        const Duration(seconds: 8), // Naikkan dari 3s ke 8s untuk jaringan lambat
+        onTimeout: () {
+          debugPrint('⏱️ getUserModel timeout, fallback ke unauthenticated');
+          return null;
+        },
+      );
         state = AuthState(user: user);
       } else {
         state = const AuthState();

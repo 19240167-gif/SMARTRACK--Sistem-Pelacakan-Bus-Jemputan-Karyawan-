@@ -27,7 +27,8 @@ class FirebaseService {
   CollectionReference get employees => firestore.collection('employees');
 
   // Realtime Database references untuk tracking
-  DatabaseReference get busLocations => database.ref('bus_locations');
+  // Standar path: 'tracking_bus' agar selaras dengan TrackingService
+  DatabaseReference get busLocations => database.ref('tracking_bus');
   DatabaseReference get activeTrips => database.ref('active_trips');
 
   /// Initialize Firebase services

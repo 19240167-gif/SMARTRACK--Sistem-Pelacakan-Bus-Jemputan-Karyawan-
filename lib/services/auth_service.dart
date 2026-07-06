@@ -26,9 +26,9 @@ class AuthService {
         // Update FCM token setelah login
         await _firebaseService.updateFCMToken();
         
-        // Update last login time
+        // Update last login time (snake_case)
         await _users.doc(credential.user!.uid).update({
-          'lastLoginAt': FieldValue.serverTimestamp(),
+          'last_login_at': FieldValue.serverTimestamp(),
         });
 
         return AuthResult.success(credential.user!);
@@ -61,16 +61,16 @@ class AuthService {
         // Update display name
         await credential.user!.updateDisplayName(name);
 
-        // Create user document di Firestore
+        // Create user document di Firestore (semua key pakai snake_case)
         Map<String, dynamic> userData = {
           'uid': credential.user!.uid,
           'email': email.trim().toLowerCase(),
-          'name': name,
+          'nama': name,   // snake_case, selaras dengan UserModel.fromMap
           'role': role,
-          'isActive': true,
-          'createdAt': FieldValue.serverTimestamp(),
-          'lastLoginAt': FieldValue.serverTimestamp(),
-          'profileComplete': false,
+          'is_active': true,
+          'created_at': FieldValue.serverTimestamp(),
+          'last_login_at': FieldValue.serverTimestamp(),
+          'profile_complete': false,
         };
 
         // Add additional data jika ada
@@ -133,7 +133,7 @@ class AuthService {
     try {
       await _users.doc(_firebaseService.currentUser!.uid).update({
         ...data,
-        'updatedAt': FieldValue.serverTimestamp(),
+        'updated_at': FieldValue.serverTimestamp(),
       });
       return true;
     } catch (e) {
@@ -219,18 +219,22 @@ class AuthService {
       throw Exception(result.message ?? 'Registrasi gagal');
     }
 
-    // Jika role adalah driver, buat dokumen di collection 'driver'
+    // Jika role adalah driver, buat/sinkronkan dokumen di collection 'driver'
+    // Gunakan UID sebagai document ID agar mudah di-query oleh admin
     if (role == 'driver') {
       try {
-        await FirebaseFirestore.instance.collection('driver').add({
+        await FirebaseFirestore.instance
+            .collection('driver')
+            .doc(result.user!.uid)
+            .set({
+          'uid': result.user!.uid,
           'nama': nama,
           'telepon': telepon ?? '',
           'email': email.trim().toLowerCase(),
           'status': 'aktif',
-          'user_id': result.user!.uid,
         });
       } catch (e) {
-        debugPrint('Failed to sync driver record: $e');
+        debugPrint('Gagal sinkronisasi dokumen driver: $e');
       }
     }
 
@@ -245,6 +249,8 @@ class AuthService {
   Future<void> logout() => signOut();
 
   UserModel _mapToUserModel(Map<String, dynamic> data, String uid) {
+    // Semua field di Firestore menggunakan snake_case.
+    // Fallback ke camelCase hanya untuk kompatibilitas data lama.
     final createdAtRaw =
         data['created_at'] ?? data['createdAt'] ?? data['lastLoginAt'];
     final createdAt = _parseDateTime(createdAtRaw);
@@ -254,10 +260,10 @@ class AuthService {
       email: (data['email'] ?? '').toString(),
       nama: (data['nama'] ?? data['name'] ?? '').toString(),
       role: (data['role'] ?? 'karyawan').toString(),
-      perusahaanId: data['perusahaan_id']?.toString() ?? data['perusahaanId']?.toString(),
-      busId: data['bus_id']?.toString() ?? data['busId']?.toString(),
-      titikJemputId: data['titik_jemput_id']?.toString() ?? data['titikJemputId']?.toString(),
-      photoUrl: data['photo_url']?.toString() ?? data['photoUrl']?.toString(),
+      perusahaanId: data['perusahaan_id']?.toString(),
+      busId: data['bus_id']?.toString(),
+      titikJemputId: data['titik_jemput_id']?.toString(),
+      photoUrl: data['photo_url']?.toString(),
       createdAt: createdAt,
     );
   }

@@ -1,0 +1,32 @@
+═══════════════════════════════════════════════════════════════
+   CARA RESTART APLIKASI UNTUK FIX LOADING STUCK
+═══════════════════════════════════════════════════════════════
+
+MASALAH: Aplikasi stuck di splash screen (loading terus)
+
+SOLUSI: Hot Restart
+
+LANGKAH:
+--------
+1. Klik di terminal yang running
+2. Tekan 'R' (huruf besar R) untuk Hot Restart
+3. Tunggu beberapa detik
+4. Aplikasi akan restart dan langsung masuk ke halaman Login
+
+ATAU kalau masih stuck:
+-----------------------
+1. Tekan 'q' untuk quit
+2. Jalankan lagi: flutter run -d edge
+3. Tunggu compile selesai
+
+═══════════════════════════════════════════════════════════════
+   TEKAN 'R' (HURUF BESAR) DI TERMINAL SEKARANG!
+═══════════════════════════════════════════════════════════════
+
+Penjelasan:
+-----------
+- 'r' = hot reload (hanya reload kode yang berubah)
+- 'R' = hot restart (restart full aplikasi dari awal)
+- 'q' = quit (keluar dari aplikasi)
+
+Untuk fix routing issue, pakai HOT RESTART ('R')

@@ -43,10 +43,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       final role = authState.user?.role ?? '';
       final location = state.uri.toString();
 
-      // Dont redirect while loading
-      if (isLoading && location == AppRoutes.splash) return null;
+      // Jangan redirect selama authProvider masih loading
+      // agar splash tidak dipush keluar sebelum waktunya
+      if (isLoading) return null;
 
-      // Redirect authenticated users away from auth pages
+      // Redirect user yang sudah login menjauh dari halaman auth/splash
       if (isAuthenticated) {
         if (location == AppRoutes.login || location == AppRoutes.register || location == AppRoutes.splash) {
           switch (role) {
@@ -57,12 +58,12 @@ final routerProvider = Provider<GoRouter>((ref) {
             case 'admin':
               return AppRoutes.dashboardAdmin;
             default:
-              return AppRoutes.dashboardKaryawan; // Safe fallback to avoid infinite redirect loops
+              return AppRoutes.dashboardKaryawan; // Safe fallback
           }
         }
       }
 
-      // Redirect unauthenticated users to login (except auth pages)
+      // Redirect user yang belum login ke login (kecuali halaman auth & splash)
       if (!isAuthenticated && 
           location != AppRoutes.login && 
           location != AppRoutes.register &&

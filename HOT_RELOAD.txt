@@ -1,0 +1,36 @@
+═══════════════════════════════════════════════════════════════
+   CARA HOT RELOAD APLIKASI SMARTRACK
+═══════════════════════════════════════════════════════════════
+
+Aplikasi sudah berjalan di Microsoft Edge!
+
+TOMBOL HOT RELOAD:
+------------------
+Tekan 'r' di terminal untuk Hot Reload (reload cepat)
+Tekan 'R' di terminal untuk Hot Restart (restart penuh)
+Tekan 'q' untuk Quit (keluar dari aplikasi)
+
+PERUBAHAN UI YANG SUDAH DILAKUKAN:
+-----------------------------------
+✅ Warna background: Dark mode yang clean (#121212)
+✅ Warna accent: Biru simple (#1E88E5)
+✅ Logo: Kotak sederhana dengan bayangan halus
+✅ Text: Putih bersih dengan secondary text abu-abu
+✅ Card: Background hitam dengan border tipis
+✅ Button: Biru solid tanpa gradient berlebihan
+✅ Splash screen: Simple, clean, tidak terlalu ramai
+✅ Login screen: Form card yang rapi dan mudah dibaca
+
+DESAIN SEKARANG:
+----------------
+- Minimal & Professional
+- Clean Dark Theme
+- Simple Blue Accent
+- Tidak ada gradient berlebihan
+- Typography yang mudah dibaca
+- Shadow yang halus
+- Border yang tipis
+
+═══════════════════════════════════════════════════════════════
+   TEKAN 'r' DI TERMINAL SEKARANG UNTUK LIHAT PERUBAHAN!
+═══════════════════════════════════════════════════════════════

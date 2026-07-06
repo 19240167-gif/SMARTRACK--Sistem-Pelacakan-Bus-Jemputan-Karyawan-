@@ -19,13 +19,21 @@ class TrackingBusModel {
   });
 
   factory TrackingBusModel.fromMap(Map<String, dynamic> map, String busId) {
+    // timestamp dari RTDB bisa berupa num (ms epoch) atau Map (ServerValue belum resolved).
+    // Gunakan null-safe fallback ke DateTime.now() jika nilainya bukan num.
+    DateTime parsedTimestamp;
+    final rawTs = map['timestamp'];
+    if (rawTs is num) {
+      parsedTimestamp = DateTime.fromMillisecondsSinceEpoch(rawTs.toInt());
+    } else {
+      parsedTimestamp = DateTime.now();
+    }
+
     return TrackingBusModel(
       busId: busId,
-      latitude: (map['latitude'] as num).toDouble(),
-      longitude: (map['longitude'] as num).toDouble(),
-      timestamp: DateTime.fromMillisecondsSinceEpoch(
-        (map['timestamp'] as num).toInt(),
-      ),
+      latitude: (map['latitude'] as num? ?? 0).toDouble(),
+      longitude: (map['longitude'] as num? ?? 0).toDouble(),
+      timestamp: parsedTimestamp,
       kecepatan: (map['kecepatan'] as num?)?.toDouble() ?? 0.0,
       statusPerjalanan: map['status_perjalanan'] ?? 'Dalam Perjalanan',
       heading: (map['heading'] as num?)?.toDouble(),

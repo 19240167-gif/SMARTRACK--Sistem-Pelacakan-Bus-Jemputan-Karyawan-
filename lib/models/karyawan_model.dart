@@ -3,8 +3,8 @@ class KaryawanModel {
   final String id;
   final String nama;
   final String email;
-  final String perusahaanId;
-  final String titikJemputId;
+  final String? perusahaanId;    // nullable: bisa belum diisi saat registrasi
+  final String? titikJemputId;   // nullable: bisa belum diisi saat registrasi
   final String? busId;
   final String nip;
   final String divisi;
@@ -14,8 +14,8 @@ class KaryawanModel {
     required this.id,
     required this.nama,
     required this.email,
-    required this.perusahaanId,
-    required this.titikJemputId,
+    this.perusahaanId,
+    this.titikJemputId,
     this.busId,
     required this.nip,
     required this.divisi,
@@ -27,8 +27,8 @@ class KaryawanModel {
       id: id,
       nama: map['nama'] ?? '',
       email: map['email'] ?? '',
-      perusahaanId: map['perusahaan_id'] ?? '',
-      titikJemputId: map['titik_jemput_id'] ?? '',
+      perusahaanId: map['perusahaan_id'],
+      titikJemputId: map['titik_jemput_id'],
       busId: map['bus_id'],
       nip: map['nip'] ?? '',
       divisi: map['divisi'] ?? '',
