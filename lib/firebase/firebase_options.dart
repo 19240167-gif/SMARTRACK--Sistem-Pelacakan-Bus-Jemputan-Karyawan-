@@ -56,6 +56,7 @@ class DefaultFirebaseOptions {
     authDomain: 'smartrack-67d7a.firebaseapp.com',
     storageBucket: 'smartrack-67d7a.firebasestorage.app',
     measurementId: 'G-MCP002PNJP',
+    databaseURL: 'https://smartrack-67d7a-default-rtdb.asia-southeast1.firebasedatabase.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -64,6 +65,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '30358731314',
     projectId: 'smartrack-67d7a',
     storageBucket: 'smartrack-67d7a.firebasestorage.app',
+    databaseURL: 'https://smartrack-67d7a-default-rtdb.asia-southeast1.firebasedatabase.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
@@ -73,5 +75,6 @@ class DefaultFirebaseOptions {
     projectId: 'smartrack-67d7a',
     storageBucket: 'smartrack-67d7a.firebasestorage.app',
     iosBundleId: 'com.smartrack.smartrack',
+    databaseURL: 'https://smartrack-67d7a-default-rtdb.asia-southeast1.firebasedatabase.app',
   );
 }

@@ -49,8 +49,7 @@ class AppColors {
   // Gradient colors - Fresh & Modern
   static const List<Color> gradientGreen = [Color(0xFF059669), Color(0xFF10B981)];
   static const List<Color> gradientBlue = [Color(0xFF0891B2), Color(0xFF06B6D4)];
-  static const List<Color> gradientOrange = [Color(0xFFF59E0B), Color(0xFFFBBF24)];
-}
+  static const List<Color> gradientOrange = [Color(0xFFF59E0B), Color(0xFFFBF24)];
 }
 
 class AppDimensions {

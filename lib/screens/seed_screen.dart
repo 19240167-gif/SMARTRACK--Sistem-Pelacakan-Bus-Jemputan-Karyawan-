@@ -18,18 +18,28 @@ class _SeedScreenState extends State<SeedScreen> {
   final List<String> _logs = [];
 
   Future<void> _populateData() async {
+    print('🔵 BUTTON CLICKED: Starting populate data...');
+    
     setState(() {
       _isLoading = true;
       _status = 'Sedang populate data...';
       _logs.clear();
+      _logs.add('🔵 Button clicked, starting process...');
     });
 
     try {
+      _logs.add('🌱 Memulai proses seed data...');
+      _logs.add('🔥 Koneksi ke Firebase...');
+      setState(() {});
+      
+      print('🔵 Calling SeedData.populateAll()...');
       await SeedData.populateAll();
+      print('🟢 SeedData.populateAll() completed!');
       
       setState(() {
         _status = '✅ Data dummy berhasil dibuat!';
         _logs.addAll([
+          '',
           '✅ 1 Admin account',
           '✅ 3 Buses',
           '✅ 5 Titik Jemput',
@@ -42,13 +52,28 @@ class _SeedScreenState extends State<SeedScreen> {
           'Karyawan1: karyawan1@smartrack.com / karyawan123',
         ]);
       });
-    } catch (e) {
+      
+      print('🟢 UI updated with success message');
+    } catch (e, stackTrace) {
+      print('🔴 ERROR in _populateData: $e');
+      print('🔴 StackTrace: $stackTrace');
+      
       setState(() {
         _status = '❌ Error: $e';
-        _logs.add('Error: $e');
+        _logs.add('');
+        _logs.add('❌ Error detail: $e');
+        _logs.add('');
+        _logs.add('Stack trace:');
+        _logs.add(stackTrace.toString());
+        _logs.add('');
+        _logs.add('Troubleshooting:');
+        _logs.add('1. Pastikan Firebase sudah terkoneksi');
+        _logs.add('2. Cek firebase_options.dart sudah benar');
+        _logs.add('3. Cek console browser (F12) untuk detail error');
       });
     } finally {
       setState(() => _isLoading = false);
+      print('🔵 _populateData() finished');
     }
   }
 

@@ -15,6 +15,8 @@ class SeedData {
   /// Main function - Populate semua data
   static Future<void> populateAll() async {
     debugPrint('🌱 Starting seed data...');
+    debugPrint('🔥 Firebase instance: ${_firestore.app.name}');
+    debugPrint('🔐 Auth instance: ${_auth.app.name}');
     
     try {
       // 1. Create Admin
@@ -63,7 +65,17 @@ class SeedData {
     const password = 'admin123';
     
     try {
-      // Check if admin already exists
+      // Check if there's a currently logged in admin
+      final currentUser = _auth.currentUser;
+      if (currentUser != null) {
+        final userDoc = await _firestore.collection('users').doc(currentUser.uid).get();
+        if (userDoc.exists && userDoc.data()?['role'] == 'admin') {
+          debugPrint('  ℹ️ Already logged in as admin, skipping admin creation...');
+          return;
+        }
+      }
+      
+      // Check if admin already exists in Firestore
       final existingUsers = await _firestore
           .collection('users')
           .where('email', isEqualTo: email)
@@ -74,6 +86,9 @@ class SeedData {
         debugPrint('  ℹ️ Admin already exists, skipping...');
         return;
       }
+      
+      // Save current user to restore later
+      final wasLoggedIn = currentUser != null;
       
       // Create auth user
       final userCredential = await _auth.createUserWithEmailAndPassword(
@@ -92,10 +107,16 @@ class SeedData {
         'updated_at': FieldValue.serverTimestamp(),
       });
       
-      // Logout admin
+      debugPrint('  ✅ Admin created: $email');
+      
+      // Logout the newly created admin
       await _auth.signOut();
       
-      debugPrint('  ✅ Admin created: $email');
+      // If there was a user logged in before, they need to login again manually
+      // (we can't restore the session automatically)
+      if (wasLoggedIn) {
+        debugPrint('  ⚠️ Previous session ended, please login again');
+      }
     } catch (e) {
       debugPrint('  ⚠️ Error creating admin: $e');
     }
@@ -314,10 +335,16 @@ class SeedData {
     debugPrint('🗑️ Clearing all data...');
     
     try {
-      // Delete users collection
+      final currentUser = _auth.currentUser;
+      final currentUserId = currentUser?.uid;
+      
+      // Delete users collection (EXCEPT currently logged in user)
       final users = await _firestore.collection('users').get();
       for (final doc in users.docs) {
-        await doc.reference.delete();
+        // Skip currently logged in user
+        if (doc.id != currentUserId) {
+          await doc.reference.delete();
+        }
       }
       
       // Delete buses
@@ -332,7 +359,7 @@ class SeedData {
         await doc.reference.delete();
       }
       
-      debugPrint('✅ All data cleared!');
+      debugPrint('✅ All data cleared (except current user)!');
     } catch (e) {
       debugPrint('❌ Error clearing data: $e');
       rethrow;

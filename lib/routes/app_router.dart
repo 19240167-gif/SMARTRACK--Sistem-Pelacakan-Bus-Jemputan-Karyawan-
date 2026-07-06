@@ -64,10 +64,12 @@ final routerProvider = Provider<GoRouter>((ref) {
         }
       }
 
-      // Redirect user yang belum login ke login (kecuali halaman auth & splash)
+      // Redirect user yang belum login ke login (kecuali halaman auth, splash, debug, dan seed)
       if (!isAuthenticated && 
           location != AppRoutes.login && 
-          location != AppRoutes.splash) {
+          location != AppRoutes.splash &&
+          location != '/debug' &&
+          location != '/seed') {
         return AppRoutes.login;
       }
 

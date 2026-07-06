@@ -242,7 +242,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                     ),
                                     const SizedBox(width: 16),
                                     TextButton.icon(
-                                      onPressed: () => context.go('/seed'),
+                                      onPressed: () {
+                                        print('🔵 Seed Data button clicked!');
+                                        print('🔵 Navigating to /seed...');
+                                        context.go('/seed');
+                                        print('🔵 Navigation command sent');
+                                      },
                                       icon: const Icon(Icons.cloud_upload, size: 16),
                                       label: const Text('Seed Data'),
                                       style: TextButton.styleFrom(
