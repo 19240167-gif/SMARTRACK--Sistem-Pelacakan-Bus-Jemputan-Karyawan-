@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/tracking_provider.dart';
 import '../../utils/constants.dart';
@@ -96,7 +97,7 @@ class DashboardAdminScreen extends ConsumerWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 // Stats row
-                _buildStatsRow(),
+                _buildStatsRow(ref),
                 const SizedBox(height: 20),
 
                 // Live bus monitoring
@@ -270,14 +271,56 @@ class DashboardAdminScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildStatsRow() {
+  Widget _buildStatsRow(WidgetRef ref) {
+    // Real-time stats from Firestore
+    final busesStream = ref.watch(StreamProvider<int>((ref) {
+      return FirebaseFirestore.instance
+          .collection('bus')
+          .snapshots()
+          .map((snapshot) => snapshot.docs.length);
+    }));
+    
+    final driversStream = ref.watch(StreamProvider<int>((ref) {
+      return FirebaseFirestore.instance
+          .collection('users')
+          .where('role', isEqualTo: 'driver')
+          .snapshots()
+          .map((snapshot) => snapshot.docs.length);
+    }));
+    
+    final karyawanStream = ref.watch(StreamProvider<int>((ref) {
+      return FirebaseFirestore.instance
+          .collection('users')
+          .where('role', isEqualTo: 'karyawan')
+          .snapshots()
+          .map((snapshot) => snapshot.docs.length);
+    }));
+    
     return Row(
       children: [
-        Expanded(child: _statCard('Total Bus', '12', Icons.directions_bus_rounded, AppColors.accent)),
+        Expanded(
+          child: busesStream.when(
+            data: (count) => _statCard('Total Bus', '$count', Icons.directions_bus_rounded, AppColors.accent),
+            loading: () => _statCard('Total Bus', '-', Icons.directions_bus_rounded, AppColors.accent),
+            error: (_, __) => _statCard('Total Bus', '0', Icons.directions_bus_rounded, AppColors.accent),
+          ),
+        ),
         const SizedBox(width: 10),
-        Expanded(child: _statCard('Driver', '10', Icons.drive_eta_rounded, AppColors.statusBerangkat)),
+        Expanded(
+          child: driversStream.when(
+            data: (count) => _statCard('Driver', '$count', Icons.drive_eta_rounded, AppColors.statusBerangkat),
+            loading: () => _statCard('Driver', '-', Icons.drive_eta_rounded, AppColors.statusBerangkat),
+            error: (_, __) => _statCard('Driver', '0', Icons.drive_eta_rounded, AppColors.statusBerangkat),
+          ),
+        ),
         const SizedBox(width: 10),
-        Expanded(child: _statCard('Karyawan', '247', Icons.people_rounded, AppColors.secondary)),
+        Expanded(
+          child: karyawanStream.when(
+            data: (count) => _statCard('Karyawan', '$count', Icons.people_rounded, AppColors.secondary),
+            loading: () => _statCard('Karyawan', '-', Icons.people_rounded, AppColors.secondary),
+            error: (_, __) => _statCard('Karyawan', '0', Icons.people_rounded, AppColors.secondary),
+          ),
+        ),
       ],
     );
   }
