@@ -23,7 +23,11 @@ class DashboardAdminScreen extends ConsumerWidget {
             pinned: true,
             backgroundColor: AppColors.primary,
             expandedHeight: 140,
-            automaticallyImplyLeading: false,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_rounded),
+              onPressed: () => ref.read(authProvider.notifier).logout(),
+              tooltip: 'Logout',
+            ),
             actions: [
               IconButton(
                 icon: const Icon(Icons.logout_rounded),

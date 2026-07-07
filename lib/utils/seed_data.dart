@@ -65,6 +65,8 @@ class SeedData {
     const password = 'admin123';
     
     try {
+      debugPrint('  📧 Checking if admin exists...');
+      
       // Check if admin already exists in Firestore
       final existingUsers = await _firestore
           .collection('users')
@@ -73,22 +75,32 @@ class SeedData {
           .get();
       
       if (existingUsers.docs.isNotEmpty) {
-        debugPrint('  ℹ️ Admin already exists, skipping...');
+        debugPrint('  ℹ️ Admin already exists in Firestore, skipping...');
         return;
       }
+      
+      debugPrint('  🔐 Creating admin auth account...');
       
       // Get currently logged in user (if any) to restore session later
       final currentUser = _auth.currentUser;
       final wasLoggedIn = currentUser != null;
       final previousUserEmail = currentUser?.email;
       
+      if (wasLoggedIn) {
+        debugPrint('  ℹ️ Current user: $previousUserEmail');
+      }
+      
       // Create admin auth user
+      debugPrint('  🔑 Calling createUserWithEmailAndPassword...');
       final userCredential = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
       
+      debugPrint('  ✅ Auth account created! UID: ${userCredential.user!.uid}');
+      
       // Create admin Firestore document
+      debugPrint('  📝 Creating Firestore document...');
       await _firestore.collection('users').doc(userCredential.user!.uid).set({
         'uid': userCredential.user!.uid,
         'email': email,
@@ -99,18 +111,22 @@ class SeedData {
         'updated_at': FieldValue.serverTimestamp(),
       });
       
+      debugPrint('  ✅ Firestore document created!');
       debugPrint('  ✅ Admin created: $email');
       
       // Sign out the newly created admin account
+      debugPrint('  🚪 Signing out admin...');
       await _auth.signOut();
+      debugPrint('  ✅ Sign out complete');
       
       // If there was someone logged in before, inform them
       if (wasLoggedIn) {
         debugPrint('  ℹ️ Previous session ($previousUserEmail) has ended');
         debugPrint('  ℹ️ You can login again with your credentials');
       }
-    } catch (e) {
-      debugPrint('  ⚠️ Error creating admin: $e');
+    } catch (e, stackTrace) {
+      debugPrint('  ❌ ERROR creating admin: $e');
+      debugPrint('  ❌ Stack trace: $stackTrace');
       // Don't rethrow - continue with other data creation
     }
   }
@@ -228,6 +244,8 @@ class SeedData {
     
     for (final driver in drivers) {
       try {
+        debugPrint('  🔑 Creating driver: ${driver['nama']}...');
+        
         // Create auth user
         final userCredential = await _auth.createUserWithEmailAndPassword(
           email: driver['email'] as String,
@@ -235,6 +253,7 @@ class SeedData {
         );
         
         final uid = userCredential.user!.uid;
+        debugPrint('    ✅ Auth created, UID: $uid');
         
         // Create Firestore document
         await _firestore.collection('users').doc(uid).set({
@@ -248,6 +267,8 @@ class SeedData {
           'updated_at': FieldValue.serverTimestamp(),
         });
         
+        debugPrint('    ✅ Firestore doc created');
+        
         // Update bus with driver info
         await _firestore.collection('bus').doc(driver['busId'] as String).update({
           'driver_id': uid,
@@ -255,12 +276,15 @@ class SeedData {
           'updated_at': FieldValue.serverTimestamp(),
         });
         
+        debugPrint('    ✅ Bus updated with driver info');
+        
         // Logout
         await _auth.signOut();
         
         debugPrint('  ✅ Driver created: ${driver['nama']} → ${driver['email']}');
-      } catch (e) {
-        debugPrint('  ⚠️ Error creating driver ${driver['nama']}: $e');
+      } catch (e, stackTrace) {
+        debugPrint('  ❌ Error creating driver ${driver['nama']}: $e');
+        debugPrint('  ❌ Stack trace: $stackTrace');
       }
     }
   }
@@ -336,7 +360,7 @@ class SeedData {
         debugPrint('  ℹ️ Current user ($currentUserId) will be preserved');
       }
       
-      // Delete users collection (EXCEPT currently logged in user)
+      // Delete users collection from Firestore (EXCEPT currently logged in user)
       final users = await _firestore.collection('users').get();
       int deletedUsers = 0;
       for (final doc in users.docs) {
@@ -346,7 +370,15 @@ class SeedData {
           deletedUsers++;
         }
       }
-      debugPrint('  ✅ Deleted $deletedUsers users');
+      debugPrint('  ✅ Deleted $deletedUsers users from Firestore');
+      
+      // NOTE: We cannot delete Firebase Auth users programmatically from client side
+      // Firebase Auth users can only be deleted:
+      // 1. By the user themselves (requires re-authentication)
+      // 2. By Admin SDK on backend/server
+      // 3. Manually in Firebase Console
+      debugPrint('  ⚠️ Firebase Auth users NOT deleted (requires manual cleanup in console)');
+      debugPrint('  ℹ️ To clean auth users: Firebase Console → Authentication → Users → Delete All');
       
       // Delete buses
       final buses = await _firestore.collection('bus').get();
@@ -366,6 +398,7 @@ class SeedData {
       if (currentUserId != null) {
         debugPrint('ℹ️ Your current session is still active');
       }
+      debugPrint('⚠️ WARNING: Firebase Auth users still exist - delete manually in console before re-populating');
     } catch (e) {
       debugPrint('❌ Error clearing data: $e');
       rethrow;

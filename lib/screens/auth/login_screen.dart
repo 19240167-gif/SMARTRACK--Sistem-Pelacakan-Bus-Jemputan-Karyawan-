@@ -79,6 +79,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
     return Scaffold(
       backgroundColor: AppColors.background,
+      resizeToAvoidBottomInset: true, // Enable auto-resize when keyboard appears
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -92,20 +93,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         ),
         child: SafeArea(
           child: SingleChildScrollView(
-            child: SizedBox(
-              height: size.height - MediaQuery.of(context).padding.top,
-              child: Padding(
-                padding: const EdgeInsets.all(AppDimensions.paddingL),
-                child: FadeTransition(
-                  opacity: _fadeAnim,
-                  child: SlideTransition(
-                    position: _slideAnim,
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 40),
+            padding: const EdgeInsets.all(AppDimensions.paddingL),
+            child: FadeTransition(
+              opacity: _fadeAnim,
+              child: SlideTransition(
+                position: _slideAnim,
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 40),
                           
                           // Logo & header
                           Center(
@@ -209,7 +207,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             ),
                           ),
                           
-                          const Spacer(),
+                          SizedBox(height: MediaQuery.of(context).viewInsets.bottom > 0 ? 24 : 48),
                           
                           // Info text - accounts created by admin
                           Center(
@@ -270,7 +268,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ),
           ),
         ),
-      ),
     );
   }
 }
