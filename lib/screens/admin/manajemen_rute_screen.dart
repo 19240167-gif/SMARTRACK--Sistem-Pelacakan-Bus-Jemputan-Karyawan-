@@ -25,7 +25,10 @@ class ManajemenRuteScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.surface,
         title: const Text('Manajemen Rute'),
-        leading: const BackButton(),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showDialog(context, null),

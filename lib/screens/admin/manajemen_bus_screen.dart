@@ -18,7 +18,10 @@ class ManajemenBusScreen extends ConsumerWidget {
       appBar: AppBar(
         backgroundColor: AppColors.surface,
         title: const Text('Manajemen Bus'),
-        leading: const BackButton(),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showBusDialog(context, ref, null),
