@@ -1,4 +1,4 @@
-﻿// lib/services/auth_service.dart
+// lib/services/auth_service.dart
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,28 +17,33 @@ class AuthService {
   /// Sign in dengan email dan password
   Future<AuthResult> signInWithEmail(String email, String password) async {
     try {
-      UserCredential credential = await _auth.signInWithEmailAndPassword(
-        email: email.trim(),
-        password: password,
-      );
+      final credential = await _auth
+          .signInWithEmailAndPassword(
+            email: email.trim(),
+            password: password,
+          )
+          .timeout(const Duration(seconds: 20));
 
-      if (credential.user != null) {
-        // Update FCM token setelah login
-        await _firebaseService.updateFCMToken();
-        
-        // Update last login time (snake_case)
-        await _users.doc(credential.user!.uid).update({
-          'last_login_at': FieldValue.serverTimestamp(),
+      final user = credential.user;
+      if (user != null) {
+        _firebaseService.updateFCMToken().timeout(const Duration(seconds: 5)).catchError((e) {
+          debugPrint('FCM token update skipped: $e');
         });
 
-        return AuthResult.success(credential.user!);
+        _users.doc(user.uid).update({
+          'last_login_at': FieldValue.serverTimestamp(),
+        }).timeout(const Duration(seconds: 5)).catchError((e) {
+          debugPrint('Last login update skipped: $e');
+        });
+
+        return AuthResult.success(user);
       }
 
       return AuthResult.error('Login failed: User is null');
     } on FirebaseAuthException catch (e) {
       return AuthResult.error(_getAuthErrorMessage(e.code));
     } catch (e) {
-      return AuthResult.error('Login failed: ${e.toString()}');
+      return AuthResult.error('Login gagal atau koneksi timeout. Coba lagi.');
     }
   }
 
@@ -209,14 +214,20 @@ class AuthService {
 
   /// Kompatibilitas untuk provider lama.
   Future<UserModel> login(String email, String password) async {
-    final result = await signInWithEmail(email, password);
+    final result = await signInWithEmail(email, password).timeout(
+      const Duration(seconds: 25),
+      onTimeout: () => AuthResult.error('Login timeout. Periksa koneksi lalu coba lagi.'),
+    );
     if (!result.isSuccess || result.user == null) {
       throw Exception(result.message ?? 'Login gagal');
     }
 
-    final user = await getUserModel(result.user!.uid);
+    final user = await getUserModel(result.user!.uid).timeout(
+      const Duration(seconds: 10),
+      onTimeout: () => null,
+    );
     if (user == null) {
-      throw Exception('Data profil user tidak ditemukan');
+      throw Exception('Data profil user tidak ditemukan atau gagal dimuat');
     }
     return user;
   }
