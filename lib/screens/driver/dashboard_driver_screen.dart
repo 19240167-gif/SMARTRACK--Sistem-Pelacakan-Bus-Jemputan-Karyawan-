@@ -1,4 +1,4 @@
-﻿// lib/screens/driver/dashboard_driver_screen.dart
+// lib/screens/driver/dashboard_driver_screen.dart
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -168,7 +168,7 @@ class _DashboardDriverScreenState
         border: Border.all(color: AppColors.divider, width: 0.5),
         boxShadow: [
           BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
+              color: Colors.black.withOpacity(0.2),
               blurRadius: 16,
               offset: const Offset(0, 4))
         ],
@@ -180,12 +180,12 @@ class _DashboardDriverScreenState
             height: 56,
             decoration: BoxDecoration(
               color: state.isTracking
-                  ? AppColors.statusBerangkat.withValues(alpha: 0.15)
+                  ? AppColors.statusBerangkat.withOpacity(0.15)
                   : AppColors.surfaceVariant,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                   color: state.isTracking
-                      ? AppColors.statusBerangkat.withValues(alpha: 0.4)
+                      ? AppColors.statusBerangkat.withOpacity(0.4)
                       : AppColors.divider),
             ),
             child: Icon(
@@ -233,7 +233,7 @@ class _DashboardDriverScreenState
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                      color: AppColors.statusBerangkat.withValues(alpha: 0.6),
+                      color: AppColors.statusBerangkat.withOpacity(0.6),
                       blurRadius: 8,
                       spreadRadius: 2)
                 ],
@@ -259,7 +259,7 @@ class _DashboardDriverScreenState
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: AppColors.statusBerangkat.withValues(alpha: 0.4),
+              color: AppColors.statusBerangkat.withOpacity(0.4),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -323,12 +323,12 @@ class _DashboardDriverScreenState
                           horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
                         color: isSelected
-                            ? color.withValues(alpha: 0.2)
+                            ? color.withOpacity(0.2)
                             : AppColors.surfaceVariant,
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: isSelected
-                              ? color.withValues(alpha: 0.5)
+                              ? color.withOpacity(0.5)
                               : AppColors.divider,
                           width: isSelected ? 1.5 : 0.5,
                         ),
@@ -409,10 +409,10 @@ class _DashboardDriverScreenState
             width: double.infinity,
             height: 60,
             decoration: BoxDecoration(
-              color: AppColors.error.withValues(alpha: 0.1),
+              color: AppColors.error.withOpacity(0.1),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                  color: AppColors.error.withValues(alpha: 0.4), width: 1.5),
+                  color: AppColors.error.withOpacity(0.4), width: 1.5),
             ),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -527,10 +527,10 @@ class _DashboardDriverScreenState
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.statusMacet.withValues(alpha: 0.08),
+          color: AppColors.statusMacet.withOpacity(0.08),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-              color: AppColors.statusMacet.withValues(alpha: 0.3), width: 0.5),
+              color: AppColors.statusMacet.withOpacity(0.3), width: 0.5),
         ),
         child: const Row(
           children: [
@@ -653,10 +653,10 @@ class _DashboardDriverScreenState
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppColors.statusMacet.withValues(alpha: 0.08),
+        color: AppColors.statusMacet.withOpacity(0.08),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-            color: AppColors.statusMacet.withValues(alpha: 0.3), width: 1),
+            color: AppColors.statusMacet.withOpacity(0.3), width: 1),
       ),
       child: Column(
         children: [
@@ -664,7 +664,7 @@ class _DashboardDriverScreenState
             width: 72,
             height: 72,
             decoration: BoxDecoration(
-              color: AppColors.statusMacet.withValues(alpha: 0.15),
+              color: AppColors.statusMacet.withOpacity(0.15),
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Icon(Icons.no_transfer_rounded,

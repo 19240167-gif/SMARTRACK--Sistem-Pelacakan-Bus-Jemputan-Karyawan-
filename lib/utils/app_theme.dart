@@ -20,7 +20,7 @@ class AppTheme {
         error: AppColors.error,
         onError: Colors.white,
         outline: AppColors.divider,
-        surfaceContainerHighest: AppColors.surfaceVariant,
+        background: AppColors.surfaceVariant,
       ),
       scaffoldBackgroundColor: AppColors.background,
       // Gunakan Roboto (default Flutter) karena Inter belum ada
@@ -157,15 +157,15 @@ class AppTheme {
       // NavigationBar
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: AppColors.surface,
-        indicatorColor: AppColors.accent.withValues(alpha: 0.2),
-        iconTheme: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
+        indicatorColor: AppColors.accent.withOpacity(0.2),
+        iconTheme: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
             return const IconThemeData(color: AppColors.accent);
           }
           return const IconThemeData(color: AppColors.textSecondary);
         }),
-        labelTextStyle: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
+        labelTextStyle: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
             return const TextStyle(
               // fontFamily: 'Inter',
               fontSize: 11,
@@ -184,7 +184,7 @@ class AppTheme {
       // Chip
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.surfaceVariant,
-        selectedColor: AppColors.accent.withValues(alpha: 0.3),
+        selectedColor: AppColors.accent.withOpacity(0.3),
         labelStyle: const TextStyle(
           // fontFamily: 'Inter',
           fontSize: 12,

@@ -1,5 +1,6 @@
-﻿// lib/screens/admin/manajemen_bus_screen.dart
+// lib/screens/admin/manajemen_bus_screen.dart
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/bus_model.dart';
 import '../../providers/bus_provider.dart';
@@ -20,7 +21,7 @@ class ManajemenBusScreen extends ConsumerWidget {
         title: const Text('Manajemen Bus'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -84,7 +85,7 @@ class ManajemenBusScreen extends ConsumerWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: AppColors.accent.withValues(alpha: 0.15),
+              color: AppColors.accent.withOpacity(0.15),
               borderRadius: BorderRadius.circular(14),
             ),
             child: const Icon(Icons.directions_bus_rounded,
@@ -131,9 +132,9 @@ class ManajemenBusScreen extends ConsumerWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.15),
+                  color: statusColor.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: statusColor.withValues(alpha: 0.3)),
+                  border: Border.all(color: statusColor.withOpacity(0.3)),
                 ),
                 child: Text(bus.status,
                     style: TextStyle(
@@ -151,7 +152,7 @@ class ManajemenBusScreen extends ConsumerWidget {
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
-                        color: AppColors.accent.withValues(alpha: 0.1),
+                        color: AppColors.accent.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.edit_outlined,
@@ -173,7 +174,7 @@ class ManajemenBusScreen extends ConsumerWidget {
                       width: 32,
                       height: 32,
                       decoration: BoxDecoration(
-                        color: AppColors.error.withValues(alpha: 0.1),
+                        color: AppColors.error.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(Icons.delete_outline_rounded,

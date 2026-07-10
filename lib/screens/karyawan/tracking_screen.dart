@@ -89,7 +89,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
       backgroundColor: AppColors.background,
       body: Stack(
         children: [
-          // ── Mock Map Canvas ───────────────────────────────────────────────
+          // â”€â”€ Mock Map Canvas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Positioned.fill(
             child: AnimatedBuilder(
               animation: Listenable.merge([_busProgress, _pulseAnim]),
@@ -106,7 +106,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
             ),
           ),
 
-          // ── Top bar ───────────────────────────────────────────────────────
+          // â”€â”€ Top bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Positioned(
             top: 0,
             left: 0,
@@ -162,7 +162,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
             ),
           ),
 
-          // ── Label "PROTOTYPE / DEMO" watermark ───────────────────────────
+          // â”€â”€ Label "PROTOTYPE / DEMO" watermark â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Positioned(
             top: 100,
             left: 0,
@@ -173,10 +173,10 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
                   padding: const EdgeInsets.symmetric(
                       horizontal: 12, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.statusMacet.withValues(alpha: 0.15),
+                    color: AppColors.statusMacet.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                        color: AppColors.statusMacet.withValues(alpha: 0.4)),
+                        color: AppColors.statusMacet.withOpacity(0.4)),
                   ),
                   child: const Text(
                     'TAMPILAN DEMO',
@@ -193,7 +193,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
             ),
           ),
 
-          // ── Bottom info card ──────────────────────────────────────────────
+          // â”€â”€ Bottom info card â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Positioned(
             bottom: 0,
             left: 0,
@@ -221,7 +221,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
             ),
           ),
 
-          // ── Zoom controls (gimmik) ────────────────────────────────────────
+          // â”€â”€ Zoom controls (gimmik) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
           Positioned(
             right: 16,
             bottom: 200,
@@ -254,10 +254,10 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppColors.accent.withValues(alpha: 0.15),
+                  color: AppColors.accent.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                      color: AppColors.accent.withValues(alpha: 0.3)),
+                      color: AppColors.accent.withOpacity(0.3)),
                 ),
                 child: const Icon(Icons.directions_bus_rounded,
                     color: AppColors.accent, size: 26),
@@ -318,10 +318,10 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppColors.accent.withValues(alpha: 0.15),
+                  color: AppColors.accent.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                      color: AppColors.accent.withValues(alpha: 0.3)),
+                      color: AppColors.accent.withOpacity(0.3)),
                 ),
                 child: const Icon(Icons.directions_bus_rounded,
                     color: AppColors.accent, size: 26),
@@ -409,7 +409,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
           border: Border.all(color: AppColors.divider, width: 0.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
+              color: Colors.black.withOpacity(0.3),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -421,9 +421,9 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
   }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // Data class untuk stop
-// ─────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _MockStop {
   final String name;
   final Offset position; // normalized 0..1
@@ -431,9 +431,9 @@ class _MockStop {
   const _MockStop(this.name, this.position, this.isStart);
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // CustomPainter: menggambar peta gimmik
-// ─────────────────────────────────────────────────────────────────────────────
+// â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 class _MockMapPainter extends CustomPainter {
   final double busProgress; // 0..1
   final List<Offset> routePoints;
@@ -544,7 +544,7 @@ class _MockMapPainter extends CustomPainter {
 
     // Glow route
     final glowPaint = Paint()
-      ..color = const Color(0xFF2563EB).withValues(alpha: 0.2)
+      ..color = const Color(0xFF2563EB).withOpacity(0.2)
       ..strokeWidth = 10
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
@@ -613,7 +613,7 @@ class _MockMapPainter extends CustomPainter {
         isStart ? 14 : 10,
         Paint()
           ..color = (isStart ? AppColors.statusTiba : AppColors.accent)
-              .withValues(alpha: 0.2),
+              .withOpacity(0.2),
       );
 
       // Inner circle
@@ -655,20 +655,20 @@ class _MockMapPainter extends CustomPainter {
       pos,
       22 * pulseScale,
       Paint()
-        ..color = AppColors.accent.withValues(alpha: 0.15 * (2 - pulseScale)),
+        ..color = AppColors.accent.withOpacity(0.15 * (2 - pulseScale)),
     );
     canvas.drawCircle(
       pos,
       16 * pulseScale,
       Paint()
-        ..color = AppColors.accent.withValues(alpha: 0.2),
+        ..color = AppColors.accent.withOpacity(0.2),
     );
 
     // Shadow
     canvas.drawCircle(
       pos + const Offset(0, 3),
       14,
-      Paint()..color = Colors.black.withValues(alpha: 0.4),
+      Paint()..color = Colors.black.withOpacity(0.4),
     );
 
     // Main bus circle

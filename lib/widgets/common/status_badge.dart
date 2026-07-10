@@ -25,9 +25,9 @@ class StatusBadge extends StatelessWidget {
         vertical: large ? 6 : 4,
       ),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.15),
+        color: color.withOpacity(0.15),
         borderRadius: BorderRadius.circular(AppDimensions.radiusCircle),
-        border: Border.all(color: color.withValues(alpha: 0.4), width: 0.8),
+        border: Border.all(color: color.withOpacity(0.4), width: 0.8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -41,7 +41,7 @@ class StatusBadge extends StatelessWidget {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: color.withValues(alpha: 0.5),
+                    color: color.withOpacity(0.5),
                     blurRadius: 4,
                     spreadRadius: 1,
                   ),
@@ -107,10 +107,10 @@ class _AnimatedStatusBadgeState extends State<AnimatedStatusBadge>
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: 0.15 * _animation.value),
+            color: color.withOpacity(0.15 * _animation.value),
             borderRadius: BorderRadius.circular(AppDimensions.radiusCircle),
             border: Border.all(
-              color: color.withValues(alpha: 0.4 * _animation.value),
+              color: color.withOpacity(0.4 * _animation.value),
               width: 0.8,
             ),
           ),
@@ -121,11 +121,11 @@ class _AnimatedStatusBadgeState extends State<AnimatedStatusBadge>
                 width: 8,
                 height: 8,
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: _animation.value),
+                  color: color.withOpacity(_animation.value),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: color.withValues(alpha: 0.5 * _animation.value),
+                      color: color.withOpacity(0.5 * _animation.value),
                       blurRadius: 6,
                       spreadRadius: 2,
                     ),

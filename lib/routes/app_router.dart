@@ -1,4 +1,4 @@
-﻿// lib/routes/app_router.dart
+// lib/routes/app_router.dart
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -191,7 +191,7 @@ class _KaryawanShellState extends ConsumerState<KaryawanShell> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.3),
+            color: Colors.black.withOpacity(0.3),
             blurRadius: 20,
             offset: const Offset(0, -5),
           ),

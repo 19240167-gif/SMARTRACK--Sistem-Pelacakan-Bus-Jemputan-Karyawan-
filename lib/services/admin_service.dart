@@ -29,7 +29,7 @@ class AdminService {
       // User perlu re-login setelah create account
       return _auth;
     } catch (e) {
-      debugPrint('⚠️ Warning: Using primary auth. Admin may need to re-login after creating users.');
+      debugPrint('Ã¢Å¡Â Ã¯Â¸Â Warning: Using primary auth. Admin may need to re-login after creating users.');
       return _auth;
     }
   }
@@ -54,10 +54,10 @@ class AdminService {
         'created_at': FieldValue.serverTimestamp(),
         'updated_at': FieldValue.serverTimestamp(),
       });
-      debugPrint('✅ Bus created: ${docRef.id}');
+      debugPrint('Ã¢Å“â€¦ Bus created: ${docRef.id}');
       return docRef.id;
     } catch (e) {
-      debugPrint('❌ Error creating bus: $e');
+      debugPrint('Ã¢ÂÅ’ Error creating bus: $e');
       throw Exception('Gagal membuat bus: $e');
     }
   }
@@ -69,9 +69,9 @@ class AdminService {
         ...data,
         'updated_at': FieldValue.serverTimestamp(),
       });
-      debugPrint('✅ Bus updated: $busId');
+      debugPrint('Ã¢Å“â€¦ Bus updated: $busId');
     } catch (e) {
-      debugPrint('❌ Error updating bus: $e');
+      debugPrint('Ã¢ÂÅ’ Error updating bus: $e');
       throw Exception('Gagal update bus: $e');
     }
   }
@@ -91,9 +91,9 @@ class AdminService {
       }
 
       await _firestore.collection('bus').doc(busId).delete();
-      debugPrint('✅ Bus deleted: $busId');
+      debugPrint('Ã¢Å“â€¦ Bus deleted: $busId');
     } catch (e) {
-      debugPrint('❌ Error deleting bus: $e');
+      debugPrint('Ã¢ÂÅ’ Error deleting bus: $e');
       throw Exception('Gagal hapus bus: $e');
     }
   }
@@ -124,9 +124,9 @@ class AdminService {
         'updated_at': FieldValue.serverTimestamp(),
       });
 
-      debugPrint('✅ Driver assigned to bus: $driverId -> $busId');
+      debugPrint('Ã¢Å“â€¦ Driver assigned to bus: $driverId -> $busId');
     } catch (e) {
-      debugPrint('❌ Error assigning driver: $e');
+      debugPrint('Ã¢ÂÅ’ Error assigning driver: $e');
       throw Exception('Gagal assign driver: $e');
     }
   }
@@ -145,9 +145,9 @@ class AdminService {
         'updated_at': FieldValue.serverTimestamp(),
       });
 
-      debugPrint('✅ Driver unassigned from bus');
+      debugPrint('Ã¢Å“â€¦ Driver unassigned from bus');
     } catch (e) {
-      debugPrint('❌ Error unassigning driver: $e');
+      debugPrint('Ã¢ÂÅ’ Error unassigning driver: $e');
       throw Exception('Gagal unassign driver: $e');
     }
   }
@@ -176,10 +176,10 @@ class AdminService {
         'created_at': FieldValue.serverTimestamp(),
         'updated_at': FieldValue.serverTimestamp(),
       });
-      debugPrint('✅ Titik jemput created: ${docRef.id}');
+      debugPrint('Ã¢Å“â€¦ Titik jemput created: ${docRef.id}');
       return docRef.id;
     } catch (e) {
-      debugPrint('❌ Error creating titik jemput: $e');
+      debugPrint('Ã¢ÂÅ’ Error creating titik jemput: $e');
       throw Exception('Gagal membuat titik jemput: $e');
     }
   }
@@ -191,9 +191,9 @@ class AdminService {
         ...data,
         'updated_at': FieldValue.serverTimestamp(),
       });
-      debugPrint('✅ Titik jemput updated: $titikJemputId');
+      debugPrint('Ã¢Å“â€¦ Titik jemput updated: $titikJemputId');
     } catch (e) {
-      debugPrint('❌ Error updating titik jemput: $e');
+      debugPrint('Ã¢ÂÅ’ Error updating titik jemput: $e');
       throw Exception('Gagal update titik jemput: $e');
     }
   }
@@ -213,9 +213,9 @@ class AdminService {
       }
 
       await _firestore.collection('titik_jemput').doc(titikJemputId).delete();
-      debugPrint('✅ Titik jemput deleted: $titikJemputId');
+      debugPrint('Ã¢Å“â€¦ Titik jemput deleted: $titikJemputId');
     } catch (e) {
-      debugPrint('❌ Error deleting titik jemput: $e');
+      debugPrint('Ã¢ÂÅ’ Error deleting titik jemput: $e');
       throw Exception('Gagal hapus titik jemput: $e');
     }
   }
@@ -262,12 +262,12 @@ class AdminService {
       
       // WARNING: Admin needs to re-login
       // Untuk production: gunakan Firebase Admin SDK di Cloud Functions
-      debugPrint('⚠️ WARNING: Admin perlu login ulang setelah membuat user');
-      debugPrint('✅ Driver account created: $uid (email: $currentEmail for re-login)');
+      debugPrint('Ã¢Å¡Â Ã¯Â¸Â WARNING: Admin perlu login ulang setelah membuat user');
+      debugPrint('Ã¢Å“â€¦ Driver account created: $uid (email: $currentEmail for re-login)');
       
       return uid;
     } catch (e) {
-      debugPrint('❌ Error creating driver: $e');
+      debugPrint('Ã¢ÂÅ’ Error creating driver: $e');
       throw Exception('Gagal membuat akun driver: $e');
     }
   }
@@ -316,12 +316,12 @@ class AdminService {
       await _auth.signOut();
       
       // WARNING: Admin needs to re-login
-      debugPrint('⚠️ WARNING: Admin perlu login ulang setelah membuat user');
-      debugPrint('✅ Karyawan account created: $uid (email: $currentEmail for re-login)');
+      debugPrint('Ã¢Å¡Â Ã¯Â¸Â WARNING: Admin perlu login ulang setelah membuat user');
+      debugPrint('Ã¢Å“â€¦ Karyawan account created: $uid (email: $currentEmail for re-login)');
       
       return uid;
     } catch (e) {
-      debugPrint('❌ Error creating karyawan: $e');
+      debugPrint('Ã¢ÂÅ’ Error creating karyawan: $e');
       throw Exception('Gagal membuat akun karyawan: $e');
     }
   }
@@ -333,9 +333,9 @@ class AdminService {
         ...data,
         'updated_at': FieldValue.serverTimestamp(),
       });
-      debugPrint('✅ User updated: $userId');
+      debugPrint('Ã¢Å“â€¦ User updated: $userId');
     } catch (e) {
-      debugPrint('❌ Error updating user: $e');
+      debugPrint('Ã¢ÂÅ’ Error updating user: $e');
       throw Exception('Gagal update user: $e');
     }
   }
@@ -352,9 +352,9 @@ class AdminService {
       // Note: Firebase Auth user tidak dihapus untuk keamanan
       // Jika ingin hapus total dari Auth, perlu Firebase Admin SDK
       
-      debugPrint('✅ User deactivated: $userId');
+      debugPrint('Ã¢Å“â€¦ User deactivated: $userId');
     } catch (e) {
-      debugPrint('❌ Error deleting user: $e');
+      debugPrint('Ã¢ÂÅ’ Error deleting user: $e');
       throw Exception('Gagal hapus user: $e');
     }
   }
@@ -371,9 +371,9 @@ class AdminService {
         'titik_jemput_id': titikJemputId,
         'updated_at': FieldValue.serverTimestamp(),
       });
-      debugPrint('✅ Karyawan assigned: $userId');
+      debugPrint('Ã¢Å“â€¦ Karyawan assigned: $userId');
     } catch (e) {
-      debugPrint('❌ Error assigning karyawan: $e');
+      debugPrint('Ã¢ÂÅ’ Error assigning karyawan: $e');
       throw Exception('Gagal assign karyawan: $e');
     }
   }
@@ -406,12 +406,13 @@ class AdminService {
   Stream<List<BusModel>> getAllBuses() {
     return _firestore
         .collection('bus')
-        .orderBy('nomor_bus')
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
+      final list = snapshot.docs.map((doc) {
         return BusModel.fromMap(doc.data(), doc.id);
       }).toList();
+      list.sort((a, b) => a.nomorBus.compareTo(b.nomorBus));
+      return list;
     });
   }
 
@@ -419,13 +420,14 @@ class AdminService {
   Stream<List<TitikJemputModel>> getAllTitikJemput() {
     return _firestore
         .collection('titik_jemput')
-        .where('is_active', isEqualTo: true)
-        .orderBy('urutan_jemput')
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return TitikJemputModel.fromMap(doc.data(), doc.id);
-      }).toList();
+      final list = snapshot.docs
+          .where((doc) => doc.data()['is_active'] != false)
+          .map((doc) => TitikJemputModel.fromMap(doc.data(), doc.id))
+          .toList();
+      list.sort((a, b) => a.urutanJemput.compareTo(b.urutanJemput));
+      return list;
     });
   }
 
@@ -433,13 +435,13 @@ class AdminService {
   Stream<List<BusModel>> getAvailableBuses() {
     return _firestore
         .collection('bus')
-        .where('driver_id', isNull: true)
         .where('status', isEqualTo: 'aktif')
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return BusModel.fromMap(doc.data(), doc.id);
-      }).toList();
+      return snapshot.docs
+          .where((doc) => doc.data()['driver_id'] == null)
+          .map((doc) => BusModel.fromMap(doc.data(), doc.id))
+          .toList();
     });
   }
 
@@ -448,11 +450,14 @@ class AdminService {
     return _firestore
         .collection('users')
         .where('role', isEqualTo: 'driver')
-        .where('bus_id', isNull: true)
-        .where('is_active', isEqualTo: true)
         .snapshots()
         .map((snapshot) {
-      return snapshot.docs.map((doc) {
+      return snapshot.docs
+          .where((doc) {
+            final data = doc.data();
+            return data['bus_id'] == null && data['is_active'] != false;
+          })
+          .map((doc) {
         final data = doc.data();
         return UserModel(
           uid: doc.id,

@@ -21,12 +21,13 @@ final busProvider = StreamProvider.family<BusModel?, String>((ref, busId) {
 final allBusesProvider = StreamProvider<List<BusModel>>((ref) {
   return FirebaseFirestore.instance
       .collection('bus')
-      .orderBy('nomor_bus')
       .snapshots()
       .map((snapshot) {
-    return snapshot.docs.map((doc) {
+    final list = snapshot.docs.map((doc) {
       return BusModel.fromMap(doc.data(), doc.id);
     }).toList();
+    list.sort((a, b) => a.nomorBus.compareTo(b.nomorBus));
+    return list;
   });
 });
 
@@ -35,12 +36,13 @@ final activeBusesProvider = StreamProvider<List<BusModel>>((ref) {
   return FirebaseFirestore.instance
       .collection('bus')
       .where('status', isEqualTo: 'aktif')
-      .orderBy('nomor_bus')
       .snapshots()
       .map((snapshot) {
-    return snapshot.docs.map((doc) {
+    final list = snapshot.docs.map((doc) {
       return BusModel.fromMap(doc.data(), doc.id);
     }).toList();
+    list.sort((a, b) => a.nomorBus.compareTo(b.nomorBus));
+    return list;
   });
 });
 
@@ -49,13 +51,12 @@ final availableBusesProvider = StreamProvider<List<BusModel>>((ref) {
   return FirebaseFirestore.instance
       .collection('bus')
       .where('status', isEqualTo: 'aktif')
-      .where('driver_id', isNull: true)
-      .orderBy('nomor_bus')
       .snapshots()
       .map((snapshot) {
-    return snapshot.docs.map((doc) {
-      return BusModel.fromMap(doc.data(), doc.id);
-    }).toList();
+    return snapshot.docs
+        .where((doc) => doc.data()['driver_id'] == null)
+        .map((doc) => BusModel.fromMap(doc.data(), doc.id))
+        .toList();
   });
 });
 

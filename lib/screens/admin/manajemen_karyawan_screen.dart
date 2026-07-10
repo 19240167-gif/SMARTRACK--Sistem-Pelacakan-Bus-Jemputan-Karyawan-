@@ -357,107 +357,113 @@ class ManajemenKaryawanScreen extends ConsumerWidget {
     String? selectedBusId = karyawan.busId;
     String? selectedTitikJemputId = karyawan.titikJemputId;
 
-    final busesAsync = ref.read(allBusesStreamProvider);
-    final titikJemputAsync = ref.read(allTitikJemputStreamProvider);
-
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setState) => AlertDialog(
-          backgroundColor: AppColors.card,
-          title: const Text('Assign Karyawan'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Karyawan: ${karyawan.nama}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 15,
+        builder: (ctx, setState) => Consumer(
+          builder: (ctx, ref, child) {
+            final busesAsync = ref.watch(allBusesStreamProvider);
+            final titikJemputAsync = ref.watch(allTitikJemputStreamProvider);
+
+            return AlertDialog(
+              backgroundColor: AppColors.card,
+              title: const Text('Assign Karyawan'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Karyawan: ${karyawan.nama}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    const Text('Pilih Bus:', style: TextStyle(fontSize: 13)),
+                    const SizedBox(height: 8),
+                    busesAsync.when(
+                      loading: () => const Center(child: CircularProgressIndicator()),
+                      error: (e, _) => Text('Error: $e'),
+                      data: (buses) {
+                        final isValid = buses.any((b) => b.id == selectedBusId);
+                        return DropdownButtonFormField<String>(
+                          value: isValid ? selectedBusId : null,
+                          hint: const Text('Pilih Bus'),
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          ),
+                          items: buses.map((bus) {
+                            return DropdownMenuItem(
+                              value: bus.id,
+                              child: Text('${bus.nomorBus} - ${bus.platNomor}'),
+                            );
+                          }).toList(),
+                          onChanged: (v) => setState(() => selectedBusId = v),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    const Text('Pilih Titik Jemput:', style: TextStyle(fontSize: 13)),
+                    const SizedBox(height: 8),
+                    titikJemputAsync.when(
+                      loading: () => const Center(child: CircularProgressIndicator()),
+                      error: (e, _) => Text('Error: $e'),
+                      data: (titikJemputList) {
+                        final isValid = titikJemputList.any((t) => t.id == selectedTitikJemputId);
+                        return DropdownButtonFormField<String>(
+                          value: isValid ? selectedTitikJemputId : null,
+                          hint: const Text('Pilih Titik Jemput'),
+                          decoration: const InputDecoration(
+                            border: OutlineInputBorder(),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                          ),
+                          items: titikJemputList.map((titik) {
+                            return DropdownMenuItem(
+                              value: titik.id,
+                              child: Text('${titik.nama} (${titik.jamJemput})'),
+                            );
+                          }).toList(),
+                          onChanged: (v) => setState(() => selectedTitikJemputId = v),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: const Text('Batal'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    if (selectedBusId != null && selectedTitikJemputId != null) {
+                      Navigator.pop(ctx);
+                      await ref.read(adminProvider.notifier).assignKaryawan(
+                            userId: karyawan.uid,
+                            busId: selectedBusId!,
+                            titikJemputId: selectedTitikJemputId!,
+                          );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Pilih bus dan titik jemput terlebih dahulu'),
+                          backgroundColor: AppColors.error,
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.accent,
                   ),
-                ),
-                const SizedBox(height: 20),
-                const Text('Pilih Bus:', style: TextStyle(fontSize: 13)),
-                const SizedBox(height: 8),
-                busesAsync.when(
-                  loading: () => const CircularProgressIndicator(),
-                  error: (e, _) => Text('Error: $e'),
-                  data: (buses) {
-                    return DropdownButtonFormField<String>(
-                      value: selectedBusId,
-                      hint: const Text('Pilih Bus'),
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      ),
-                      items: buses.map((bus) {
-                        return DropdownMenuItem(
-                          value: bus.id,
-                          child: Text('${bus.nomorBus} - ${bus.platNomor}'),
-                        );
-                      }).toList(),
-                      onChanged: (v) => setState(() => selectedBusId = v),
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-                const Text('Pilih Titik Jemput:', style: TextStyle(fontSize: 13)),
-                const SizedBox(height: 8),
-                titikJemputAsync.when(
-                  loading: () => const CircularProgressIndicator(),
-                  error: (e, _) => Text('Error: $e'),
-                  data: (titikJemputList) {
-                    return DropdownButtonFormField<String>(
-                      value: selectedTitikJemputId,
-                      hint: const Text('Pilih Titik Jemput'),
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      ),
-                      items: titikJemputList.map((titik) {
-                        return DropdownMenuItem(
-                          value: titik.id,
-                          child: Text('${titik.nama} (${titik.jamJemput})'),
-                        );
-                      }).toList(),
-                      onChanged: (v) => setState(() => selectedTitikJemputId = v),
-                    );
-                  },
+                  child: const Text('Simpan'),
                 ),
               ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Batal'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (selectedBusId != null && selectedTitikJemputId != null) {
-                  Navigator.pop(ctx);
-                  await ref.read(adminProvider.notifier).assignKaryawan(
-                        userId: karyawan.uid,
-                        busId: selectedBusId!,
-                        titikJemputId: selectedTitikJemputId!,
-                      );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Pilih bus dan titik jemput terlebih dahulu'),
-                      backgroundColor: AppColors.error,
-                    ),
-                  );
-                }
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.accent,
-              ),
-              child: const Text('Simpan'),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );

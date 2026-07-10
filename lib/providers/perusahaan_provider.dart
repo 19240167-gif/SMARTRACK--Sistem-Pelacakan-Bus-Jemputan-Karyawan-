@@ -21,12 +21,13 @@ final perusahaanProvider = StreamProvider.family<PerusahaanModel?, String>((ref,
 final allPerusahaanProvider = StreamProvider<List<PerusahaanModel>>((ref) {
   return FirebaseFirestore.instance
       .collection('perusahaan')
-      .where('is_active', isEqualTo: true)
-      .orderBy('nama')
       .snapshots()
       .map((snapshot) {
-    return snapshot.docs.map((doc) {
-      return PerusahaanModel.fromMap(doc.data(), doc.id);
-    }).toList();
+    final list = snapshot.docs
+        .where((doc) => doc.data()['is_active'] != false)
+        .map((doc) => PerusahaanModel.fromMap(doc.data(), doc.id))
+        .toList();
+    list.sort((a, b) => a.nama.compareTo(b.nama));
+    return list;
   });
 });

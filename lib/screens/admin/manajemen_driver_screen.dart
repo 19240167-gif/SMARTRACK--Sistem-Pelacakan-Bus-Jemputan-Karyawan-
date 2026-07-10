@@ -1,5 +1,6 @@
 // lib/screens/admin/manajemen_driver_screen.dart
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/admin_provider.dart';
 import '../../utils/constants.dart';
@@ -41,6 +42,10 @@ class ManajemenDriverScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Manajemen Driver'),
         backgroundColor: AppColors.primary,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddDriverDialog(context, ref),
@@ -299,46 +304,58 @@ class ManajemenDriverScreen extends ConsumerWidget {
   }
 
   void _showAssignBusDialog(BuildContext context, WidgetRef ref, dynamic driver) {
-    final busesAsync = ref.read(availableBusesStreamProvider);
-
     showDialog(
       context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: AppColors.card,
-        title: const Text('Assign Bus ke Driver'),
-        content: busesAsync.when(
-          loading: () => const CircularProgressIndicator(),
-          error: (e, _) => Text('Error: $e'),
-          data: (buses) {
-            if (buses.isEmpty) {
-              return const Text('Tidak ada bus yang tersedia');
-            }
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: buses.map((bus) {
-                return ListTile(
-                  leading: const Icon(Icons.directions_bus),
-                  title: Text(bus.nomorBus),
-                  subtitle: Text(bus.platNomor),
-                  onTap: () async {
-                    Navigator.pop(ctx);
-                    await ref.read(adminProvider.notifier).assignDriverToBus(
-                          bus.id!,
-                          driver.uid,
-                          driver.nama,
-                        );
-                  },
-                );
-              }).toList(),
-            );
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal'),
-          ),
-        ],
+      builder: (ctx) => Consumer(
+        builder: (ctx, ref, child) {
+          final busesAsync = ref.watch(availableBusesStreamProvider);
+
+          return AlertDialog(
+            backgroundColor: AppColors.card,
+            title: const Text('Assign Bus ke Driver'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: busesAsync.when(
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, _) => Text('Error: $e'),
+                data: (buses) {
+                  if (buses.isEmpty) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Text('Tidak ada bus yang tersedia'),
+                    );
+                  }
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: buses.length,
+                    itemBuilder: (context, index) {
+                      final bus = buses[index];
+                      return ListTile(
+                        leading: const Icon(Icons.directions_bus, color: AppColors.accent),
+                        title: Text(bus.nomorBus, style: const TextStyle(fontWeight: FontWeight.bold)),
+                        subtitle: Text(bus.platNomor),
+                        onTap: () async {
+                          Navigator.pop(ctx);
+                          await ref.read(adminProvider.notifier).assignDriverToBus(
+                                bus.id!,
+                                driver.uid,
+                                driver.nama,
+                              );
+                        },
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Batal'),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

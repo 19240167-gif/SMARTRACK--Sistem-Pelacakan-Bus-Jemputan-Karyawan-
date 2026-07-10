@@ -1,4 +1,4 @@
-﻿// lib/screens/karyawan/dashboard_karyawan_screen.dart
+// lib/screens/karyawan/dashboard_karyawan_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -55,7 +55,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              AppColors.accent.withValues(alpha: 0.2),
+                              AppColors.accent.withOpacity(0.2),
                               Colors.transparent,
                             ],
                           ),
@@ -482,7 +482,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
+              color: color.withOpacity(0.15),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: 20),
@@ -540,7 +540,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: act.$3.withValues(alpha: 0.15),
+                        color: act.$3.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(act.$4, color: act.$3, size: 18),

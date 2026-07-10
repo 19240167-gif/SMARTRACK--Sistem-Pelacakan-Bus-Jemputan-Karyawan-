@@ -21,13 +21,14 @@ final titikJemputProvider = StreamProvider.family<TitikJemputModel?, String>((re
 final allTitikJemputProvider = StreamProvider<List<TitikJemputModel>>((ref) {
   return FirebaseFirestore.instance
       .collection('titik_jemput')
-      .where('is_active', isEqualTo: true)
-      .orderBy('urutan_jemput')
       .snapshots()
       .map((snapshot) {
-    return snapshot.docs.map((doc) {
-      return TitikJemputModel.fromMap(doc.data(), doc.id);
-    }).toList();
+    final list = snapshot.docs
+        .where((doc) => doc.data()['is_active'] != false)
+        .map((doc) => TitikJemputModel.fromMap(doc.data(), doc.id))
+        .toList();
+    list.sort((a, b) => a.urutanJemput.compareTo(b.urutanJemput));
+    return list;
   });
 });
 
@@ -38,12 +39,13 @@ final titikJemputByPerusahaanProvider = StreamProvider.family<List<TitikJemputMo
   return FirebaseFirestore.instance
       .collection('titik_jemput')
       .where('perusahaan_id', isEqualTo: perusahaanId)
-      .where('is_active', isEqualTo: true)
-      .orderBy('urutan_jemput')
       .snapshots()
       .map((snapshot) {
-    return snapshot.docs.map((doc) {
-      return TitikJemputModel.fromMap(doc.data(), doc.id);
-    }).toList();
+    final list = snapshot.docs
+        .where((doc) => doc.data()['is_active'] != false)
+        .map((doc) => TitikJemputModel.fromMap(doc.data(), doc.id))
+        .toList();
+    list.sort((a, b) => a.urutanJemput.compareTo(b.urutanJemput));
+    return list;
   });
 });

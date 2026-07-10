@@ -1,5 +1,6 @@
-﻿// lib/screens/admin/manajemen_rute_screen.dart
+// lib/screens/admin/manajemen_rute_screen.dart
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../models/rute_model.dart';
@@ -27,7 +28,7 @@ class ManajemenRuteScreen extends ConsumerWidget {
         title: const Text('Manajemen Rute'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.pop(),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -86,7 +87,7 @@ class ManajemenRuteScreen extends ConsumerWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: AppColors.statusMendekati.withValues(alpha: 0.15),
+                  color: AppColors.statusMendekati.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(Icons.map_rounded,
@@ -115,9 +116,9 @@ class ManajemenRuteScreen extends ConsumerWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.accent.withValues(alpha: 0.15),
+                  color: AppColors.accent.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
+                  border: Border.all(color: AppColors.accent.withOpacity(0.3)),
                 ),
                 child: Text('${rute.daftarTitik.length} titik',
                     style: const TextStyle(

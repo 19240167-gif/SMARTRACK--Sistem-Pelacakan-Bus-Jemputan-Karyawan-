@@ -1,5 +1,6 @@
 // lib/screens/admin/manajemen_titik_jemput_screen.dart
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/admin_provider.dart';
@@ -41,6 +42,10 @@ class ManajemenTitikJemputScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Manajemen Titik Jemput'),
         backgroundColor: AppColors.primary,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddTitikJemputDialog(context, ref),
