@@ -6,11 +6,24 @@ import '../../utils/constants.dart';
 import '../../utils/helpers.dart';
 import '../../widgets/common/app_text_field.dart';
 
-class ManajemenKaryawanScreen extends ConsumerWidget {
+class ManajemenKaryawanScreen extends ConsumerStatefulWidget {
   const ManajemenKaryawanScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ManajemenKaryawanScreen> createState() => _ManajemenKaryawanScreenState();
+}
+
+class _ManajemenKaryawanScreenState extends ConsumerState<ManajemenKaryawanScreen> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final karyawanAsync = ref.watch(allKaryawanStreamProvider);
 
     // Show snackbar
@@ -47,189 +60,249 @@ class ManajemenKaryawanScreen extends ConsumerWidget {
         icon: const Icon(Icons.add),
         label: const Text('Tambah Karyawan'),
       ),
-      body: karyawanAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.accent),
-        ),
-        error: (e, _) => Center(
-          child: Text('Error: $e', style: const TextStyle(color: AppColors.error)),
-        ),
-        data: (karyawanList) {
-          if (karyawanList.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.people_outlined,
-                      size: 64, color: AppColors.textSecondary),
-                  const SizedBox(height: 16),
-                  const Text('Belum ada karyawan',
-                      style: TextStyle(
-                          color: AppColors.textSecondary, fontSize: 16)),
-                  const SizedBox(height: 8),
-                  TextButton.icon(
-                    onPressed: () => _showAddKaryawanDialog(context, ref),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Tambah Karyawan'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: karyawanList.length,
-            itemBuilder: (context, index) {
-              final karyawan = karyawanList[index];
-              final hasAssignment = karyawan.busId != null && karyawan.titikJemputId != null;
-
-              return Container(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.card,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.divider),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (_) => setState(() {}),
+              style: const TextStyle(fontFamily: 'Inter', color: AppColors.textPrimary),
+              decoration: InputDecoration(
+                hintText: 'Cari nama karyawan atau email',
+                hintStyle: const TextStyle(color: AppColors.textSecondary, fontFamily: 'Inter'),
+                prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textSecondary),
+                filled: true,
+                fillColor: AppColors.surface,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: AppColors.divider),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: AppColors.divider),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: AppColors.accent),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: karyawanAsync.when(
+              loading: () => const Center(
+                child: CircularProgressIndicator(color: AppColors.accent),
+              ),
+              error: (e, _) => Center(
+                child: Text('Error: $e', style: const TextStyle(color: AppColors.error)),
+              ),
+              data: (karyawanList) {
+                if (karyawanList.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: AppColors.secondary.withOpacity(0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Center(
-                            child: Text(
-                              karyawan.nama.isNotEmpty ? karyawan.nama[0].toUpperCase() : 'K',
-                              style: const TextStyle(
-                                color: AppColors.secondary,
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
+                        const Icon(Icons.people_outlined,
+                            size: 64, color: AppColors.textSecondary),
+                        const SizedBox(height: 16),
+                        const Text('Belum ada karyawan',
+                            style: TextStyle(
+                                color: AppColors.textSecondary, fontSize: 16)),
+                        const SizedBox(height: 8),
+                        TextButton.icon(
+                          onPressed: () => _showAddKaryawanDialog(context, ref),
+                          icon: const Icon(Icons.add),
+                          label: const Text('Tambah Karyawan'),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                      ],
+                    ),
+                  );
+                }
+
+                final query = _searchController.text.trim().toLowerCase();
+                final filteredKaryawanList = query.isEmpty
+                    ? karyawanList
+                    : karyawanList.where((karyawan) {
+                        final name = karyawan.nama.toLowerCase();
+                        final email = karyawan.email.toLowerCase();
+                        return name.contains(query) || email.contains(query);
+                      }).toList();
+
+                if (filteredKaryawanList.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.search_off_rounded,
+                            size: 64, color: AppColors.textSecondary),
+                        const SizedBox(height: 16),
+                        const Text('Data tidak ditemukan',
+                            style: TextStyle(
+                                color: AppColors.textSecondary, fontSize: 16)),
+                      ],
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  itemCount: filteredKaryawanList.length,
+                  itemBuilder: (context, index) {
+                    final karyawan = filteredKaryawanList[index];
+                    final hasAssignment =
+                        karyawan.busId != null && karyawan.titikJemputId != null;
+
+                    return Container(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.card,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.divider),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             children: [
-                              Text(
-                                karyawan.nama,
-                                style: const TextStyle(
-                                  color: AppColors.textPrimary,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: AppColors.secondary.withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    karyawan.nama.isNotEmpty
+                                        ? karyawan.nama[0].toUpperCase()
+                                        : 'K',
+                                    style: const TextStyle(
+                                      color: AppColors.secondary,
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
                               ),
-                              Text(
-                                karyawan.email,
-                                style: const TextStyle(
-                                  color: AppColors.textSecondary,
-                                  fontSize: 13,
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      karyawan.nama,
+                                      style: const TextStyle(
+                                        color: AppColors.textPrimary,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      karyawan.email,
+                                      style: const TextStyle(
+                                        color: AppColors.textSecondary,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (hasAssignment)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.success.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.check_circle,
+                                          size: 14, color: AppColors.success),
+                                      SizedBox(width: 4),
+                                      Text(
+                                        'Assigned',
+                                        style: TextStyle(
+                                          color: AppColors.success,
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              else
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.statusMacet.withOpacity(0.1),
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  child: const Text(
+                                    'Belum Assign',
+                                    style: TextStyle(
+                                      color: AppColors.statusMacet,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                          const Divider(height: 24),
+                          if (karyawan.busId != null)
+                            _buildInfoRow(Icons.directions_bus, 'Bus: ${karyawan.busId}'),
+                          if (karyawan.titikJemputId != null)
+                            _buildInfoRow(Icons.location_on, 'Titik: ${karyawan.titikJemputId}'),
+                          const SizedBox(height: 12),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  onPressed: () => _showAssignDialog(context, ref, karyawan),
+                                  icon: Icon(hasAssignment ? Icons.edit : Icons.assignment, size: 18),
+                                  label: Text(hasAssignment ? 'Reassign' : 'Assign'),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: AppColors.accent,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  onPressed: () async {
+                                    final confirm = await AppHelpers.showConfirmDialog(
+                                      context,
+                                      title: 'Hapus Karyawan?',
+                                      message: 'Yakin ingin menghapus ${karyawan.nama}?',
+                                    );
+                                    if (confirm) {
+                                      ref.read(adminProvider.notifier).deleteUser(karyawan.uid);
+                                    }
+                                  },
+                                  icon: const Icon(Icons.delete, size: 18),
+                                  label: const Text('Hapus'),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: AppColors.error,
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                        if (hasAssignment)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: AppColors.success.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.check_circle,
-                                    size: 14, color: AppColors.success),
-                                SizedBox(width: 4),
-                                Text(
-                                  'Assigned',
-                                  style: TextStyle(
-                                    color: AppColors.success,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        else
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: AppColors.statusMacet.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: const Text(
-                              'Belum Assign',
-                              style: TextStyle(
-                                color: AppColors.statusMacet,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                    const Divider(height: 24),
-                    // Info detail
-                    if (karyawan.busId != null)
-                      _buildInfoRow(Icons.directions_bus, 'Bus: ${karyawan.busId}'),
-                    if (karyawan.titikJemputId != null)
-                      _buildInfoRow(Icons.location_on, 'Titik: ${karyawan.titikJemputId}'),
-                    
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () => _showAssignDialog(context, ref, karyawan),
-                            icon: Icon(hasAssignment ? Icons.edit : Icons.assignment, size: 18),
-                            label: Text(hasAssignment ? 'Reassign' : 'Assign'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppColors.accent,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () async {
-                              final confirm = await AppHelpers.showConfirmDialog(
-                                context,
-                                title: 'Hapus Karyawan?',
-                                message: 'Yakin ingin menghapus ${karyawan.nama}?',
-                              );
-                              if (confirm) {
-                                ref.read(adminProvider.notifier).deleteUser(karyawan.uid);
-                              }
-                            },
-                            icon: const Icon(Icons.delete, size: 18),
-                            label: const Text('Hapus'),
-                            style: OutlinedButton.styleFrom(
-                              foregroundColor: AppColors.error,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
