@@ -7,11 +7,24 @@ import '../../providers/bus_provider.dart';
 import '../../utils/constants.dart';
 import '../../utils/helpers.dart';
 
-class ManajemenBusScreen extends ConsumerWidget {
+class ManajemenBusScreen extends ConsumerStatefulWidget {
   const ManajemenBusScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ManajemenBusScreen> createState() => _ManajemenBusScreenState();
+}
+
+class _ManajemenBusScreenState extends ConsumerState<ManajemenBusScreen> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final busListAsync = ref.watch(busListProvider);
 
     return Scaffold(
@@ -31,40 +44,100 @@ class ManajemenBusScreen extends ConsumerWidget {
         label: const Text('Tambah Bus',
             style: TextStyle(fontFamily: 'Inter', fontWeight: FontWeight.w600)),
       ),
-      body: busListAsync.when(
-        loading: () =>
-            const Center(child: CircularProgressIndicator(color: AppColors.accent)),
-        error: (e, _) => Center(
-            child: Text('Error: $e',
-                style: const TextStyle(color: AppColors.error))),
-        data: (busList) {
-          if (busList.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.directions_bus_outlined,
-                      size: 64, color: AppColors.textSecondary),
-                  const SizedBox(height: 16),
-                  const Text('Belum ada data bus',
-                      style: TextStyle(
-                          fontFamily: 'Inter', color: AppColors.textSecondary)),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: () => _showBusDialog(context, ref, null),
-                    icon: const Icon(Icons.add),
-                    label: const Text('Tambah Bus'),
-                  ),
-                ],
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (_) => setState(() {}),
+              style: const TextStyle(fontFamily: 'Inter', color: AppColors.textPrimary),
+              decoration: InputDecoration(
+                hintText: 'Cari nama bus atau plat nomor',
+                hintStyle: const TextStyle(color: AppColors.textSecondary, fontFamily: 'Inter'),
+                prefixIcon: const Icon(Icons.search_rounded, color: AppColors.textSecondary),
+                filled: true,
+                fillColor: AppColors.surface,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 0),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: AppColors.divider),
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: AppColors.divider),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(14),
+                  borderSide: const BorderSide(color: AppColors.accent),
+                ),
               ),
-            );
-          }
-          return ListView.builder(
-            padding: const EdgeInsets.all(16),
-            itemCount: busList.length,
-            itemBuilder: (context, i) => _buildBusCard(context, ref, busList[i]),
-          );
-        },
+            ),
+          ),
+          Expanded(
+            child: busListAsync.when(
+              loading: () =>
+                  const Center(child: CircularProgressIndicator(color: AppColors.accent)),
+              error: (e, _) => Center(
+                  child: Text('Error: $e',
+                      style: const TextStyle(color: AppColors.error))),
+              data: (busList) {
+                if (busList.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.directions_bus_outlined,
+                            size: 64, color: AppColors.textSecondary),
+                        const SizedBox(height: 16),
+                        const Text('Belum ada data bus',
+                            style: TextStyle(
+                                fontFamily: 'Inter', color: AppColors.textSecondary)),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: () => _showBusDialog(context, ref, null),
+                          icon: const Icon(Icons.add),
+                          label: const Text('Tambah Bus'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                final query = _searchController.text.trim().toLowerCase();
+                final filteredBusList = query.isEmpty
+                    ? busList
+                    : busList.where((bus) {
+                        final nomorBus = bus.nomorBus.toLowerCase();
+                        final platNomor = bus.platNomor.toLowerCase();
+                        return nomorBus.contains(query) || platNomor.contains(query);
+                      }).toList();
+
+                if (filteredBusList.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.search_off_rounded,
+                            size: 64, color: AppColors.textSecondary),
+                        const SizedBox(height: 16),
+                        const Text('Data tidak ditemukan',
+                            style: TextStyle(
+                                fontFamily: 'Inter', color: AppColors.textSecondary)),
+                      ],
+                    ),
+                  );
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  itemCount: filteredBusList.length,
+                  itemBuilder: (context, i) => _buildBusCard(context, ref, filteredBusList[i]),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
