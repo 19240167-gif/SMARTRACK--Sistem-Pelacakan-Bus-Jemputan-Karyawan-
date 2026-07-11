@@ -7,11 +7,14 @@ import '../services/tracking_service.dart';
 import '../services/location_service.dart';
 import 'auth_provider.dart';
 
-final trackingServiceProvider = Provider<TrackingService>((ref) => TrackingService());
-final locationServiceProvider = Provider<LocationService>((ref) => LocationService());
+final trackingServiceProvider =
+    Provider<TrackingService>((ref) => TrackingService());
+final locationServiceProvider =
+    Provider<LocationService>((ref) => LocationService());
 
 // Stream provider untuk tracking satu bus
-final busTrackingStreamProvider = StreamProvider.family<TrackingBusModel?, String>(
+final busTrackingStreamProvider =
+    StreamProvider.family<TrackingBusModel?, String>(
   (ref, busId) {
     final trackingService = ref.watch(trackingServiceProvider);
     return trackingService.getBusTracking(busId);
@@ -83,7 +86,7 @@ class DriverTrackingNotifier extends StateNotifier<DriverTrackingState> {
 
   Future<void> mulaiPerjalanan() async {
     if (_busId == null) return;
-    
+
     try {
       final hasPermission = await _locationService.checkLocationPermission();
       if (!hasPermission) {
@@ -114,11 +117,11 @@ class DriverTrackingNotifier extends StateNotifier<DriverTrackingState> {
 
   Future<void> _updateLocation() async {
     if (!state.isTracking || _busId == null) return;
-    
+
     try {
       final position = await _locationService.getCurrentPosition();
       if (position == null) return;
-      
+
       // Hitung jarak
       double tambahJarak = 0;
       if (state.lastPosition != null) {
@@ -144,35 +147,43 @@ class DriverTrackingNotifier extends StateNotifier<DriverTrackingState> {
         heading: position.heading,
       );
     } catch (e) {
-      // Silently fail for location updates
+      state = state.copyWith(errorMessage: 'Gagal update lokasi: $e');
     }
   }
 
   Future<void> ubahStatus(String newStatus) async {
     if (!state.isTracking || _busId == null) return;
-    
-    state = state.copyWith(statusPerjalanan: newStatus);
-    await _trackingService.updateBusStatus(
-      busId: _busId!,
-      statusPerjalanan: newStatus,
-    );
+
+    try {
+      state = state.copyWith(statusPerjalanan: newStatus, clearError: true);
+      await _trackingService.updateBusStatus(
+        busId: _busId!,
+        statusPerjalanan: newStatus,
+      );
+    } catch (e) {
+      state = state.copyWith(errorMessage: 'Gagal update status: $e');
+    }
   }
 
   Future<void> selesaiPerjalanan() async {
     if (_busId == null) return;
-    
+
     _updateTimer?.cancel();
     _positionSubscription?.cancel();
-    
-    await _trackingService.updateBusStatus(
-      busId: _busId!,
-      statusPerjalanan: 'Tiba',
-    );
 
-    await Future.delayed(const Duration(seconds: 3));
-    await _trackingService.clearBusTracking(_busId!);
-    
-    state = const DriverTrackingState();
+    try {
+      await _trackingService.updateBusStatus(
+        busId: _busId!,
+        statusPerjalanan: 'Tiba',
+      );
+
+      await Future.delayed(const Duration(seconds: 3));
+      await _trackingService.clearBusTracking(_busId!);
+
+      state = const DriverTrackingState();
+    } catch (e) {
+      state = state.copyWith(errorMessage: 'Gagal selesai perjalanan: $e');
+    }
   }
 
   @override
@@ -183,7 +194,8 @@ class DriverTrackingNotifier extends StateNotifier<DriverTrackingState> {
   }
 }
 
-final driverTrackingProvider = StateNotifierProvider<DriverTrackingNotifier, DriverTrackingState>(
+final driverTrackingProvider =
+    StateNotifierProvider<DriverTrackingNotifier, DriverTrackingState>(
   (ref) {
     final user = ref.watch(currentUserProvider);
     return DriverTrackingNotifier(

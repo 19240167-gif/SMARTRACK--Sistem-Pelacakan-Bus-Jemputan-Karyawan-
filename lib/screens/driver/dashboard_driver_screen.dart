@@ -15,17 +15,8 @@ class DashboardDriverScreen extends ConsumerStatefulWidget {
       _DashboardDriverScreenState();
 }
 
-class _DashboardDriverScreenState
-    extends ConsumerState<DashboardDriverScreen> {
+class _DashboardDriverScreenState extends ConsumerState<DashboardDriverScreen> {
   Timer? _uiTimer;
-
-  final List<String> _statusOptions = [
-    'Berangkat',
-    'Dalam Perjalanan',
-    'Terjebak Macet',
-    'Mendekati Titik Jemput',
-    'Tiba',
-  ];
 
   @override
   void initState() {
@@ -87,8 +78,10 @@ class _DashboardDriverScreenState
                               width: 48,
                               height: 48,
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                    colors: [Color(0xFF10B981), Color(0xFF06B6D4)]),
+                                gradient: const LinearGradient(colors: [
+                                  Color(0xFF10B981),
+                                  Color(0xFF06B6D4)
+                                ]),
                                 borderRadius: BorderRadius.circular(14),
                               ),
                               child: const Icon(Icons.drive_eta_rounded,
@@ -131,6 +124,10 @@ class _DashboardDriverScreenState
                 else ...[
                   // Status card
                   _buildStatusCard(driverState),
+                  if (driverState.errorMessage != null) ...[
+                    const SizedBox(height: 12),
+                    _buildErrorCard(driverState.errorMessage!),
+                  ],
                   const SizedBox(height: 20),
 
                   // Main action buttons
@@ -142,13 +139,10 @@ class _DashboardDriverScreenState
                   const SizedBox(height: 20),
 
                   // GPS info
-                  if (driverState.isTracking && driverState.lastPosition != null)
+                  if (driverState.isTracking &&
+                      driverState.lastPosition != null)
                     _buildGpsCard(driverState),
 
-                  const SizedBox(height: 20),
-
-                  // Report issue
-                  _buildReportCard(context),
                   const SizedBox(height: 40),
                 ],
               ]),
@@ -287,84 +281,41 @@ class _DashboardDriverScreenState
     );
   }
 
+  Widget _buildErrorCard(String message) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.error.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.error.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.error_outline_rounded,
+              color: AppColors.error, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(
+                fontFamily: 'Inter',
+                color: AppColors.error,
+                fontSize: 12,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildActiveTrackingSection(
       DriverTrackingState state, DriverTrackingNotifier notifier) {
     return Column(
       children: [
-        // Current status
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppColors.card,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: AppColors.divider, width: 0.5),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text('Status Perjalanan',
-                  style: TextStyle(
-                      fontFamily: 'Inter',
-                      color: AppColors.textSecondary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600)),
-              const SizedBox(height: 12),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: _statusOptions.map((status) {
-                  final isSelected = state.statusPerjalanan == status;
-                  final color = AppHelpers.getStatusColor(status);
-                  return GestureDetector(
-                    onTap: () => notifier.ubahStatus(status),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 8),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? color.withOpacity(0.2)
-                            : AppColors.surfaceVariant,
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: isSelected
-                              ? color.withOpacity(0.5)
-                              : AppColors.divider,
-                          width: isSelected ? 1.5 : 0.5,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (isSelected) ...[
-                            Container(
-                              width: 6,
-                              height: 6,
-                              decoration: BoxDecoration(
-                                  color: color, shape: BoxShape.circle),
-                            ),
-                            const SizedBox(width: 6),
-                          ],
-                          Text(status,
-                              style: TextStyle(
-                                fontFamily: 'Inter',
-                                fontSize: 12,
-                                fontWeight: isSelected
-                                    ? FontWeight.w700
-                                    : FontWeight.w500,
-                                color: isSelected ? color : AppColors.textSecondary,
-                              )),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 12),
-
         // Trip info
         if (state.startTime != null) ...[
           Container(
@@ -376,16 +327,20 @@ class _DashboardDriverScreenState
             ),
             child: Row(
               children: [
-                _tripStat(Icons.timer_rounded,
-                    _elapsed(state.startTime!), 'Durasi', AppColors.secondary),
-                _tripStat(Icons.social_distance_rounded,
+                _tripStat(Icons.timer_rounded, _elapsed(state.startTime!),
+                    'Durasi', AppColors.secondary),
+                _tripStat(
+                    Icons.social_distance_rounded,
                     AppHelpers.formatDistance(state.totalJarak),
-                    'Jarak', AppColors.statusMendekati),
-                _tripStat(Icons.speed_rounded,
+                    'Jarak',
+                    AppColors.statusMendekati),
+                _tripStat(
+                    Icons.speed_rounded,
                     state.lastPosition != null
                         ? '${(state.lastPosition!.speed * 3.6).toStringAsFixed(0)} km/h'
                         : '0 km/h',
-                    'Kecepatan', AppColors.accent),
+                    'Kecepatan',
+                    AppColors.accent),
               ],
             ),
           ),
@@ -484,16 +439,15 @@ class _DashboardDriverScreenState
           Row(
             children: [
               Expanded(
-                child: _gpsDetail('Latitude',
-                    pos.latitude.toStringAsFixed(6)),
+                child: _gpsDetail('Latitude', pos.latitude.toStringAsFixed(6)),
               ),
               Expanded(
-                child: _gpsDetail('Longitude',
-                    pos.longitude.toStringAsFixed(6)),
+                child:
+                    _gpsDetail('Longitude', pos.longitude.toStringAsFixed(6)),
               ),
               Expanded(
-                child: _gpsDetail('Akurasi',
-                    '${pos.accuracy.toStringAsFixed(0)} m'),
+                child: _gpsDetail(
+                    'Akurasi', '${pos.accuracy.toStringAsFixed(0)} m'),
               ),
             ],
           ),
@@ -521,124 +475,6 @@ class _DashboardDriverScreenState
     );
   }
 
-  Widget _buildReportCard(BuildContext context) {
-    return GestureDetector(
-      onTap: () => _showReportDialog(context),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppColors.statusMacet.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-              color: AppColors.statusMacet.withOpacity(0.3), width: 0.5),
-        ),
-        child: const Row(
-          children: [
-            Icon(Icons.report_problem_outlined,
-                color: AppColors.statusMacet, size: 28),
-            SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Laporkan Kendala',
-                      style: TextStyle(
-                          fontFamily: 'Inter',
-                          color: AppColors.statusMacet,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w700)),
-                  Text('Kirim laporan masalah di perjalanan',
-                      style: TextStyle(
-                          fontFamily: 'Inter',
-                          color: AppColors.textSecondary,
-                          fontSize: 12)),
-                ],
-              ),
-            ),
-            Icon(Icons.arrow_forward_ios_rounded,
-                color: AppColors.statusMacet, size: 14),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _showReportDialog(BuildContext context) {
-    final controller = TextEditingController();
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColors.card,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      isScrollControlled: true,
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-            bottom: MediaQuery.of(ctx).viewInsets.bottom,
-            left: 24,
-            right: 24,
-            top: 24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Laporan Kendala',
-                style: TextStyle(
-                    fontFamily: 'Inter',
-                    color: AppColors.textPrimary,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700)),
-            const SizedBox(height: 6),
-            const Text('Ceritakan kendala yang Anda hadapi',
-                style: TextStyle(
-                    fontFamily: 'Inter',
-                    color: AppColors.textSecondary,
-                    fontSize: 13)),
-            const SizedBox(height: 20),
-            TextField(
-              controller: controller,
-              maxLines: 4,
-              style: const TextStyle(color: AppColors.textPrimary),
-              decoration: InputDecoration(
-                hintText: 'Contoh: Kendaraan macet di Jl. Sudirman...',
-                hintStyle:
-                    const TextStyle(color: AppColors.textTertiary, fontSize: 13),
-                filled: true,
-                fillColor: AppColors.surfaceVariant,
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.divider)),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.divider)),
-                focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.accent)),
-              ),
-            ),
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              height: 48,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                    content: Text('Laporan berhasil dikirim'),
-                    backgroundColor: AppColors.success,
-                  ));
-                },
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.statusMacet),
-                child: const Text('Kirim Laporan'),
-              ),
-            ),
-            const SizedBox(height: 24),
-          ],
-        ),
-      ),
-    );
-  }
-
   String _elapsed(DateTime start) {
     final duration = DateTime.now().difference(start);
     final h = duration.inHours;
@@ -648,15 +484,14 @@ class _DashboardDriverScreenState
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
   }
 
-
   Widget _buildNoBusWarning() {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColors.statusMacet.withOpacity(0.08),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-            color: AppColors.statusMacet.withOpacity(0.3), width: 1),
+        border:
+            Border.all(color: AppColors.statusMacet.withOpacity(0.3), width: 1),
       ),
       child: Column(
         children: [

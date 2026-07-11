@@ -55,7 +55,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              AppColors.accent.withOpacity(0.2),
+                              AppColors.accent.withValues(alpha: 0.2),
                               Colors.transparent,
                             ],
                           ),
@@ -76,7 +76,10 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                                   height: 48,
                                   decoration: BoxDecoration(
                                     gradient: const LinearGradient(
-                                      colors: [AppColors.accent, AppColors.secondary],
+                                      colors: [
+                                        AppColors.accent,
+                                        AppColors.secondary
+                                      ],
                                     ),
                                     borderRadius: BorderRadius.circular(14),
                                   ),
@@ -97,7 +100,8 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Selamat ${_getGreeting(now)}',
@@ -168,10 +172,10 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                
+
                 // Info cards dengan data real dari Firestore
                 _buildInfoCardsSection(ref, user),
-                
+
                 const SizedBox(height: 20),
 
                 // Recent activity
@@ -195,9 +199,10 @@ class DashboardKaryawanScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildTrackingCard(BuildContext context, WidgetRef ref, String? busId) {
+  Widget _buildTrackingCard(
+      BuildContext context, WidgetRef ref, String? busId) {
     if (busId == null || busId.isEmpty) {
-      return PremiumCard(
+      return const PremiumCard(
         child: Column(
           children: [
             Icon(
@@ -205,7 +210,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
               size: 48,
               color: AppColors.textSecondary,
             ),
-            const SizedBox(height: 12),
+            SizedBox(height: 12),
             Text(
               'Belum ada bus yang ditetapkan',
               style: TextStyle(
@@ -215,7 +220,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
               ),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 8),
+            SizedBox(height: 8),
             Text(
               'Hubungi admin untuk assign bus',
               style: TextStyle(
@@ -232,6 +237,8 @@ class DashboardKaryawanScreen extends ConsumerWidget {
 
     final trackingAsync = ref.watch(busTrackingStreamProvider(busId));
     final busAsync = ref.watch(busProvider(busId));
+    final allBusesAsync = ref.watch(allBusesProvider);
+    final allTrackingAsync = ref.watch(allBusTrackingStreamProvider);
 
     return busAsync.when(
       loading: () => PremiumCard(
@@ -265,12 +272,13 @@ class DashboardKaryawanScreen extends ConsumerWidget {
         ),
       ),
       error: (e, _) => PremiumCard(
-        child: Text('Error: $e', style: const TextStyle(color: AppColors.error)),
+        child:
+            Text('Error: $e', style: const TextStyle(color: AppColors.error)),
       ),
       data: (bus) {
         if (bus == null) {
           return const PremiumCard(
-            child: Text('Data bus tidak ditemukan', 
+            child: Text('Data bus tidak ditemukan',
                 style: TextStyle(color: AppColors.textSecondary)),
           );
         }
@@ -278,10 +286,39 @@ class DashboardKaryawanScreen extends ConsumerWidget {
         return trackingAsync.when(
           loading: () => _buildTrackingCardUI(context, bus, null, true),
           error: (e, _) => _buildTrackingCardUI(context, bus, null, false),
-          data: (tracking) => _buildTrackingCardUI(context, bus, tracking, false),
+          data: (tracking) {
+            if (tracking != null) {
+              return _buildTrackingCardUI(context, bus, tracking, false);
+            }
+
+            final fallbackTracking = _findTrackingBySameBusName(
+              bus,
+              allBusesAsync.valueOrNull ?? const [],
+              allTrackingAsync.valueOrNull ?? const [],
+            );
+
+            return _buildTrackingCardUI(context, bus, fallbackTracking, false);
+          },
         );
       },
     );
+  }
+
+  dynamic _findTrackingBySameBusName(
+    dynamic currentBus,
+    List<dynamic> allBuses,
+    List<dynamic> allTrackings,
+  ) {
+    final sameNameBusIds = allBuses
+        .where((bus) => bus.nomorBus == currentBus.nomorBus)
+        .map((bus) => bus.id)
+        .toSet();
+
+    for (final tracking in allTrackings) {
+      if (sameNameBusIds.contains(tracking.busId)) return tracking;
+    }
+
+    return null;
   }
 
   Widget _buildTrackingCardUI(
@@ -301,10 +338,10 @@ class DashboardKaryawanScreen extends ConsumerWidget {
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.accent.withOpacity(0.3)),
+          border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
           boxShadow: [
             BoxShadow(
-              color: AppColors.accent.withOpacity(0.2),
+              color: AppColors.accent.withValues(alpha: 0.2),
               blurRadius: 20,
               offset: const Offset(0, 6),
             ),
@@ -318,10 +355,10 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                   width: 56,
                   height: 56,
                   decoration: BoxDecoration(
-                    color: AppColors.accent.withOpacity(0.2),
+                    color: AppColors.accent.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: AppColors.accent.withOpacity(0.3),
+                      color: AppColors.accent.withValues(alpha: 0.3),
                     ),
                   ),
                   child: const Icon(
@@ -385,8 +422,8 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                     'Update',
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: BoxDecoration(
                       color: AppColors.accent,
                       borderRadius: BorderRadius.circular(20),
@@ -394,8 +431,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.map_rounded,
-                            color: Colors.white, size: 16),
+                        Icon(Icons.map_rounded, color: Colors.white, size: 16),
                         SizedBox(width: 6),
                         Text(
                           'Lihat Peta',
@@ -482,7 +518,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
             width: 38,
             height: 38,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: 20),
@@ -515,9 +551,24 @@ class DashboardKaryawanScreen extends ConsumerWidget {
 
   Widget _buildRecentActivity() {
     final activities = [
-      ('Bus tiba di titik jemput', '08:45', AppColors.statusTiba, Icons.check_circle_rounded),
-      ('Bus mendekati titik jemput', '08:40', AppColors.statusMendekati, Icons.location_on_rounded),
-      ('Bus berangkat dari pool', '07:00', AppColors.statusBerangkat, Icons.directions_bus_rounded),
+      (
+        'Bus tiba di titik jemput',
+        '08:45',
+        AppColors.statusTiba,
+        Icons.check_circle_rounded
+      ),
+      (
+        'Bus mendekati titik jemput',
+        '08:40',
+        AppColors.statusMendekati,
+        Icons.location_on_rounded
+      ),
+      (
+        'Bus berangkat dari pool',
+        '07:00',
+        AppColors.statusBerangkat,
+        Icons.directions_bus_rounded
+      ),
     ];
 
     return Container(
@@ -533,14 +584,15 @@ class DashboardKaryawanScreen extends ConsumerWidget {
           return Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 child: Row(
                   children: [
                     Container(
                       width: 36,
                       height: 36,
                       decoration: BoxDecoration(
-                        color: act.$3.withOpacity(0.15),
+                        color: act.$3.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(act.$4, color: act.$3, size: 18),
@@ -592,10 +644,10 @@ class DashboardKaryawanScreen extends ConsumerWidget {
   // Build info cards dengan data real dari Firestore
   Widget _buildInfoCardsSection(WidgetRef ref, dynamic user) {
     // Get bus data
-    final busAsync = user?.busId != null 
+    final busAsync = user?.busId != null
         ? ref.watch(busProvider(user!.busId!))
         : const AsyncValue.data(null);
-    
+
     // Get titik jemput data
     final titikJemputAsync = user?.titikJemputId != null
         ? ref.watch(titikJemputProvider(user!.titikJemputId!))
@@ -653,8 +705,8 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                 data: (titikJemput) => _buildInfoCard(
                   icon: Icons.access_time_rounded,
                   title: 'Jam Berangkat',
-                  value: titikJemput?.jamJemput != null 
-                      ? '${titikJemput!.jamJemput} WIB' 
+                  value: titikJemput?.jamJemput != null
+                      ? '${titikJemput!.jamJemput} WIB'
                       : 'Belum Ditentukan',
                   color: AppColors.statusBerangkat,
                 ),

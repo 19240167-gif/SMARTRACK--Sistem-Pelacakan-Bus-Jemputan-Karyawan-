@@ -1,25 +1,28 @@
 // lib/services/tracking_service.dart
-import 'dart:async';
-import 'package:firebase_database/firebase_database.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/tracking_bus_model.dart';
 
 class TrackingService {
-  FirebaseDatabase get _database => FirebaseDatabase.instance;
+  FirebaseFirestore get _firestore => FirebaseFirestore.instance;
 
-  /// Stream tracking bus secara real-time dari Realtime Database
+  CollectionReference<Map<String, dynamic>> get _trackingCollection =>
+      _firestore.collection('tracking_bus');
+
+  CollectionReference<Map<String, dynamic>> get _historyCollection =>
+      _firestore.collection('history_tracking');
+
+  /// Stream tracking bus secara real-time dari Cloud Firestore.
   Stream<TrackingBusModel?> getBusTracking(String busId) {
-    final ref = _database.ref('tracking_bus/$busId');
-    return ref.onValue.map((event) {
-      final data = event.snapshot.value;
-      if (data == null) return null;
-      return TrackingBusModel.fromMap(
-        Map<String, dynamic>.from(data as Map),
-        busId,
-      );
+    if (busId.isEmpty) return Stream.value(null);
+
+    return _trackingCollection.doc(busId).snapshots().map((doc) {
+      final data = doc.data();
+      if (!doc.exists || data == null) return null;
+      return TrackingBusModel.fromMap(data, doc.id);
     });
   }
 
-  /// Update lokasi GPS bus (dipanggil oleh driver setiap 5 detik)
+  /// Update lokasi GPS bus (dipanggil oleh driver setiap 5 detik).
   Future<void> updateBusLocation({
     required String busId,
     required double latitude,
@@ -28,54 +31,44 @@ class TrackingService {
     required String statusPerjalanan,
     double? heading,
   }) async {
-    final ref = _database.ref('tracking_bus/$busId');
-    await ref.set({
+    await _trackingCollection.doc(busId).set({
       'bus_id': busId,
       'latitude': latitude,
       'longitude': longitude,
-      'timestamp': ServerValue.timestamp,
+      'timestamp': FieldValue.serverTimestamp(),
       'kecepatan': kecepatan,
       'status_perjalanan': statusPerjalanan,
       'heading': heading,
-    });
+    }, SetOptions(merge: true));
   }
 
-  /// Update hanya status perjalanan
+  /// Update hanya status perjalanan.
   Future<void> updateBusStatus({
     required String busId,
     required String statusPerjalanan,
   }) async {
-    final ref = _database.ref('tracking_bus/$busId');
-    await ref.update({
+    await _trackingCollection.doc(busId).set({
+      'bus_id': busId,
       'status_perjalanan': statusPerjalanan,
-      'timestamp': ServerValue.timestamp,
-    });
+      'timestamp': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
   }
 
-  /// Mendapatkan semua bus yang sedang aktif
+  /// Mendapatkan semua bus yang sedang aktif.
   Stream<List<TrackingBusModel>> getAllActiveBusTracking() {
-    final ref = _database.ref('tracking_bus');
-    return ref.onValue.map((event) {
-      final data = event.snapshot.value;
-      if (data == null) return [];
-      
-      final map = Map<String, dynamic>.from(data as Map);
-      return map.entries.map((entry) {
-        return TrackingBusModel.fromMap(
-          Map<String, dynamic>.from(entry.value as Map),
-          entry.key,
-        );
+    return _trackingCollection.snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return TrackingBusModel.fromMap(doc.data(), doc.id);
       }).toList();
     });
   }
 
-  /// Menghapus data tracking saat perjalanan selesai
+  /// Menghapus data tracking saat perjalanan selesai.
   Future<void> clearBusTracking(String busId) async {
-    final ref = _database.ref('tracking_bus/$busId');
-    await ref.remove();
+    await _trackingCollection.doc(busId).delete();
   }
 
-  /// Menyimpan histori posisi (untuk replay rute)
+  /// Menyimpan histori posisi (untuk replay rute).
   Future<void> savePosisiHistory({
     required String busId,
     required String perjalananId,
@@ -83,12 +76,11 @@ class TrackingService {
     required double longitude,
     required double kecepatan,
   }) async {
-    final ref = _database.ref('history_tracking/$busId/$perjalananId');
-    await ref.push().set({
+    await _historyCollection.doc(busId).collection(perjalananId).add({
       'latitude': latitude,
       'longitude': longitude,
       'kecepatan': kecepatan,
-      'timestamp': ServerValue.timestamp,
+      'timestamp': FieldValue.serverTimestamp(),
     });
   }
 }

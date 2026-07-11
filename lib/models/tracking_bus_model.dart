@@ -1,4 +1,6 @@
 // lib/models/tracking_bus_model.dart
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class TrackingBusModel {
   final String busId;
   final double latitude;
@@ -19,11 +21,12 @@ class TrackingBusModel {
   });
 
   factory TrackingBusModel.fromMap(Map<String, dynamic> map, String busId) {
-    // timestamp dari RTDB bisa berupa num (ms epoch) atau Map (ServerValue belum resolved).
-    // Gunakan null-safe fallback ke DateTime.now() jika nilainya bukan num.
+    // Timestamp bisa berasal dari Firestore Timestamp atau epoch milliseconds.
     DateTime parsedTimestamp;
     final rawTs = map['timestamp'];
-    if (rawTs is num) {
+    if (rawTs is Timestamp) {
+      parsedTimestamp = rawTs.toDate();
+    } else if (rawTs is num) {
       parsedTimestamp = DateTime.fromMillisecondsSinceEpoch(rawTs.toInt());
     } else {
       parsedTimestamp = DateTime.now();

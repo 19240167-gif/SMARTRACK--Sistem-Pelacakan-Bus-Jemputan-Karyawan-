@@ -25,27 +25,27 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
   // Animasi pulse pada marker bus
   late AnimationController _pulseController;
   late Animation<double> _pulseAnim;
+  double _mapZoom = 1.0;
 
   // Jalur rute mock (normalized 0..1 x dan y dalam canvas)
   static const List<Offset> _routePoints = [
-    Offset(0.08, 0.75),
-    Offset(0.18, 0.62),
-    Offset(0.28, 0.55),
-    Offset(0.38, 0.48),
-    Offset(0.50, 0.42),
-    Offset(0.60, 0.38),
-    Offset(0.72, 0.32),
-    Offset(0.82, 0.28),
+    Offset(0.09, 0.74),
+    Offset(0.09, 0.54),
+    Offset(0.23, 0.54),
+    Offset(0.23, 0.32),
+    Offset(0.47, 0.32),
+    Offset(0.47, 0.22),
+    Offset(0.72, 0.22),
     Offset(0.90, 0.22),
   ];
 
   // Titik jemput (stop)
   static const List<_MockStop> _stops = [
-    _MockStop('Pool Bus', Offset(0.08, 0.75), true),
-    _MockStop('Jl. Sudirman', Offset(0.28, 0.55), false),
-    _MockStop('Bundaran HI', Offset(0.50, 0.42), false),
-    _MockStop('Thamrin City', Offset(0.72, 0.32), false),
-    _MockStop('Kantor Pusat', Offset(0.90, 0.22), false),
+    _MockStop('', Offset(0.09, 0.74), true),
+    _MockStop('', Offset(0.23, 0.54), false),
+    _MockStop('', Offset(0.47, 0.32), false),
+    _MockStop('', Offset(0.72, 0.22), false),
+    _MockStop('', Offset(0.90, 0.22), false),
   ];
 
   @override
@@ -94,12 +94,16 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
             child: AnimatedBuilder(
               animation: Listenable.merge([_busProgress, _pulseAnim]),
               builder: (context, _) {
-                return CustomPaint(
-                  painter: _MockMapPainter(
-                    busProgress: _busProgress.value,
-                    routePoints: _routePoints,
-                    stops: _stops,
-                    pulseScale: _pulseAnim.value,
+                return Transform.scale(
+                  scale: _mapZoom,
+                  child: CustomPaint(
+                    painter: _MockMapPainter(
+                      busProgress: _busProgress.value,
+                      routePoints: _routePoints,
+                      stops: _stops,
+                      pulseScale: _pulseAnim.value,
+                      zoom: _mapZoom,
+                    ),
                   ),
                 );
               },
@@ -128,8 +132,8 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
                     const SizedBox(width: 12),
                     const Expanded(
                       child: GlassCard(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 12),
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         borderRadius: 14,
                         child: Row(
                           children: [
@@ -170,23 +174,31 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
             child: IgnorePointer(
               child: Center(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 12, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
                   decoration: BoxDecoration(
-                    color: AppColors.statusMacet.withOpacity(0.15),
+                    color: AppColors.primary.withValues(alpha: 0.14),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
-                        color: AppColors.statusMacet.withOpacity(0.4)),
+                        color: AppColors.primary.withValues(alpha: 0.35)),
                   ),
-                  child: const Text(
-                    'TAMPILAN DEMO',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      color: AppColors.statusMacet,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 1.2,
-                    ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.sensors_rounded,
+                          color: AppColors.primary, size: 14),
+                      SizedBox(width: 6),
+                      Text(
+                        'LIVE ROUTE VIEW',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          color: AppColors.primary,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.1,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -216,8 +228,9 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
                 ),
               ),
               error: (_, __) => _buildDemoCard(),
-              data: (tracking) =>
-                  tracking == null ? _buildDemoCard() : _buildLiveCard(tracking),
+              data: (tracking) => tracking == null
+                  ? _buildDemoCard()
+                  : _buildLiveCard(tracking),
             ),
           ),
 
@@ -227,11 +240,17 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
             bottom: 200,
             child: Column(
               children: [
-                _buildMapControl(Icons.add, () {}),
+                _buildMapControl(Icons.add, () {
+                  setState(() => _mapZoom = (_mapZoom + 0.08).clamp(1.0, 1.32));
+                }),
                 const SizedBox(height: 8),
-                _buildMapControl(Icons.remove, () {}),
+                _buildMapControl(Icons.remove, () {
+                  setState(() => _mapZoom = (_mapZoom - 0.08).clamp(1.0, 1.32));
+                }),
                 const SizedBox(height: 8),
-                _buildMapControl(Icons.my_location, () {}),
+                _buildMapControl(Icons.my_location, () {
+                  setState(() => _mapZoom = 1.0);
+                }),
               ],
             ),
           ),
@@ -254,10 +273,10 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppColors.accent.withOpacity(0.15),
+                  color: AppColors.accent.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                      color: AppColors.accent.withOpacity(0.3)),
+                      color: AppColors.accent.withValues(alpha: 0.3)),
                 ),
                 child: const Icon(Icons.directions_bus_rounded,
                     color: AppColors.accent, size: 26),
@@ -273,7 +292,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
                             color: AppColors.textPrimary,
                             fontSize: 16,
                             fontWeight: FontWeight.w700)),
-                    Text('B 1234 ABC',
+                    Text('Koridor Jemput Pagi',
                         style: TextStyle(
                             fontFamily: 'Inter',
                             color: AppColors.textSecondary,
@@ -289,12 +308,12 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
           const SizedBox(height: 16),
           Row(
             children: [
-              _buildStatItem(Icons.speed_rounded, '42 km/h', 'Kecepatan',
+              _buildStatItem(Icons.speed_rounded, '42 km/j', 'Kecepatan',
                   AppColors.secondary),
-              _buildStatItem(Icons.social_distance_rounded, '1.2 km',
-                  'Jarak', AppColors.statusMendekati),
-              _buildStatItem(Icons.timer_rounded, '5 menit', 'ETA',
-                  AppColors.statusTiba),
+              _buildStatItem(Icons.social_distance_rounded, '1.2 km', 'Jarak',
+                  AppColors.statusMendekati),
+              _buildStatItem(
+                  Icons.timer_rounded, '5 menit', 'ETA', AppColors.statusTiba),
               _buildStatItem(Icons.update_rounded, 'Baru saja', 'Update',
                   AppColors.textSecondary),
             ],
@@ -305,6 +324,9 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
   }
 
   Widget _buildLiveCard(tracking) {
+    final coordinate =
+        '${tracking.latitude.toStringAsFixed(5)}, ${tracking.longitude.toStringAsFixed(5)}';
+
     return GlassCard(
       margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       padding: const EdgeInsets.all(20),
@@ -318,27 +340,29 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppColors.accent.withOpacity(0.15),
+                  color: AppColors.accent.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                      color: AppColors.accent.withOpacity(0.3)),
+                      color: AppColors.accent.withValues(alpha: 0.3)),
                 ),
                 child: const Icon(Icons.directions_bus_rounded,
                     color: AppColors.accent, size: 26),
               ),
               const SizedBox(width: 14),
-              const Expanded(
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Bus A-01',
+                    const Text('Bus A-01',
                         style: TextStyle(
                             fontFamily: 'Inter',
                             color: AppColors.textPrimary,
                             fontSize: 16,
                             fontWeight: FontWeight.w700)),
-                    Text('B 1234 ABC',
-                        style: TextStyle(
+                    Text(coordinate,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
                             fontFamily: 'Inter',
                             color: AppColors.textSecondary,
                             fontSize: 12)),
@@ -355,13 +379,13 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
             children: [
               _buildStatItem(
                   Icons.speed_rounded,
-                  '${tracking.kecepatan.toStringAsFixed(0)} km/h',
+                  '${tracking.kecepatan.toStringAsFixed(0)} km/j',
                   'Kecepatan',
                   AppColors.secondary),
-              _buildStatItem(Icons.social_distance_rounded, '1.2 km',
-                  'Jarak', AppColors.statusMendekati),
-              _buildStatItem(Icons.timer_rounded, '5 menit', 'ETA',
-                  AppColors.statusTiba),
+              _buildStatItem(Icons.social_distance_rounded, '1.2 km', 'Jarak',
+                  AppColors.statusMendekati),
+              _buildStatItem(
+                  Icons.timer_rounded, '5 menit', 'ETA', AppColors.statusTiba),
               _buildStatItem(
                   Icons.update_rounded,
                   AppHelpers.formatTime(tracking.timestamp),
@@ -409,7 +433,7 @@ class _TrackingScreenState extends ConsumerState<TrackingScreen>
           border: Border.all(color: AppColors.divider, width: 0.5),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -439,48 +463,40 @@ class _MockMapPainter extends CustomPainter {
   final List<Offset> routePoints;
   final List<_MockStop> stops;
   final double pulseScale;
+  final double zoom;
+  static const Offset passengerPos =
+      Offset(0.23, 0.54); // Posisi karyawan di titik jemput
 
   const _MockMapPainter({
     required this.busProgress,
     required this.routePoints,
     required this.stops,
     required this.pulseScale,
+    required this.zoom,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     _drawBackground(canvas, size);
-    _drawGridLines(canvas, size);
     _drawBlockBuildings(canvas, size);
+    _drawParks(canvas, size);
     _drawRoads(canvas, size);
     _drawRoute(canvas, size);
     _drawStops(canvas, size);
     _drawBus(canvas, size);
+    _drawPassenger(canvas, size);
+    _drawMapHud(canvas, size);
   }
 
   void _drawBackground(Canvas canvas, Size size) {
-    final paint = Paint()..color = const Color(0xFF0C1420);
+    final paint = Paint()..color = const Color(0xFFF4F3F0);
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), paint);
   }
 
-  void _drawGridLines(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFF1A2535)
-      ..strokeWidth = 0.5;
-
-    const step = 40.0;
-    for (double x = 0; x < size.width; x += step) {
-      canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
-    }
-    for (double y = 0; y < size.height; y += step) {
-      canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
-    }
-  }
-
   void _drawBlockBuildings(Canvas canvas, Size size) {
-    final paint = Paint()..color = const Color(0xFF131F2E);
+    final paint = Paint()..color = const Color(0xFFECEBE6);
     final borderPaint = Paint()
-      ..color = const Color(0xFF1E3A5F)
+      ..color = const Color(0xFFD9D7D2)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0.5;
 
@@ -514,25 +530,56 @@ class _MockMapPainter extends CustomPainter {
     }
   }
 
+  void _drawParks(Canvas canvas, Size size) {
+    final parkPaint = Paint()..color = const Color(0xFFD2F0D2);
+    final borderPaint = Paint()
+      ..color = const Color(0xFFAADDAA)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1;
+
+    final parks = [
+      Rect.fromLTWH(size.width * 0.58, size.height * 0.09, 92, 54),
+      Rect.fromLTWH(size.width * 0.06, size.height * 0.43, 84, 58),
+      Rect.fromLTWH(size.width * 0.68, size.height * 0.66, 104, 64),
+    ];
+
+    for (final park in parks) {
+      final rr = RRect.fromRectAndRadius(park, const Radius.circular(16));
+      canvas.drawRRect(rr, parkPaint);
+      canvas.drawRRect(rr, borderPaint);
+    }
+  }
+
   void _drawRoads(Canvas canvas, Size size) {
     // Horizontal roads
     final hRoadPaint = Paint()
-      ..color = const Color(0xFF1A2A40)
+      ..color = const Color(0xFFFFFFFF)
       ..strokeWidth = 14
       ..strokeCap = StrokeCap.butt;
     final hLinePaint = Paint()
-      ..color = const Color(0xFF2A3D55)
+      ..color = const Color(0xFFD9D7D2)
       ..strokeWidth = 1.0
       ..strokeCap = StrokeCap.butt;
 
-    const hRoads = [160.0, 330.0, 500.0, 660.0];
+    final hRoads = [
+      size.height * 0.22,
+      size.height * 0.32,
+      size.height * 0.54,
+      size.height * 0.74,
+    ];
     for (final y in hRoads) {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), hRoadPaint);
       canvas.drawLine(Offset(0, y), Offset(size.width, y), hLinePaint);
     }
 
     // Vertical roads
-    const vRoads = [90.0, 230.0, 360.0, 480.0];
+    final vRoads = [
+      size.width * 0.09,
+      size.width * 0.23,
+      size.width * 0.47,
+      size.width * 0.72,
+      size.width * 0.90,
+    ];
     for (final x in vRoads) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), hRoadPaint);
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), hLinePaint);
@@ -544,7 +591,7 @@ class _MockMapPainter extends CustomPainter {
 
     // Glow route
     final glowPaint = Paint()
-      ..color = const Color(0xFF2563EB).withOpacity(0.2)
+      ..color = const Color(0xFF1A73E8).withValues(alpha: 0.15)
       ..strokeWidth = 10
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
@@ -552,7 +599,7 @@ class _MockMapPainter extends CustomPainter {
 
     // Main route
     final routePaint = Paint()
-      ..color = const Color(0xFF3B82F6)
+      ..color = const Color(0xFF1A73E8)
       ..strokeWidth = 4
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
@@ -560,7 +607,7 @@ class _MockMapPainter extends CustomPainter {
 
     // Travelled route (brighter)
     final travelledPaint = Paint()
-      ..color = const Color(0xFF60A5FA)
+      ..color = const Color(0xFF1557B0)
       ..strokeWidth = 4
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
@@ -572,26 +619,15 @@ class _MockMapPainter extends CustomPainter {
     final pts = routePoints.map((p) => _toCanvas(p, size)).toList();
     fullPath.moveTo(pts.first.dx, pts.first.dy);
     for (int i = 1; i < pts.length; i++) {
-      final ctrl = Offset(
-        (pts[i - 1].dx + pts[i].dx) / 2,
-        (pts[i - 1].dy + pts[i].dy) / 2,
-      );
-      fullPath.quadraticBezierTo(
-          pts[i - 1].dx, pts[i - 1].dy, ctrl.dx, ctrl.dy);
+      fullPath.lineTo(pts[i].dx, pts[i].dy);
     }
-    fullPath.lineTo(pts.last.dx, pts.last.dy);
 
     // Travelled portion
     final busPos = _busPositionOnRoute(size);
     final busIdx = (busProgress * (pts.length - 1)).floor();
     travelledPath.moveTo(pts.first.dx, pts.first.dy);
     for (int i = 1; i <= busIdx && i < pts.length; i++) {
-      final ctrl = Offset(
-        (pts[i - 1].dx + pts[i].dx) / 2,
-        (pts[i - 1].dy + pts[i].dy) / 2,
-      );
-      travelledPath.quadraticBezierTo(
-          pts[i - 1].dx, pts[i - 1].dy, ctrl.dx, ctrl.dy);
+      travelledPath.lineTo(pts[i].dx, pts[i].dy);
     }
     if (busIdx < pts.length - 1) {
       travelledPath.lineTo(busPos.dx, busPos.dy);
@@ -600,6 +636,12 @@ class _MockMapPainter extends CustomPainter {
     canvas.drawPath(fullPath, glowPaint);
     canvas.drawPath(fullPath, routePaint);
     canvas.drawPath(travelledPath, travelledPaint);
+
+    for (int i = 0; i < pts.length - 1; i++) {
+      final mid = Offset.lerp(pts[i], pts[i + 1], 0.5)!;
+      canvas.drawCircle(mid, 2.2,
+          Paint()..color = const Color(0xFF1A73E8).withValues(alpha: 0.35));
+    }
   }
 
   void _drawStops(Canvas canvas, Size size) {
@@ -612,8 +654,9 @@ class _MockMapPainter extends CustomPainter {
         pos,
         isStart ? 14 : 10,
         Paint()
-          ..color = (isStart ? AppColors.statusTiba : AppColors.accent)
-              .withOpacity(0.2),
+          ..color =
+              (isStart ? const Color(0xFFEA4335) : const Color(0xFF4285F4))
+                  .withValues(alpha: 0.2),
       );
 
       // Inner circle
@@ -621,7 +664,7 @@ class _MockMapPainter extends CustomPainter {
         pos,
         isStart ? 8 : 6,
         Paint()
-          ..color = isStart ? AppColors.statusTiba : AppColors.accent,
+          ..color = isStart ? const Color(0xFFEA4335) : const Color(0xFF4285F4),
       );
 
       // White center
@@ -631,19 +674,7 @@ class _MockMapPainter extends CustomPainter {
         Paint()..color = Colors.white,
       );
 
-      // Stop name label
-      final tp = TextPainter(
-        text: TextSpan(
-          text: stop.name,
-          style: TextStyle(
-            color: isStart ? AppColors.statusTiba : AppColors.textSecondary,
-            fontSize: 9,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        textDirection: TextDirection.ltr,
-      )..layout();
-      tp.paint(canvas, pos.translate(-tp.width / 2, isStart ? 16 : 12));
+      // Label lokasi sengaja dikosongkan agar tidak terlihat seperti Jakarta.
     }
   }
 
@@ -655,27 +686,27 @@ class _MockMapPainter extends CustomPainter {
       pos,
       22 * pulseScale,
       Paint()
-        ..color = AppColors.accent.withOpacity(0.15 * (2 - pulseScale)),
+        ..color =
+            const Color(0xFFEA4335).withValues(alpha: 0.14 * (2 - pulseScale)),
     );
     canvas.drawCircle(
       pos,
       16 * pulseScale,
-      Paint()
-        ..color = AppColors.accent.withOpacity(0.2),
+      Paint()..color = const Color(0xFFEA4335).withValues(alpha: 0.18),
     );
 
     // Shadow
     canvas.drawCircle(
       pos + const Offset(0, 3),
       14,
-      Paint()..color = Colors.black.withOpacity(0.4),
+      Paint()..color = Colors.black.withValues(alpha: 0.4),
     );
 
     // Main bus circle
     canvas.drawCircle(
       pos,
       14,
-      Paint()..color = AppColors.accent,
+      Paint()..color = const Color(0xFFEA4335),
     );
 
     // Bus icon (simple rectangle)
@@ -686,12 +717,119 @@ class _MockMapPainter extends CustomPainter {
     );
     canvas.drawRect(
       Rect.fromCenter(center: pos + const Offset(-2, 0), width: 4, height: 7),
-      Paint()..color = AppColors.accent,
+      Paint()..color = const Color(0xFFEA4335),
     );
     canvas.drawRect(
       Rect.fromCenter(center: pos + const Offset(3, 0), width: 4, height: 7),
-      Paint()..color = AppColors.accent,
+      Paint()..color = const Color(0xFFEA4335),
     );
+
+    final label = TextPainter(
+      text: const TextSpan(
+        text: 'BUS A-01',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 0.4,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    final bubble = RRect.fromRectAndRadius(
+      Rect.fromLTWH(
+          pos.dx - label.width / 2 - 8, pos.dy - 42, label.width + 16, 22),
+      const Radius.circular(12),
+    );
+    canvas.drawRRect(bubble,
+        Paint()..color = const Color(0xFFEA4335).withValues(alpha: 0.92));
+    label.paint(canvas, Offset(pos.dx - label.width / 2, pos.dy - 36));
+  }
+
+  void _drawPassenger(Canvas canvas, Size size) {
+    final pos = _toCanvas(passengerPos, size);
+
+    canvas.drawCircle(
+      pos,
+      20 * pulseScale,
+      Paint()
+        ..color =
+            const Color(0xFF4285F4).withValues(alpha: 0.18 * (2 - pulseScale)),
+    );
+    canvas.drawCircle(pos, 10, Paint()..color = Colors.white);
+    canvas.drawCircle(pos, 7, Paint()..color = const Color(0xFF4285F4));
+    canvas.drawCircle(pos, 2.5, Paint()..color = Colors.white);
+
+    final label = TextPainter(
+      text: const TextSpan(
+        text: 'Anda',
+        style: TextStyle(
+          color: Color(0xFF202124),
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    final rect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(
+          pos.dx - label.width / 2 - 8, pos.dy + 14, label.width + 16, 20),
+      const Radius.circular(10),
+    );
+    canvas.drawRRect(
+        rect, Paint()..color = Colors.white.withValues(alpha: 0.92));
+    canvas.drawRRect(
+      rect,
+      Paint()
+        ..color = const Color(0xFFE0E0E0)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 0.7,
+    );
+    label.paint(canvas, Offset(pos.dx - label.width / 2, pos.dy + 18));
+  }
+
+  void _drawMapHud(Canvas canvas, Size size) {
+    final zoomText = TextPainter(
+      text: TextSpan(
+        text: 'SMARTRACK  •  ${zoom.toStringAsFixed(2)}x',
+        style: TextStyle(
+          color: const Color(0xFF5F6368).withValues(alpha: 0.75),
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 1.1,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    zoomText.paint(canvas, Offset(18, size.height - 150));
+
+    final compassCenter = Offset(size.width - 42, 140);
+    canvas.drawCircle(
+      compassCenter,
+      19,
+      Paint()..color = Colors.white.withValues(alpha: 0.92),
+    );
+    canvas.drawCircle(
+      compassCenter,
+      19,
+      Paint()
+        ..color = const Color(0xFFDADCE0)
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 1,
+    );
+    final north = TextPainter(
+      text: const TextSpan(
+        text: 'N',
+        style: TextStyle(
+          color: Color(0xFFEA4335),
+          fontSize: 12,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    north.paint(
+        canvas, compassCenter.translate(-north.width / 2, -north.height / 2));
   }
 
   Offset _busPositionOnRoute(Size size) {
@@ -712,5 +850,7 @@ class _MockMapPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_MockMapPainter old) =>
-      old.busProgress != busProgress || old.pulseScale != pulseScale;
+      old.busProgress != busProgress ||
+      old.pulseScale != pulseScale ||
+      old.zoom != zoom;
 }
