@@ -178,12 +178,16 @@ class DriverTrackingNotifier extends StateNotifier<DriverTrackingState> {
     _positionSubscription?.cancel();
 
     try {
+      // Update status jadi Tiba dulu
       await _trackingService.updateBusStatus(
         busId: _busId!,
         statusPerjalanan: 'Tiba',
       );
 
-      await Future.delayed(const Duration(seconds: 3));
+      // Tunggu sebentar biar admin bisa liat status "Tiba"
+      await Future.delayed(const Duration(seconds: 2));
+      
+      // Hapus dari tracking (biar ga muncul di monitoring)
       await _trackingService.clearBusTracking(_busId!);
 
       state = const DriverTrackingState();

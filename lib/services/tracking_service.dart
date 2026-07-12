@@ -54,12 +54,13 @@ class TrackingService {
     }, SetOptions(merge: true));
   }
 
-  /// Mendapatkan semua bus yang sedang aktif.
+  /// Mendapatkan semua bus yang sedang aktif (exclude yang udah Tiba).
   Stream<List<TrackingBusModel>> getAllActiveBusTracking() {
     return _trackingCollection.snapshots().map((snapshot) {
-      return snapshot.docs.map((doc) {
-        return TrackingBusModel.fromMap(doc.data(), doc.id);
-      }).toList();
+      return snapshot.docs
+          .map((doc) => TrackingBusModel.fromMap(doc.data(), doc.id))
+          .where((bus) => bus.statusPerjalanan != 'Tiba') // Filter out yang udah Tiba
+          .toList();
     });
   }
 
