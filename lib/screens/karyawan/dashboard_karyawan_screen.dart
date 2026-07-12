@@ -335,7 +335,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                   ),
                   child: const Icon(
                     Icons.directions_bus_rounded,
-                    color: AppColors.accent,
+                    color: Colors.white,
                     size: 32,
                   ),
                 ),
@@ -348,7 +348,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                         'Bus Anda',
                         style: TextStyle(
                           fontFamily: 'Inter',
-                          color: AppColors.textSecondary,
+                          color: Color(0xE6FFFFFF),
                           fontSize: 12,
                         ),
                       ),
@@ -356,7 +356,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                         bus.nomorBus,
                         style: const TextStyle(
                           fontFamily: 'Inter',
-                          color: AppColors.textPrimary,
+                          color: Colors.white,
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
                         ),
@@ -378,7 +378,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
             ),
             if (tracking != null) ...[
               const SizedBox(height: 16),
-              const Divider(color: Color(0xFF2A4A70), height: 1),
+              const Divider(color: Color(0x33FFFFFF), height: 1),
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -403,7 +403,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.map_rounded, color: Colors.white, size: 16),
+                              Icon(Icons.map_rounded, color: Colors.white, size: 16),
                         SizedBox(width: 6),
                         Text(
                           'Lihat Peta',
@@ -411,7 +411,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
                             fontFamily: 'Inter',
                             color: Colors.white,
                             fontSize: 13,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
@@ -424,14 +424,13 @@ class DashboardKaryawanScreen extends ConsumerWidget {
               const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.access_time_rounded,
-                      color: AppColors.textSecondary, size: 16),
+                  Icon(Icons.access_time_rounded, color: Color(0xE6FFFFFF), size: 16),
                   SizedBox(width: 6),
                   Text(
                     'Bus belum berangkat',
                     style: TextStyle(
                       fontFamily: 'Inter',
-                      color: AppColors.textSecondary,
+                      color: Color(0xE6FFFFFF),
                       fontSize: 13,
                     ),
                   ),
@@ -447,13 +446,13 @@ class DashboardKaryawanScreen extends ConsumerWidget {
   Widget _buildTrackingStat(IconData icon, String value, String label) {
     return Column(
       children: [
-        Icon(icon, color: AppColors.textSecondary, size: 18),
+        Icon(icon, color: Colors.white, size: 18),
         const SizedBox(height: 4),
         Text(
           value,
           style: const TextStyle(
             fontFamily: 'Inter',
-            color: AppColors.textPrimary,
+            color: Colors.white,
             fontSize: 13,
             fontWeight: FontWeight.w600,
           ),
@@ -462,7 +461,7 @@ class DashboardKaryawanScreen extends ConsumerWidget {
           label,
           style: const TextStyle(
             fontFamily: 'Inter',
-            color: AppColors.textTertiary,
+            color: Color(0xE6FFFFFF),
             fontSize: 11,
           ),
         ),

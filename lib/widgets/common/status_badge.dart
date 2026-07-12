@@ -17,7 +17,12 @@ class StatusBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = AppHelpers.getStatusColor(status);
+    final baseColor = AppHelpers.getStatusColor(status);
+    final isMenunggu = status.toLowerCase().contains('menunggu');
+
+    final bgColor = isMenunggu ? const Color(0xF0FFFFFF) : baseColor.withOpacity(0.15);
+    final borderCol = isMenunggu ? const Color(0xFF000000).withOpacity(0.3) : baseColor.withOpacity(0.4);
+    final textCol = isMenunggu ? AppColors.primaryDark : baseColor;
 
     return Container(
       padding: EdgeInsets.symmetric(
@@ -25,9 +30,9 @@ class StatusBadge extends StatelessWidget {
         vertical: large ? 6 : 4,
       ),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: bgColor,
         borderRadius: BorderRadius.circular(AppDimensions.radiusCircle),
-        border: Border.all(color: color.withOpacity(0.4), width: 0.8),
+        border: Border.all(color: borderCol, width: 0.8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -37,11 +42,11 @@ class StatusBadge extends StatelessWidget {
               width: large ? 8 : 6,
               height: large ? 8 : 6,
               decoration: BoxDecoration(
-                color: color,
+                color: textCol,
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: color.withOpacity(0.5),
+                    color: textCol.withOpacity(0.5),
                     blurRadius: 4,
                     spreadRadius: 1,
                   ),
@@ -55,8 +60,8 @@ class StatusBadge extends StatelessWidget {
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: large ? 13 : 11,
-              fontWeight: FontWeight.w600,
-              color: color,
+              fontWeight: isMenunggu ? FontWeight.w700 : FontWeight.w600,
+              color: textCol,
               letterSpacing: 0.2,
             ),
           ),
@@ -101,16 +106,23 @@ class _AnimatedStatusBadgeState extends State<AnimatedStatusBadge>
   @override
   Widget build(BuildContext context) {
     final color = AppHelpers.getStatusColor(widget.status);
+    final isMenunggu = widget.status.toLowerCase().contains('menunggu');
+    final textCol = isMenunggu ? AppColors.primaryDark : color;
+    final baseBg = isMenunggu ? Colors.white : color;
     return AnimatedBuilder(
       animation: _animation,
       builder: (context, child) {
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.15 * _animation.value),
+            color: isMenunggu
+                ? const Color(0xF0FFFFFF).withOpacity(_animation.value)
+                : color.withOpacity(0.15 * _animation.value),
             borderRadius: BorderRadius.circular(AppDimensions.radiusCircle),
             border: Border.all(
-              color: color.withOpacity(0.4 * _animation.value),
+              color: isMenunggu
+                  ? const Color(0xFF000000).withOpacity(0.3 * _animation.value)
+                  : color.withOpacity(0.4 * _animation.value),
               width: 0.8,
             ),
           ),
@@ -121,11 +133,11 @@ class _AnimatedStatusBadgeState extends State<AnimatedStatusBadge>
                 width: 8,
                 height: 8,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(_animation.value),
+                  color: isMenunggu ? baseBg.withOpacity(_animation.value) : color.withOpacity(_animation.value),
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: color.withOpacity(0.5 * _animation.value),
+                      color: (isMenunggu ? baseBg : color).withOpacity(0.5 * _animation.value),
                       blurRadius: 6,
                       spreadRadius: 2,
                     ),
@@ -138,8 +150,8 @@ class _AnimatedStatusBadgeState extends State<AnimatedStatusBadge>
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: color,
+                  fontWeight: isMenunggu ? FontWeight.w700 : FontWeight.w600,
+                  color: textCol,
                 ),
               ),
             ],
@@ -149,3 +161,4 @@ class _AnimatedStatusBadgeState extends State<AnimatedStatusBadge>
     );
   }
 }
+
