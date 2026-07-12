@@ -5,6 +5,7 @@ class UserModel {
   final String nama;
   final String role; // 'karyawan', 'driver', 'admin'
   final String? busId;
+  final String? ruteId; // Tambah rute_id untuk driver
   final String? titikJemputId;
   final String? photoUrl;
   final DateTime createdAt;
@@ -15,6 +16,7 @@ class UserModel {
     required this.nama,
     required this.role,
     this.busId,
+    this.ruteId,
     this.titikJemputId,
     this.photoUrl,
     required this.createdAt,
@@ -27,6 +29,7 @@ class UserModel {
       nama: map['nama'] ?? '',
       role: map['role'] ?? 'karyawan',
       busId: map['bus_id'],
+      ruteId: map['rute_id'],
       titikJemputId: map['titik_jemput_id'],
       photoUrl: map['photo_url'],
       createdAt: map['created_at'] != null
@@ -41,6 +44,7 @@ class UserModel {
       'nama': nama,
       'role': role,
       'bus_id': busId,
+      'rute_id': ruteId,
       'titik_jemput_id': titikJemputId,
       'photo_url': photoUrl,
       'created_at': createdAt.millisecondsSinceEpoch,
@@ -53,6 +57,7 @@ class UserModel {
     String? nama,
     String? role,
     String? busId,
+    String? ruteId,
     String? titikJemputId,
     String? photoUrl,
     DateTime? createdAt,
@@ -63,6 +68,7 @@ class UserModel {
       nama: nama ?? this.nama,
       role: role ?? this.role,
       busId: busId ?? this.busId,
+      ruteId: ruteId ?? this.ruteId,
       titikJemputId: titikJemputId ?? this.titikJemputId,
       photoUrl: photoUrl ?? this.photoUrl,
       createdAt: createdAt ?? this.createdAt,

@@ -2,6 +2,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/tracking_provider.dart';
 import '../../utils/constants.dart';
@@ -119,6 +120,10 @@ class _DashboardDriverScreenState extends ConsumerState<DashboardDriverScreen> {
                 if (user?.busId == null || user!.busId!.isEmpty)
                   _buildNoBusWarning()
                 else ...[
+                  // Rute Info (jika ada)
+                  if (user.ruteId != null) _buildRuteCard(user.ruteId!),
+                  if (user.ruteId != null) const SizedBox(height: 16),
+                  
                   // Status card
                   _buildStatusCard(driverState),
                   if (driverState.errorMessage != null) ...[
@@ -479,6 +484,178 @@ class _DashboardDriverScreenState extends ConsumerState<DashboardDriverScreen> {
     final s = duration.inSeconds % 60;
     if (h > 0) return '${h}j ${m}m';
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+  }
+
+  // Nampilin info rute yang udah di-assign ke driver
+  Widget _buildRuteCard(String ruteId) {
+    return StreamBuilder<DocumentSnapshot>(
+      stream: FirebaseFirestore.instance.collection('rute').doc(ruteId).snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.card,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: AppColors.divider, width: 0.5),
+            ),
+            child: const Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        if (!snapshot.data!.exists) {
+          return const SizedBox.shrink();
+        }
+
+        final data = snapshot.data!.data() as Map<String, dynamic>;
+        final namaRute = data['nama_rute'] ?? 'Rute Tidak Ditemukan';
+        final jamKeberangkatan = data['jam_keberangkatan'] ?? '07:00';
+        final daftarTitik = data['daftar_titik'] as List<dynamic>? ?? [];
+
+        return Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.card,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: AppColors.divider, width: 0.5),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: AppColors.statusMendekati.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.map_rounded,
+                        color: AppColors.statusMendekati, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Rute Anda',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            color: AppColors.textSecondary,
+                            fontSize: 11,
+                          ),
+                        ),
+                        Text(
+                          namaRute,
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            color: AppColors.textPrimary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.accent.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.schedule_rounded,
+                            size: 14, color: AppColors.accent),
+                        const SizedBox(width: 4),
+                        Text(
+                          jamKeberangkatan,
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            color: AppColors.accent,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (daftarTitik.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                const Divider(height: 1, color: AppColors.divider),
+                const SizedBox(height: 12),
+                const Text(
+                  'Titik Jemput:',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ...daftarTitik.asMap().entries.map((entry) {
+                  final idx = entry.key;
+                  final titik = entry.value as Map<String, dynamic>;
+                  final namaTitik = titik['nama'] ?? 'Titik ${idx + 1}';
+                  final estimasi = titik['estimasi_menit'] ?? 0;
+
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 24,
+                          height: 24,
+                          decoration: BoxDecoration(
+                            color: AppColors.statusMendekati.withOpacity(0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Text(
+                              '${idx + 1}',
+                              style: const TextStyle(
+                                fontFamily: 'Inter',
+                                color: AppColors.statusMendekati,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Text(
+                            namaTitik,
+                            style: const TextStyle(
+                              fontFamily: 'Inter',
+                              color: AppColors.textPrimary,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          '~$estimasi mnt',
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            color: AppColors.textSecondary,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ],
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget _buildNoBusWarning() {

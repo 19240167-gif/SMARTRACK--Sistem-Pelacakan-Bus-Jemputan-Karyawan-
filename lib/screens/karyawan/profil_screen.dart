@@ -107,8 +107,11 @@ class ProfilScreen extends ConsumerWidget {
                 _section('Informasi Akun', [
                   _item(Icons.email_outlined, 'Email', user?.email ?? '-'),
                   _item(Icons.business_rounded, 'Perusahaan', 'PT. Industri Maju'),
-                  _item(Icons.directions_bus_rounded, 'Bus Assigned', 'Bus A-01'),
-                  _item(Icons.location_on_rounded, 'Titik Jemput', 'Gerbang Utama'),
+                  // Bus & Titik Jemput hanya untuk karyawan & driver
+                  if (user?.role != 'admin') ...[
+                    _item(Icons.directions_bus_rounded, 'Bus Assigned', 'Bus A-01'),
+                    _item(Icons.location_on_rounded, 'Titik Jemput', 'Gerbang Utama'),
+                  ],
                 ]),
                 const SizedBox(height: 20),
                 _section('Pengaturan', [

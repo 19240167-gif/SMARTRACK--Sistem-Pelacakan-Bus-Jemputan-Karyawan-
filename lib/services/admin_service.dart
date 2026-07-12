@@ -414,6 +414,34 @@ class AdminService {
     }
   }
 
+  /// Assign rute ke driver -> update 'users' (rute_id)
+  Future<void> assignRouteToDriver(String driverId, String ruteId) async {
+    try {
+      await _firestore.collection('users').doc(driverId).update({
+        'rute_id': ruteId,
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+      // debug removed
+    } catch (e) {
+      // debug removed
+      throw Exception('Gagal assign rute ke driver: $e');
+    }
+  }
+
+  /// Unassign rute dari driver -> set null
+  Future<void> unassignRouteFromDriver(String driverId) async {
+    try {
+      await _firestore.collection('users').doc(driverId).update({
+        'rute_id': null,
+        'updated_at': FieldValue.serverTimestamp(),
+      });
+      // debug removed
+    } catch (e) {
+      // debug removed
+      throw Exception('Gagal unassign rute: $e');
+    }
+  }
+
   /// Get all users by role
   Stream<List<UserModel>> getUsersByRole(String role) {
     return _firestore

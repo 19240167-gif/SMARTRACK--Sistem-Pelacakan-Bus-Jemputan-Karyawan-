@@ -76,6 +76,10 @@ class _AppTextFieldState extends State<AppTextField> {
                     setState(() => _obscureText = !_obscureText),
               )
             : widget.suffix,
+        // Override theme suffixIcon biar ga dobel
+        suffixIconConstraints: widget.isPassword 
+            ? const BoxConstraints(minWidth: 48, minHeight: 48)
+            : null,
       ),
     );
   }

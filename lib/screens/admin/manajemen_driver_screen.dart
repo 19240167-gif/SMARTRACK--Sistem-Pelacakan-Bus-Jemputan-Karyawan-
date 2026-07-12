@@ -241,7 +241,24 @@ class _ManajemenDriverScreenState extends ConsumerState<ManajemenDriverScreen> {
                                     size: 16, color: AppColors.accent),
                                 const SizedBox(width: 6),
                                 Text(
-                                  'Bus ID: ${driver.busId}',
+                                  'Bus: ${driver.busId}',
+                                  style: const TextStyle(
+                                    color: AppColors.textSecondary,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                          if (driver.ruteId != null) ...[
+                            const SizedBox(height: 8),
+                            Row(
+                              children: [
+                                const Icon(Icons.map,
+                                    size: 16, color: AppColors.statusMendekati),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Rute: ${driver.ruteId}',
                                   style: const TextStyle(
                                     color: AppColors.textSecondary,
                                     fontSize: 13,
@@ -280,27 +297,42 @@ class _ManajemenDriverScreenState extends ConsumerState<ManajemenDriverScreen> {
                             ],
                           ),
                           const SizedBox(height: 8),
-                          // Baris 2: Hapus (full width)
-                          SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton.icon(
-                              onPressed: () async {
-                                final confirm = await AppHelpers.showConfirmDialog(
-                                  context,
-                                  title: 'Hapus Driver?',
-                                  message: 'Yakin ingin menghapus ${driver.nama}?',
-                                );
-                                if (confirm) {
-                                  ref.read(adminProvider.notifier).deleteUser(driver.uid);
-                                }
-                              },
-                              icon: const Icon(Icons.delete, size: 18),
-                              label: const Text('Hapus'),
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: AppColors.error,
-                                padding: const EdgeInsets.symmetric(vertical: 8),
+                          // Baris 2: Assign Rute & Hapus
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  onPressed: () => _showAssignRuteDialog(context, ref, driver),
+                                  icon: const Icon(Icons.map, size: 18),
+                                  label: Text(driver.ruteId == null ? 'Assign Rute' : 'Ubah Rute'),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: AppColors.statusMendekati,
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                  ),
+                                ),
                               ),
-                            ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: OutlinedButton.icon(
+                                  onPressed: () async {
+                                    final confirm = await AppHelpers.showConfirmDialog(
+                                      context,
+                                      title: 'Hapus Driver?',
+                                      message: 'Yakin ingin menghapus ${driver.nama}?',
+                                    );
+                                    if (confirm) {
+                                      ref.read(adminProvider.notifier).deleteUser(driver.uid);
+                                    }
+                                  },
+                                  icon: const Icon(Icons.delete, size: 18),
+                                  label: const Text('Hapus'),
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: AppColors.error,
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -628,4 +660,108 @@ class _ManajemenDriverScreenState extends ConsumerState<ManajemenDriverScreen> {
       ),
     );
   }
+  // Dialog assign rute ke driver
+  void _showAssignRuteDialog(BuildContext context, WidgetRef ref, dynamic driver) {
+    showDialog(
+      context: context,
+      builder: (ctx) => Consumer(
+        builder: (ctx, ref, child) {
+          final ruteAsync = ref.watch(allRuteStreamProvider);
+
+          return AlertDialog(
+            backgroundColor: AppColors.card,
+            title: const Text('Assign Rute ke Driver'),
+            content: SizedBox(
+              width: double.maxFinite,
+              child: ruteAsync.when(
+                loading: () => const Center(child: CircularProgressIndicator()),
+                error: (e, _) => Text('Error: $e'),
+                data: (ruteDocs) {
+                  if (ruteDocs.isEmpty) {
+                    return const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Text('Belum ada rute. Tambahkan di Manajemen Rute'),
+                    );
+                  }
+                  
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (driver.ruteId != null)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: OutlinedButton.icon(
+                            onPressed: () async {
+                              Navigator.pop(ctx);
+                              await ref.read(adminProvider.notifier).unassignRouteFromDriver(driver.uid);
+                            },
+                            icon: const Icon(Icons.clear, size: 18),
+                            label: const Text('Hapus Assignment Rute'),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.error,
+                            ),
+                          ),
+                        ),
+                      Expanded(
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: ruteDocs.length,
+                          itemBuilder: (context, index) {
+                            final rute = ruteDocs[index];
+                            final ruteData = rute.data() as Map<String, dynamic>;
+                            final ruteId = rute.id;
+                            final namaRute = ruteData['nama_rute'] ?? 'Rute $ruteId';
+                            final jam = ruteData['jam_keberangkatan'] ?? '-';
+                            final isCurrent = ruteId == driver.ruteId;
+                            
+                            return ListTile(
+                              leading: Icon(
+                                Icons.map,
+                                color: isCurrent ? AppColors.success : AppColors.statusMendekati,
+                              ),
+                              title: Text(
+                                namaRute,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: isCurrent ? AppColors.success : AppColors.textPrimary,
+                                ),
+                              ),
+                              subtitle: Text(
+                                'Jam: $jam',
+                                style: TextStyle(
+                                  color: isCurrent ? AppColors.success : AppColors.textSecondary,
+                                ),
+                              ),
+                              trailing: isCurrent 
+                                  ? const Icon(Icons.check_circle, color: AppColors.success, size: 20)
+                                  : null,
+                              enabled: !isCurrent,
+                              onTap: isCurrent ? null : () async {
+                                Navigator.pop(ctx);
+                                await ref.read(adminProvider.notifier).assignRouteToDriver(
+                                  driver.uid,
+                                  ruteId,
+                                );
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('Batal'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
 }
+

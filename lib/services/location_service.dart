@@ -18,6 +18,7 @@ class LocationService {
 
   /// Check dan request permission lokasi
   Future<bool> checkLocationPermission() async {
+    // Cek service lokasi dulu (cuma untuk mobile)
     if (!kIsWeb) {
       try {
         bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -31,11 +32,17 @@ class LocationService {
     }
 
     try {
+      // Cek permission dulu
       LocationPermission permission = await Geolocator.checkPermission();
+      debugPrint('Current permission: $permission');
+      
       if (permission == LocationPermission.denied) {
+        debugPrint('Permission denied, requesting...');
         permission = await Geolocator.requestPermission();
+        debugPrint('Permission after request: $permission');
+        
         if (permission == LocationPermission.denied) {
-          debugPrint('Location permissions are denied');
+          debugPrint('Location permissions are denied after request');
           return false;
         }
       }
@@ -44,13 +51,29 @@ class LocationService {
         debugPrint('Location permissions are permanently denied');
         return false;
       }
+
+      // Try get current position buat test permission beneran work
+      if (kIsWeb) {
+        try {
+          debugPrint('Testing web location access...');
+          await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.high,
+            timeLimit: const Duration(seconds: 10),
+          );
+          debugPrint('Web location access test passed');
+        } catch (e) {
+          debugPrint('Web location access test failed: $e');
+          // Kalo gagal di web, bisa jadi browser block atau user belum approve popup
+          return false;
+        }
+      }
+
+      debugPrint('Location permission granted');
+      return true;
     } catch (e) {
       debugPrint('Location permission exception: $e');
       return false;
     }
-
-    debugPrint('Location permission granted');
-    return true;
   }
 
   /// Mulai tracking lokasi bus

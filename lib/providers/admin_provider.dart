@@ -1,5 +1,6 @@
 // lib/providers/admin_provider.dart
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/bus_model.dart';
 import '../models/titik_jemput_model.dart';
 import '../models/user_model.dart';
@@ -48,6 +49,14 @@ final unassignedDriversStreamProvider = StreamProvider<List<UserModel>>((ref) {
 final allTitikJemputStreamProvider = StreamProvider<List<TitikJemputModel>>((ref) {
   final service = ref.watch(adminServiceProvider);
   return service.getAllTitikJemput();
+});
+
+/// Get all rute
+final allRuteStreamProvider = StreamProvider.autoDispose((ref) {
+  return FirebaseFirestore.instance
+      .collection('rute')
+      .snapshots()
+      .map((snapshot) => snapshot.docs);
 });
 
 // ==================== ADMIN NOTIFIER (for mutations) ====================
@@ -397,6 +406,44 @@ class AdminNotifier extends StateNotifier<AdminState> {
       state = state.copyWith(
         isLoading: false,
         successMessage: 'Karyawan berhasil di-assign',
+      );
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString().replaceAll('Exception: ', ''),
+      );
+      return false;
+    }
+  }
+
+  // Assign rute ke driver -> update 'users' (rute_id)
+  Future<bool> assignRouteToDriver(String driverId, String ruteId) async {
+    state = state.copyWith(isLoading: true, clearError: true, clearSuccess: true);
+    try {
+      await _service.assignRouteToDriver(driverId, ruteId);
+      state = state.copyWith(
+        isLoading: false,
+        successMessage: 'Rute berhasil di-assign ke driver',
+      );
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString().replaceAll('Exception: ', ''),
+      );
+      return false;
+    }
+  }
+
+  // Unassign rute dari driver
+  Future<bool> unassignRouteFromDriver(String driverId) async {
+    state = state.copyWith(isLoading: true, clearError: true, clearSuccess: true);
+    try {
+      await _service.unassignRouteFromDriver(driverId);
+      state = state.copyWith(
+        isLoading: false,
+        successMessage: 'Rute berhasil di-unassign',
       );
       return true;
     } catch (e) {

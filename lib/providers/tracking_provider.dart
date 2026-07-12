@@ -90,7 +90,13 @@ class DriverTrackingNotifier extends StateNotifier<DriverTrackingState> {
     try {
       final hasPermission = await _locationService.checkLocationPermission();
       if (!hasPermission) {
-        state = state.copyWith(errorMessage: 'Izin GPS ditolak');
+        state = state.copyWith(
+          errorMessage: 
+            'Izin lokasi ditolak. Pastikan:\n'
+            '1. Browser sudah approve popup permission\n'
+            '2. Lokasi/GPS browser dinyalakan\n'
+            '3. Coba refresh halaman dan klik Mulai Perjalanan lagi',
+        );
         return;
       }
 

@@ -1,5 +1,6 @@
 // lib/screens/admin/dashboard_admin_screen.dart
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -313,48 +314,86 @@ class DashboardAdminScreen extends ConsumerWidget {
       return FirebaseFirestore.instance
           .collection('bus')
           .snapshots()
-          .map((snapshot) => snapshot.docs.length);
+          .map((snapshot) {
+            debugPrint('🚌 Total Bus: ${snapshot.docs.length}');
+            return snapshot.docs.length;
+          });
     }));
     
     final driversStream = ref.watch(StreamProvider<int>((ref) {
       return FirebaseFirestore.instance
           .collection('users')
           .where('role', isEqualTo: 'driver')
+          .where('is_active', isEqualTo: true)
           .snapshots()
-          .map((snapshot) => snapshot.docs.length);
+          .map((snapshot) {
+            debugPrint('👨‍✈️ Total Driver: ${snapshot.docs.length}');
+            return snapshot.docs.length;
+          });
     }));
     
     final karyawanStream = ref.watch(StreamProvider<int>((ref) {
       return FirebaseFirestore.instance
           .collection('users')
           .where('role', isEqualTo: 'karyawan')
+          .where('is_active', isEqualTo: true)
           .snapshots()
-          .map((snapshot) => snapshot.docs.length);
+          .map((snapshot) {
+            debugPrint('👥 Total Karyawan: ${snapshot.docs.length}');
+            return snapshot.docs.length;
+          });
     }));
     
     return Row(
       children: [
         Expanded(
           child: busesStream.when(
-            data: (count) => _statCard('Total Bus', '$count', Icons.directions_bus_rounded, AppColors.accent),
-            loading: () => _statCard('Total Bus', '-', Icons.directions_bus_rounded, AppColors.accent),
-            error: (_, __) => _statCard('Total Bus', '0', Icons.directions_bus_rounded, AppColors.accent),
+            data: (count) {
+              debugPrint('✅ Bus count rendered: $count');
+              return _statCard('Total Bus', '$count', Icons.directions_bus_rounded, AppColors.accent);
+            },
+            loading: () {
+              debugPrint('⏳ Bus loading...');
+              return _statCard('Total Bus', '...', Icons.directions_bus_rounded, AppColors.accent);
+            },
+            error: (err, stack) {
+              debugPrint('❌ Bus error: $err');
+              return _statCard('Total Bus', 'Err', Icons.directions_bus_rounded, AppColors.accent);
+            },
           ),
         ),
         const SizedBox(width: 10),
         Expanded(
           child: driversStream.when(
-            data: (count) => _statCard('Driver', '$count', Icons.drive_eta_rounded, AppColors.statusBerangkat),
-            loading: () => _statCard('Driver', '-', Icons.drive_eta_rounded, AppColors.statusBerangkat),
-            error: (_, __) => _statCard('Driver', '0', Icons.drive_eta_rounded, AppColors.statusBerangkat),
+            data: (count) {
+              debugPrint('✅ Driver count rendered: $count');
+              return _statCard('Driver', '$count', Icons.drive_eta_rounded, AppColors.statusBerangkat);
+            },
+            loading: () {
+              debugPrint('⏳ Driver loading...');
+              return _statCard('Driver', '...', Icons.drive_eta_rounded, AppColors.statusBerangkat);
+            },
+            error: (err, stack) {
+              debugPrint('❌ Driver error: $err');
+              return _statCard('Driver', 'Err', Icons.drive_eta_rounded, AppColors.statusBerangkat);
+            },
           ),
         ),
         const SizedBox(width: 10),
         Expanded(
           child: karyawanStream.when(
-            data: (count) => _statCard('Karyawan', '$count', Icons.people_rounded, AppColors.secondary),
-            loading: () => _statCard('Karyawan', '-', Icons.people_rounded, AppColors.secondary),
-            error: (_, __) => _statCard('Karyawan', '0', Icons.people_rounded, AppColors.secondary),
+            data: (count) {
+              debugPrint('✅ Karyawan count rendered: $count');
+              return _statCard('Karyawan', '$count', Icons.people_rounded, AppColors.secondary);
+            },
+            loading: () {
+              debugPrint('⏳ Karyawan loading...');
+              return _statCard('Karyawan', '...', Icons.people_rounded, AppColors.secondary);
+            },
+            error: (err, stack) {
+              debugPrint('❌ Karyawan error: $err');
+              return _statCard('Karyawan', 'Err', Icons.people_rounded, AppColors.secondary);
+            },
           ),
         ),
       ],
