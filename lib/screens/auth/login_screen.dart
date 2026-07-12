@@ -188,7 +188,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                               label: 'Masuk',
                               onPressed: _login,
                               isLoading: authState.isLoading,
-                              icon: Icons.login_rounded,
                             ),
                           ],
                         ),

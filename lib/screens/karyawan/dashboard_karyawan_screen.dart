@@ -26,128 +26,100 @@ class DashboardKaryawanScreen extends ConsumerWidget {
         slivers: [
           // Header
           SliverAppBar(
-            expandedHeight: 200,
+            expandedHeight: 125,
             floating: false,
             pinned: true,
-            backgroundColor: AppColors.primary,
+            backgroundColor: const Color(0xFFF1F5F9),
+            foregroundColor: AppColors.textPrimary,
+            iconTheme: const IconThemeData(color: AppColors.textPrimary),
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF0D2B55),
-                      Color(0xFF1A3D70),
-                    ],
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    // Background pattern
-                    Positioned(
-                      top: -50,
-                      right: -50,
-                      child: Container(
-                        width: 250,
-                        height: 250,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            colors: [
-                              AppColors.accent.withValues(alpha: 0.2),
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    SafeArea(
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.end,
+                color: const Color(0xFFF1F5F9),
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Row(
                           children: [
-                            Row(
-                              children: [
-                                Container(
-                                  width: 48,
-                                  height: 48,
-                                  decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        AppColors.accent,
-                                        AppColors.secondary
-                                      ],
-                                    ),
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
-                                  child: Center(
-                                    child: Text(
-                                      user?.nama.isNotEmpty == true
-                                          ? user!.nama[0].toUpperCase()
-                                          : 'K',
-                                      style: const TextStyle(
-                                        fontFamily: 'Inter',
-                                        color: Colors.white,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w800,
-                                      ),
-                                    ),
+                            Container(
+                              width: 44,
+                              height: 44,
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    AppColors.accent,
+                                    AppColors.secondary
+                                  ],
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  user?.nama.isNotEmpty == true
+                                      ? user!.nama[0].toUpperCase()
+                                      : 'K',
+                                  style: const TextStyle(
+                                    fontFamily: 'Inter',
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w800,
                                   ),
                                 ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Selamat ${_getGreeting(now)}',
-                                        style: const TextStyle(
-                                          fontFamily: 'Inter',
-                                          color: AppColors.textSecondary,
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                      Text(
-                                        user?.nama ?? 'Karyawan',
-                                        style: const TextStyle(
-                                          fontFamily: 'Inter',
-                                          color: AppColors.textPrimary,
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                IconButton(
-                                  onPressed: () {},
-                                  icon: const Icon(
-                                    Icons.notifications_outlined,
-                                    color: AppColors.textPrimary,
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
-                            const SizedBox(height: 16),
-                            Text(
-                              AppHelpers.formatDateTimeFull(now),
-                              style: const TextStyle(
-                                fontFamily: 'Inter',
-                                color: AppColors.textSecondary,
-                                fontSize: 12,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment:
+                                    CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    'Selamat ${_getGreeting(now)}',
+                                    style: const TextStyle(
+                                      fontFamily: 'Inter',
+                                      color: AppColors.textSecondary,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                  Text(
+                                    user?.nama ?? 'Karyawan',
+                                    style: const TextStyle(
+                                      fontFamily: 'Inter',
+                                      color: AppColors.textPrimary,
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () => _showNotificationsSheet(context),
+                              icon: const Icon(
+                                Icons.notifications_outlined,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                           ],
                         ),
-                      ),
+                        const SizedBox(height: 8),
+                        Text(
+                          AppHelpers.formatDateTimeFull(now),
+                          style: const TextStyle(
+                            fontFamily: 'Inter',
+                            color: AppColors.textSecondary,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -639,6 +611,175 @@ class DashboardKaryawanScreen extends ConsumerWidget {
     if (hour < 15) return 'Siang';
     if (hour < 18) return 'Sore';
     return 'Malam';
+  }
+
+  void _showNotificationsSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Color(0xFF0F1E35),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(24),
+              topRight: Radius.circular(24),
+            ),
+            border: Border(
+              top: BorderSide(color: Color(0xFF1E3A5F), width: 1.0),
+            ),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.textTertiary.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Notifikasi',
+                    style: TextStyle(
+                      fontFamily: 'Inter',
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text(
+                      'Tandai dibaca',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        color: AppColors.accent,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Divider(color: AppColors.divider, height: 1),
+              const SizedBox(height: 16),
+              _buildNotificationItem(
+                title: 'Bus A-01 Mendekati Titik Jemput',
+                body: 'Bus A-01 berjarak 1.2 km dari titik jemput Jl. Sudirman.',
+                time: 'Baru saja',
+                icon: Icons.location_on_rounded,
+                iconColor: AppColors.statusMendekati,
+              ),
+              const SizedBox(height: 12),
+              _buildNotificationItem(
+                title: 'Perjalanan Dimulai',
+                body: 'Driver Budi Santoso telah memulai perjalanan Bus A-01.',
+                time: '15 menit yang lalu',
+                icon: Icons.directions_bus_rounded,
+                iconColor: AppColors.statusBerangkat,
+              ),
+              const SizedBox(height: 12),
+              _buildNotificationItem(
+                title: 'Pengumuman Rute',
+                body: 'Rute Bus A-01 disesuaikan karena perbaikan jalan Tol Jakarta-Cikampek.',
+                time: '2 jam yang lalu',
+                icon: Icons.info_outline,
+                iconColor: AppColors.accent,
+              ),
+              const SizedBox(height: 24),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildNotificationItem({
+    required String title,
+    required String body,
+    required String time,
+    required IconData icon,
+    required Color iconColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.card,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.divider, width: 0.5),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 36,
+            height: 36,
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: iconColor, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: const TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      time,
+                      style: const TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 11,
+                        color: AppColors.textTertiary,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  body,
+                  style: const TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                    height: 1.3,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // Build info cards dengan data real dari Firestore

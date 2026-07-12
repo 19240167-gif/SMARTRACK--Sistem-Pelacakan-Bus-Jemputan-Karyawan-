@@ -20,30 +20,16 @@ class DashboardAdminScreen extends ConsumerWidget {
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          SliverAppBar(
+           SliverAppBar(
             pinned: true,
-            backgroundColor: AppColors.primary,
-            expandedHeight: 140,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_rounded),
-              onPressed: () => ref.read(authProvider.notifier).logout(),
-              tooltip: 'Logout',
-            ),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.logout_rounded),
-                onPressed: () => ref.read(authProvider.notifier).logout(),
-              ),
-            ],
+            backgroundColor: const Color(0xFFF1F5F9),
+            foregroundColor: AppColors.textPrimary,
+            iconTheme: const IconThemeData(color: AppColors.textPrimary),
+            expandedHeight: 110,
+            automaticallyImplyLeading: false,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF071A36), Color(0xFF0D2B55)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
+                color: const Color(0xFFF1F5F9),
                 child: SafeArea(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
@@ -54,31 +40,81 @@ class DashboardAdminScreen extends ConsumerWidget {
                         Row(
                           children: [
                             Container(
-                              width: 48,
-                              height: 48,
+                              width: 44,
+                              height: 44,
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
-                                    colors: [Color(0xFF8B5CF6), Color(0xFF6D28D9)]),
-                                borderRadius: BorderRadius.circular(14),
+                                    colors: [AppColors.primary, AppColors.secondary]),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(Icons.admin_panel_settings_rounded,
-                                  color: Colors.white, size: 26),
+                                  color: Colors.white, size: 22),
                             ),
                             const SizedBox(width: 12),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text('Admin Perusahaan',
-                                    style: TextStyle(
-                                        fontFamily: 'Inter',
-                                        color: AppColors.textSecondary,
-                                        fontSize: 12)),
-                                Text(user?.nama ?? 'Admin',
-                                    style: const TextStyle(
-                                        fontFamily: 'Inter',
-                                        color: AppColors.textPrimary,
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w700)),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Text('Admin Perusahaan',
+                                      style: TextStyle(
+                                          fontFamily: 'Inter',
+                                          color: AppColors.textSecondary,
+                                          fontSize: 11)),
+                                  Text(user?.nama ?? 'Admin',
+                                      style: const TextStyle(
+                                          fontFamily: 'Inter',
+                                          color: AppColors.textPrimary,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700)),
+                                ],
+                              ),
+                            ),
+                            PopupMenuButton<String>(
+                              onSelected: (value) {
+                                if (value == 'profile') {
+                                  context.push(AppRoutes.profil);
+                                } else if (value == 'logout') {
+                                  ref.read(authProvider.notifier).logout();
+                                }
+                              },
+                              offset: const Offset(0, 48),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              icon: CircleAvatar(
+                                radius: 18,
+                                backgroundColor: AppColors.primary.withValues(alpha: 0.15),
+                                child: Text(
+                                  user?.nama.isNotEmpty == true ? user!.nama[0].toUpperCase() : 'A',
+                                  style: const TextStyle(
+                                    color: AppColors.primary,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              itemBuilder: (context) => [
+                                const PopupMenuItem<String>(
+                                  value: 'profile',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.person_outline_rounded, size: 20, color: AppColors.textPrimary),
+                                      SizedBox(width: 8),
+                                      Text('Ke Profil', style: TextStyle(color: AppColors.textPrimary)),
+                                    ],
+                                  ),
+                                ),
+                                const PopupMenuItem<String>(
+                                  value: 'logout',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.logout_rounded, color: Colors.red, size: 20),
+                                      SizedBox(width: 8),
+                                      Text('Logout', style: TextStyle(color: Colors.red)),
+                                    ],
+                                  ),
+                                ),
                               ],
                             ),
                           ],

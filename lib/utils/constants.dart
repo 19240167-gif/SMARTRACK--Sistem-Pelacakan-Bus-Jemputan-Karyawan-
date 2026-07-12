@@ -2,16 +2,16 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Primary palette - Fresh Green/Teal
-  static const Color primary = Color(0xFF059669); // Emerald green
-  static const Color primaryLight = Color(0xFF10B981);
-  static const Color primaryDark = Color(0xFF047857);
-  static const Color accent = Color(0xFF0891B2); // Cyan
-  static const Color accentLight = Color(0xFF06B6D4);
+  // Primary palette - Premium Blue (Matching #1565C0)
+  static const Color primary = Color(0xFF1565C0); // Royal blue
+  static const Color primaryLight = Color(0xFF42A5F5);
+  static const Color primaryDark = Color(0xFF0D47A1);
+  static const Color accent = Color(0xFF1E88E5); // Vibrant blue
+  static const Color accentLight = Color(0xFF90CAF9);
 
-  // Secondary - Orange for contrast
-  static const Color secondary = Color(0xFFF59E0B);
-  static const Color secondaryLight = Color(0xFFFBBF24);
+  // Secondary - Contrasting Blue (Matching #42A5F5)
+  static const Color secondary = Color(0xFF42A5F5);
+  static const Color secondaryLight = Color(0xFF90CAF9);
 
   // Background - Clean White
   static const Color background = Color(0xFFFAFAFA); // Off-white
@@ -25,8 +25,8 @@ class AppColors {
   static const Color textTertiary = Color(0xFF9CA3AF); // Light gray
 
   // Status colors - Vibrant & distinguishable
-  static const Color statusBerangkat = Color(0xFF10B981); // Green
-  static const Color statusDalamPerjalanan = Color(0xFF3B82F6); // Blue
+  static const Color statusBerangkat = Color(0xFF1565C0); // Blue
+  static const Color statusDalamPerjalanan = Color(0xFF1E88E5); // Blue
   static const Color statusMacet = Color(0xFFEF4444); // Red
   static const Color statusMendekati = Color(0xFFF59E0B); // Orange
   static const Color statusTiba = Color(0xFF8B5CF6); // Purple
@@ -35,7 +35,7 @@ class AppColors {
   static const Color success = Color(0xFF10B981); // Green
   static const Color warning = Color(0xFFF59E0B); // Orange
   static const Color error = Color(0xFFEF4444); // Red
-  static const Color info = Color(0xFF3B82F6); // Blue
+  static const Color info = Color(0xFF1E88E5); // Blue
 
   // Glass morphism (for overlays)
   static const Color glass = Color(0x1A000000);
@@ -46,10 +46,10 @@ class AppColors {
   // Divider - Subtle
   static const Color divider = Color(0xFFE5E7EB);
   
-  // Gradient colors - Fresh & Modern
-  static const List<Color> gradientGreen = [Color(0xFF059669), Color(0xFF10B981)];
-  static const List<Color> gradientBlue = [Color(0xFF0891B2), Color(0xFF06B6D4)];
-  static const List<Color> gradientOrange = [Color(0xFFF59E0B), Color(0xFFFBF24)];
+  // Gradient colors - Fresh & Modern Blue
+  static const List<Color> gradientGreen = [Color(0xFF1565C0), Color(0xFF42A5F5)];
+  static const List<Color> gradientBlue = [Color(0xFF0D47A1), Color(0xFF1E88E5)];
+  static const List<Color> gradientOrange = [Color(0xFF42A5F5), Color(0xFF90CAF9)];
 }
 
 class AppDimensions {
