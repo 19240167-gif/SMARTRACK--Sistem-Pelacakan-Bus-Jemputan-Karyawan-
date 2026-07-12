@@ -165,8 +165,6 @@ class KaryawanShell extends ConsumerStatefulWidget {
 }
 
 class _KaryawanShellState extends ConsumerState<KaryawanShell> {
-  int _currentIndex = 0;
-
   final List<String> _routes = [
     AppRoutes.dashboardKaryawan,
     AppRoutes.tracking,
@@ -174,15 +172,28 @@ class _KaryawanShellState extends ConsumerState<KaryawanShell> {
     AppRoutes.profil,
   ];
 
+  int _getCurrentIndex(BuildContext context) {
+    final String location = GoRouterState.of(context).uri.toString();
+    if (location.startsWith(AppRoutes.tracking)) {
+      return 1;
+    } else if (location.startsWith(AppRoutes.riwayat)) {
+      return 2;
+    } else if (location.startsWith(AppRoutes.profil)) {
+      return 3;
+    }
+    return 0;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final currentIndex = _getCurrentIndex(context);
     return Scaffold(
       body: widget.child,
-      bottomNavigationBar: _buildBottomNav(),
+      bottomNavigationBar: _buildBottomNav(currentIndex),
     );
   }
 
-  Widget _buildBottomNav() {
+  Widget _buildBottomNav(int currentIndex) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFF0F1E35),
@@ -203,10 +214,10 @@ class _KaryawanShellState extends ConsumerState<KaryawanShell> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              _buildNavItem(0, Icons.home_rounded, Icons.home_outlined, 'Beranda'),
-              _buildNavItem(1, Icons.gps_fixed, Icons.gps_not_fixed, 'Tracking'),
-              _buildNavItem(2, Icons.history_rounded, Icons.history_outlined, 'Riwayat'),
-              _buildNavItem(3, Icons.person_rounded, Icons.person_outline_rounded, 'Profil'),
+              _buildNavItem(0, currentIndex, Icons.home_rounded, Icons.home_outlined, 'Beranda'),
+              _buildNavItem(1, currentIndex, Icons.gps_fixed, Icons.gps_not_fixed, 'Tracking'),
+              _buildNavItem(2, currentIndex, Icons.history_rounded, Icons.history_outlined, 'Riwayat'),
+              _buildNavItem(3, currentIndex, Icons.person_rounded, Icons.person_outline_rounded, 'Profil'),
             ],
           ),
         ),
@@ -214,11 +225,10 @@ class _KaryawanShellState extends ConsumerState<KaryawanShell> {
     );
   }
 
-  Widget _buildNavItem(int index, IconData activeIcon, IconData inactiveIcon, String label) {
-    final isActive = _currentIndex == index;
+  Widget _buildNavItem(int index, int currentIndex, IconData activeIcon, IconData inactiveIcon, String label) {
+    final isActive = currentIndex == index;
     return GestureDetector(
       onTap: () {
-        setState(() => _currentIndex = index);
         context.go(_routes[index]);
       },
       child: AnimatedContainer(

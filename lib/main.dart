@@ -1,4 +1,4 @@
-﻿import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +8,7 @@ import 'firebase/firebase_options.dart';
 import 'routes/app_router.dart';
 import 'services/notification_service.dart';
 import 'utils/app_theme.dart';
+import 'widgets/common/web_phone_frame.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -69,7 +70,9 @@ class SmartrackApp extends ConsumerWidget {
           data: MediaQuery.of(context).copyWith(
             textScaler: const TextScaler.linear(1.0),
           ),
-          child: child ?? const SizedBox.shrink(),
+          child: WebPhoneFrame(
+            child: child ?? const SizedBox.shrink(),
+          ),
         );
       },
     );

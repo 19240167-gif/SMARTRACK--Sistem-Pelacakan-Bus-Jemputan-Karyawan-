@@ -46,8 +46,10 @@ class _DashboardDriverScreenState extends ConsumerState<DashboardDriverScreen> {
           SliverAppBar(
             floating: false,
             pinned: true,
-            backgroundColor: AppColors.primary,
-            expandedHeight: 140,
+            backgroundColor: const Color(0xFFF1F5F9),
+            foregroundColor: AppColors.textPrimary,
+            iconTheme: const IconThemeData(color: AppColors.textPrimary),
+            expandedHeight: 110,
             automaticallyImplyLeading: false,
             actions: [
               IconButton(
@@ -58,13 +60,7 @@ class _DashboardDriverScreenState extends ConsumerState<DashboardDriverScreen> {
             ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [Color(0xFF0D2B55), Color(0xFF1A3D70)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
+                color: const Color(0xFFF1F5F9),
                 child: SafeArea(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(20, 8, 20, 0),
@@ -75,32 +71,33 @@ class _DashboardDriverScreenState extends ConsumerState<DashboardDriverScreen> {
                         Row(
                           children: [
                             Container(
-                              width: 48,
-                              height: 48,
+                              width: 44,
+                              height: 44,
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(colors: [
-                                  Color(0xFF10B981),
-                                  Color(0xFF06B6D4)
+                                  AppColors.primary,
+                                  AppColors.secondary
                                 ]),
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(12),
                               ),
                               child: const Icon(Icons.drive_eta_rounded,
-                                  color: Colors.white, size: 26),
+                                  color: Colors.white, size: 22),
                             ),
                             const SizedBox(width: 12),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 const Text('Dashboard Driver',
                                     style: TextStyle(
                                         fontFamily: 'Inter',
                                         color: AppColors.textSecondary,
-                                        fontSize: 12)),
+                                        fontSize: 11)),
                                 Text(user?.nama ?? 'Driver',
                                     style: const TextStyle(
                                         fontFamily: 'Inter',
                                         color: AppColors.textPrimary,
-                                        fontSize: 20,
+                                        fontSize: 18,
                                         fontWeight: FontWeight.w700)),
                               ],
                             ),

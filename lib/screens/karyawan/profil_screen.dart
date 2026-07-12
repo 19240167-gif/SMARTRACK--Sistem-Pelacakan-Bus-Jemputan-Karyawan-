@@ -1,11 +1,14 @@
 // lib/screens/karyawan/profil_screen.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/auth_provider.dart';
 import '../../utils/constants.dart';
 
 class ProfilScreen extends ConsumerWidget {
-  const ProfilScreen({super.key});
+  final bool isStandalone;
+
+  const ProfilScreen({super.key, this.isStandalone = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -16,100 +19,83 @@ class ProfilScreen extends ConsumerWidget {
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
-          SliverAppBar(
-            expandedHeight: 240,
+           SliverAppBar(
+            expandedHeight: 180,
             pinned: true,
-            backgroundColor: AppColors.primary,
-            automaticallyImplyLeading: false,
+            backgroundColor: const Color(0xFFF1F5F9),
+            foregroundColor: AppColors.textPrimary,
+            iconTheme: const IconThemeData(color: AppColors.textPrimary),
+            automaticallyImplyLeading: isStandalone,
+            leading: isStandalone
+                ? IconButton(
+                    icon: const Icon(Icons.arrow_back_rounded),
+                    onPressed: () => context.pop(),
+                  )
+                : null,
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0xFF0D2B55), Color(0xFF1A3D70)],
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      top: -60,
-                      right: -60,
-                      child: Container(
-                        width: 200,
-                        height: 200,
+                color: const Color(0xFFF1F5F9),
+                child: SafeArea(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 10),
+                      Container(
+                        width: 72,
+                        height: 72,
                         decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(colors: [
-                            AppColors.accent.withOpacity(0.2),
-                            Colors.transparent
-                          ]),
+                          gradient: const LinearGradient(
+                              colors: [AppColors.accent, AppColors.secondary]),
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.accent.withValues(alpha: 0.25),
+                              blurRadius: 16,
+                              offset: const Offset(0, 4),
+                            )
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            user?.nama.isNotEmpty == true
+                                ? user!.nama[0].toUpperCase()
+                                : 'K',
+                            style: const TextStyle(
+                                fontFamily: 'Inter',
+                                color: Colors.white,
+                                fontSize: 30,
+                                fontWeight: FontWeight.w800),
+                          ),
                         ),
                       ),
-                    ),
-                    SafeArea(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const SizedBox(height: 20),
-                          Container(
-                            width: 88,
-                            height: 88,
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                  colors: [AppColors.accent, AppColors.secondary]),
-                              borderRadius: BorderRadius.circular(24),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.accent.withOpacity(0.4),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 6),
-                                )
-                              ],
-                            ),
-                            child: Center(
-                              child: Text(
-                                user?.nama.isNotEmpty == true
-                                    ? user!.nama[0].toUpperCase()
-                                    : 'K',
-                                style: const TextStyle(
-                                    fontFamily: 'Inter',
-                                    color: Colors.white,
-                                    fontSize: 36,
-                                    fontWeight: FontWeight.w800),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 14),
-                          Text(user?.nama ?? 'Karyawan',
-                              style: const TextStyle(
-                                  fontFamily: 'Inter',
-                                  color: AppColors.textPrimary,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w700)),
-                          const SizedBox(height: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: AppColors.accent.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                  color: AppColors.accent.withOpacity(0.3)),
-                            ),
-                            child: Text(
-                              _roleLabel(user?.role ?? 'karyawan'),
-                              style: const TextStyle(
-                                  fontFamily: 'Inter',
-                                  color: AppColors.accent,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600),
-                            ),
-                          ),
-                        ],
+                      const SizedBox(height: 10),
+                      Text(user?.nama ?? 'Karyawan',
+                          style: const TextStyle(
+                              fontFamily: 'Inter',
+                              color: AppColors.textPrimary,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: AppColors.accent.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                              color: AppColors.accent.withValues(alpha: 0.25)),
+                        ),
+                        child: Text(
+                          _roleLabel(user?.role ?? 'karyawan'),
+                          style: const TextStyle(
+                              fontFamily: 'Inter',
+                              color: AppColors.accent,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
