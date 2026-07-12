@@ -177,8 +177,12 @@ class DriverTrackingNotifier extends StateNotifier<DriverTrackingState> {
 
     debugPrint('🛑 Stopping journey for bus: $_busId');
     
+    // Cancel timer & subscription dulu
     _updateTimer?.cancel();
     _positionSubscription?.cancel();
+    
+    // Tunggu sebentar biar timer yang lagi jalan selesai dulu
+    await Future.delayed(const Duration(milliseconds: 500));
 
     try {
       // Update status jadi Tiba
