@@ -163,6 +163,18 @@ final currentUserProvider = Provider<UserModel?>((ref) {
   return ref.watch(authProvider).user;
 });
 
+// Real-time user stream provider (auto-update kalo data di Firestore berubah)
+final currentUserStreamProvider = StreamProvider<UserModel?>((ref) {
+  final authService = ref.watch(authServiceProvider);
+  final firebaseUser = authService.currentUser;
+  
+  if (firebaseUser == null) {
+    return Stream.value(null);
+  }
+  
+  return authService.getUserStream(firebaseUser.uid);
+});
+
 final userRoleProvider = Provider<String>((ref) {
   return ref.watch(authProvider).user?.role ?? '';
 });

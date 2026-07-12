@@ -35,11 +35,25 @@ class _DashboardDriverScreenState extends ConsumerState<DashboardDriverScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final user = ref.watch(currentUserProvider);
+    final userAsync = ref.watch(currentUserStreamProvider);
     final driverState = ref.watch(driverTrackingProvider);
     final driverNotifier = ref.read(driverTrackingProvider.notifier);
 
-    return Scaffold(
+    return userAsync.when(
+      loading: () => Scaffold(
+        backgroundColor: AppColors.background,
+        body: const Center(child: CircularProgressIndicator(color: AppColors.primary)),
+      ),
+      error: (err, stack) => Scaffold(
+        backgroundColor: AppColors.background,
+        body: Center(child: Text('Error: $err', style: const TextStyle(color: AppColors.error))),
+      ),
+      data: (user) {
+        if (user != null) {
+          debugPrint('👤 Driver: ${user.nama}, 🚌 Bus: ${user.busId}, 🗺️ Rute: ${user.ruteId}');
+        }
+
+        return Scaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [
@@ -152,6 +166,8 @@ class _DashboardDriverScreenState extends ConsumerState<DashboardDriverScreen> {
           ),
         ],
       ),
+    );
+      },
     );
   }
 

@@ -212,6 +212,15 @@ class AuthService {
     }
   }
 
+  /// Stream user data real-time dari Firestore (auto-update kalo data berubah)
+  Stream<UserModel?> getUserStream(String uid) {
+    return _users.doc(uid).snapshots().map((doc) {
+      if (!doc.exists) return null;
+      final data = Map<String, dynamic>.from(doc.data() as Map);
+      return _mapToUserModel(data, uid);
+    });
+  }
+
   /// Kompatibilitas untuk provider lama.
   Future<UserModel> login(String email, String password) async {
     final result = await signInWithEmail(email, password).timeout(
@@ -305,6 +314,7 @@ class AuthService {
       nama: (data['nama'] ?? data['name'] ?? '').toString(),
       role: (data['role'] ?? 'karyawan').toString(),
       busId: data['bus_id']?.toString(),
+      ruteId: data['rute_id']?.toString(),
       titikJemputId: data['titik_jemput_id']?.toString(),
       photoUrl: data['photo_url']?.toString(),
       createdAt: createdAt,
