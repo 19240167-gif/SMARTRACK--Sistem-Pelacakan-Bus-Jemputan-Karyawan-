@@ -235,20 +235,7 @@ class _ManajemenDriverScreenState extends ConsumerState<ManajemenDriverScreen> {
                           ),
                           if (driver.busId != null) ...[
                             const Divider(height: 20),
-                            Row(
-                              children: [
-                                const Icon(Icons.directions_bus,
-                                    size: 16, color: AppColors.accent),
-                                const SizedBox(width: 6),
-                                Text(
-                                  'Bus: ${driver.busId}',
-                                  style: const TextStyle(
-                                    color: AppColors.textSecondary,
-                                    fontSize: 13,
-                                  ),
-                                ),
-                              ],
-                            ),
+                            _buildBusAssignmentCard(context, ref, driver.busId!),
                           ],
                           if (driver.ruteId != null) ...[
                             const SizedBox(height: 8),
@@ -763,5 +750,89 @@ class _ManajemenDriverScreenState extends ConsumerState<ManajemenDriverScreen> {
       ),
     );
   }
+
+  Widget _buildBusAssignmentCard(BuildContext context, WidgetRef ref, String busId) {
+    final busAsync = ref.watch(busProvider(busId));
+    
+    return busAsync.when(
+      loading: () => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: [
+            const Icon(Icons.directions_bus, size: 16, color: AppColors.accent),
+            const SizedBox(width: 8),
+            const Text(
+              'Memuat data bus...',
+              style: TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 13,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ],
+        ),
+      ),
+      error: (_, __) => Row(
+        children: [
+          const Icon(Icons.directions_bus, size: 16, color: AppColors.error),
+          const SizedBox(width: 8),
+          Text(
+            'Bus: ${busId.substring(0, busId.length > 8 ? 8 : busId.length)}...',
+            style: const TextStyle(
+              color: AppColors.textSecondary,
+              fontSize: 13,
+            ),
+          ),
+        ],
+      ),
+      data: (bus) {
+        if (bus == null) {
+          return Row(
+            children: [
+              const Icon(Icons.directions_bus, size: 16, color: AppColors.error),
+              const SizedBox(width: 8),
+              Text(
+                'Bus: ${busId.substring(0, busId.length > 8 ? 8 : busId.length)}...',
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          );
+        }
+        
+        return Row(
+          children: [
+            const Icon(Icons.directions_bus, size: 16, color: AppColors.accent),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    bus.nomorBus,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  Text(
+                    '${bus.platNomor} • ${bus.kapasitas} orang',
+                    style: const TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }
+
 
