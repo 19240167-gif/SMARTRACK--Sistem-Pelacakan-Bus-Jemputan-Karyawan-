@@ -9,6 +9,41 @@ import '../../providers/tracking_provider.dart';
 import '../../utils/constants.dart';
 import '../../utils/helpers.dart';
 
+// Real-time stats providers (di luar class biar gak re-create terus)
+final totalBusesStreamProvider = StreamProvider<int>((ref) {
+  return FirebaseFirestore.instance
+      .collection('bus')
+      .snapshots()
+      .map((snapshot) {
+        debugPrint('🚌 Total Bus: ${snapshot.docs.length}');
+        return snapshot.docs.length;
+      });
+});
+
+final totalDriversStreamProvider = StreamProvider<int>((ref) {
+  return FirebaseFirestore.instance
+      .collection('users')
+      .where('role', isEqualTo: 'driver')
+      .where('is_active', isEqualTo: true)
+      .snapshots()
+      .map((snapshot) {
+        debugPrint('👨‍✈️ Total Driver: ${snapshot.docs.length}');
+        return snapshot.docs.length;
+      });
+});
+
+final totalKaryawanStreamProvider = StreamProvider<int>((ref) {
+  return FirebaseFirestore.instance
+      .collection('users')
+      .where('role', isEqualTo: 'karyawan')
+      .where('is_active', isEqualTo: true)
+      .snapshots()
+      .map((snapshot) {
+        debugPrint('👥 Total Karyawan: ${snapshot.docs.length}');
+        return snapshot.docs.length;
+      });
+});
+
 class DashboardAdminScreen extends ConsumerWidget {
   const DashboardAdminScreen({super.key});
 
@@ -309,40 +344,10 @@ class DashboardAdminScreen extends ConsumerWidget {
   }
 
   Widget _buildStatsRow(WidgetRef ref) {
-    // Real-time stats from Firestore
-    final busesStream = ref.watch(StreamProvider<int>((ref) {
-      return FirebaseFirestore.instance
-          .collection('bus')
-          .snapshots()
-          .map((snapshot) {
-            debugPrint('🚌 Total Bus: ${snapshot.docs.length}');
-            return snapshot.docs.length;
-          });
-    }));
-    
-    final driversStream = ref.watch(StreamProvider<int>((ref) {
-      return FirebaseFirestore.instance
-          .collection('users')
-          .where('role', isEqualTo: 'driver')
-          .where('is_active', isEqualTo: true)
-          .snapshots()
-          .map((snapshot) {
-            debugPrint('👨‍✈️ Total Driver: ${snapshot.docs.length}');
-            return snapshot.docs.length;
-          });
-    }));
-    
-    final karyawanStream = ref.watch(StreamProvider<int>((ref) {
-      return FirebaseFirestore.instance
-          .collection('users')
-          .where('role', isEqualTo: 'karyawan')
-          .where('is_active', isEqualTo: true)
-          .snapshots()
-          .map((snapshot) {
-            debugPrint('👥 Total Karyawan: ${snapshot.docs.length}');
-            return snapshot.docs.length;
-          });
-    }));
+    // Pake provider yang udah didefinisikan di luar
+    final busesStream = ref.watch(totalBusesStreamProvider);
+    final driversStream = ref.watch(totalDriversStreamProvider);
+    final karyawanStream = ref.watch(totalKaryawanStreamProvider);
     
     return Row(
       children: [
