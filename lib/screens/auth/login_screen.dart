@@ -193,59 +193,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         ),
                       ),
                       SizedBox(height: MediaQuery.of(context).viewInsets.bottom > 0 ? 24 : 48),
-                      Center(
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                          decoration: BoxDecoration(
-                            color: AppColors.accent.withOpacity(0.08),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: AppColors.accent.withOpacity(0.2),
-                              width: 1,
-                            ),
-                          ),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(
-                                    Icons.admin_panel_settings_rounded,
-                                    color: AppColors.accent,
-                                    size: 20,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  const Text(
-                                    'Cara Buat Akun Admin',
-                                    style: TextStyle(
-                                      color: AppColors.accent,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              const Text(
-                                '1. Buka Firebase Console\n'
-                                '2. Authentication → Users → Add user\n'
-                                '3. Email: admin@smartrack.com\n'
-                                '4. Password: (bebas, min 6 karakter)\n'
-                                '5. Firestore → users → Add document\n'
-                                '6. ID: (copy User UID dari Auth)\n'
-                                '7. Field: role = "admin", nama, email',
-                                style: TextStyle(
-                                  color: AppColors.textSecondary,
-                                  fontSize: 12,
-                                  height: 1.5,
-                                ),
-                                textAlign: TextAlign.left,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 24),
                     ],
                   ),
                 ),
