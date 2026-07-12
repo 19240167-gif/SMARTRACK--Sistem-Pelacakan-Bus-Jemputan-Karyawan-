@@ -73,7 +73,7 @@ class DashboardAdminScreen extends ConsumerWidget {
                             PopupMenuButton<String>(
                               onSelected: (value) {
                                 if (value == 'profile') {
-                                  context.push(AppRoutes.profil);
+                                  context.push('/admin/profil');
                                 } else if (value == 'logout') {
                                   ref.read(authProvider.notifier).logout();
                                 }

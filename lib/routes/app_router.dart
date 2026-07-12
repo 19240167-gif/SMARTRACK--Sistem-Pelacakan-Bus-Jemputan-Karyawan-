@@ -132,6 +132,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const DashboardAdminScreen(),
       ),
       GoRoute(
+        path: '/admin/profil',
+        builder: (context, state) => const ProfilScreen(isStandalone: true),
+      ),
+      GoRoute(
         path: AppRoutes.manajemenBus,
         builder: (context, state) => const ManajemenBusScreen(),
       ),

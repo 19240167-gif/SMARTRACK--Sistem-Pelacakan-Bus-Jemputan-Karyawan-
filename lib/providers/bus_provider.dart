@@ -1,4 +1,5 @@
 // lib/providers/bus_provider.dart
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/bus_model.dart';
@@ -92,8 +93,18 @@ class BusRepository {
   }
 
   Future<void> deleteBus(String? busId) async {
-    if (busId == null || busId.isEmpty) return;
-    await _firestore.collection('bus').doc(busId).delete();
+    if (busId == null || busId.isEmpty) {
+      throw Exception('Bus ID tidak valid');
+    }
+    
+    try {
+      debugPrint('🗑️ Attempting to delete bus: $busId');
+      await _firestore.collection('bus').doc(busId).delete();
+      debugPrint('✅ Bus deleted successfully: $busId');
+    } catch (e) {
+      debugPrint('❌ Error deleting bus $busId: $e');
+      rethrow;
+    }
   }
 }
 
