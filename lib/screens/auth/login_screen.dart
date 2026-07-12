@@ -194,46 +194,58 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                         ),
                       ),
                       SizedBox(height: MediaQuery.of(context).viewInsets.bottom > 0 ? 24 : 48),
-                      const Center(
-                        child: Text(
-                          'Akun dibuat oleh Admin',
-                          style: TextStyle(
-                            color: AppColors.textSecondary,
-                            fontSize: 13,
-                            fontStyle: FontStyle.italic,
+                      Center(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                          decoration: BoxDecoration(
+                            color: AppColors.accent.withOpacity(0.08),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: AppColors.accent.withOpacity(0.2),
+                              width: 1,
+                            ),
+                          ),
+                          child: Column(
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.admin_panel_settings_rounded,
+                                    color: AppColors.accent,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  const Text(
+                                    'Cara Buat Akun Admin',
+                                    style: TextStyle(
+                                      color: AppColors.accent,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                '1. Buka Firebase Console\n'
+                                '2. Authentication → Users → Add user\n'
+                                '3. Email: admin@smartrack.com\n'
+                                '4. Password: (bebas, min 6 karakter)\n'
+                                '5. Firestore → users → Add document\n'
+                                '6. ID: (copy User UID dari Auth)\n'
+                                '7. Field: role = "admin", nama, email',
+                                style: TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 12,
+                                  height: 1.5,
+                                ),
+                                textAlign: TextAlign.left,
+                              ),
+                            ],
                           ),
                         ),
                       ),
-                      if (const bool.fromEnvironment('dart.vm.product') == false)
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 16),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                TextButton.icon(
-                                  onPressed: () => context.go('/debug'),
-                                  icon: const Icon(Icons.bug_report, size: 16),
-                                  label: const Text('Firebase Debug'),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.orange,
-                                    textStyle: const TextStyle(fontSize: 12),
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                TextButton.icon(
-                                  onPressed: () => context.go('/seed'),
-                                  icon: const Icon(Icons.cloud_upload, size: 16),
-                                  label: const Text('Seed Data'),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: Colors.green,
-                                    textStyle: const TextStyle(fontSize: 12),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
                       const SizedBox(height: 24),
                     ],
                   ),
