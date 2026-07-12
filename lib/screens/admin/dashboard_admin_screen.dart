@@ -10,37 +10,60 @@ import '../../utils/constants.dart';
 import '../../utils/helpers.dart';
 
 // Real-time stats providers (di luar class biar gak re-create terus)
+// Fix: Check auth state dulu sebelum query Firestore
 final totalBusesStreamProvider = StreamProvider<int>((ref) {
+  final user = ref.watch(currentUserProvider);
+  
+  // Kalo user null atau bukan admin, return 0
+  if (user == null || user.role != 'admin') {
+    return Stream.value(0);
+  }
+  
   return FirebaseFirestore.instance
       .collection('bus')
       .snapshots()
-      .map((snapshot) {
-        debugPrint('🚌 Total Bus: ${snapshot.docs.length}');
-        return snapshot.docs.length;
+      .map((snapshot) => snapshot.docs.length)
+      .handleError((error) {
+        debugPrint('❌ Bus query error: $error');
+        return 0;
       });
 });
 
 final totalDriversStreamProvider = StreamProvider<int>((ref) {
+  final user = ref.watch(currentUserProvider);
+  
+  if (user == null || user.role != 'admin') {
+    return Stream.value(0);
+  }
+  
   return FirebaseFirestore.instance
       .collection('users')
       .where('role', isEqualTo: 'driver')
       .where('is_active', isEqualTo: true)
       .snapshots()
-      .map((snapshot) {
-        debugPrint('👨‍✈️ Total Driver: ${snapshot.docs.length}');
-        return snapshot.docs.length;
+      .map((snapshot) => snapshot.docs.length)
+      .handleError((error) {
+        debugPrint('❌ Driver query error: $error');
+        return 0;
       });
 });
 
 final totalKaryawanStreamProvider = StreamProvider<int>((ref) {
+  final user = ref.watch(currentUserProvider);
+  
+  if (user == null || user.role != 'admin') {
+    return Stream.value(0);
+  }
+  
   return FirebaseFirestore.instance
       .collection('users')
       .where('role', isEqualTo: 'karyawan')
       .where('is_active', isEqualTo: true)
       .snapshots()
-      .map((snapshot) {
-        debugPrint('👥 Total Karyawan: ${snapshot.docs.length}');
-        return snapshot.docs.length;
+      .map((snapshot) => snapshot.docs.length)
+      .handleError((error) {
+        debugPrint('❌ Karyawan query error: $error');
+        return 0;
       });
 });
 
@@ -353,52 +376,25 @@ class DashboardAdminScreen extends ConsumerWidget {
       children: [
         Expanded(
           child: busesStream.when(
-            data: (count) {
-              debugPrint('✅ Bus count rendered: $count');
-              return _statCard('Total Bus', '$count', Icons.directions_bus_rounded, AppColors.accent);
-            },
-            loading: () {
-              debugPrint('⏳ Bus loading...');
-              return _statCard('Total Bus', '...', Icons.directions_bus_rounded, AppColors.accent);
-            },
-            error: (err, stack) {
-              debugPrint('❌ Bus error: $err');
-              return _statCard('Total Bus', 'Err', Icons.directions_bus_rounded, AppColors.accent);
-            },
+            data: (count) => _statCard('Total Bus', '$count', Icons.directions_bus_rounded, AppColors.accent),
+            loading: () => _statCard('Total Bus', '...', Icons.directions_bus_rounded, AppColors.accent),
+            error: (err, stack) => _statCard('Total Bus', '0', Icons.directions_bus_rounded, AppColors.accent),
           ),
         ),
         const SizedBox(width: 10),
         Expanded(
           child: driversStream.when(
-            data: (count) {
-              debugPrint('✅ Driver count rendered: $count');
-              return _statCard('Driver', '$count', Icons.drive_eta_rounded, AppColors.statusBerangkat);
-            },
-            loading: () {
-              debugPrint('⏳ Driver loading...');
-              return _statCard('Driver', '...', Icons.drive_eta_rounded, AppColors.statusBerangkat);
-            },
-            error: (err, stack) {
-              debugPrint('❌ Driver error: $err');
-              return _statCard('Driver', 'Err', Icons.drive_eta_rounded, AppColors.statusBerangkat);
-            },
+            data: (count) => _statCard('Driver', '$count', Icons.drive_eta_rounded, AppColors.statusBerangkat),
+            loading: () => _statCard('Driver', '...', Icons.drive_eta_rounded, AppColors.statusBerangkat),
+            error: (err, stack) => _statCard('Driver', '0', Icons.drive_eta_rounded, AppColors.statusBerangkat),
           ),
         ),
         const SizedBox(width: 10),
         Expanded(
           child: karyawanStream.when(
-            data: (count) {
-              debugPrint('✅ Karyawan count rendered: $count');
-              return _statCard('Karyawan', '$count', Icons.people_rounded, AppColors.secondary);
-            },
-            loading: () {
-              debugPrint('⏳ Karyawan loading...');
-              return _statCard('Karyawan', '...', Icons.people_rounded, AppColors.secondary);
-            },
-            error: (err, stack) {
-              debugPrint('❌ Karyawan error: $err');
-              return _statCard('Karyawan', 'Err', Icons.people_rounded, AppColors.secondary);
-            },
+            data: (count) => _statCard('Karyawan', '$count', Icons.people_rounded, AppColors.secondary),
+            loading: () => _statCard('Karyawan', '...', Icons.people_rounded, AppColors.secondary),
+            error: (err, stack) => _statCard('Karyawan', '0', Icons.people_rounded, AppColors.secondary),
           ),
         ),
       ],
