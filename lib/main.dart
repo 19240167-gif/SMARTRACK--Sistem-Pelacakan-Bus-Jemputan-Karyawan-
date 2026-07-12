@@ -30,19 +30,22 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
-    debugPrint('Firebase initialized successfully');
+    debugPrint('✅ Firebase initialized successfully');
 
     await initializeDateFormatting('id_ID', null);
+    debugPrint('✅ Date formatting initialized');
 
     if (!kIsWeb) {
       final notificationService = NotificationService();
       await notificationService.initialize();
+      debugPrint('✅ Notification service initialized');
     }
 
-    debugPrint('Basic services initialized successfully');
+    debugPrint('✅ All services initialized successfully');
   } catch (e, stackTrace) {
-    debugPrint('Initialization error: $e');
+    debugPrint('❌ Initialization error: $e');
     debugPrint('Stack trace: $stackTrace');
+    // Continue anyway - don't block app startup
   }
 
   runApp(
@@ -64,14 +67,6 @@ class SmartrackApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.darkTheme,
       routerConfig: router,
-      builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(
-            textScaler: const TextScaler.linear(1.0),
-          ),
-          child: child ?? const SizedBox.shrink(),
-        );
-      },
     );
   }
 }
