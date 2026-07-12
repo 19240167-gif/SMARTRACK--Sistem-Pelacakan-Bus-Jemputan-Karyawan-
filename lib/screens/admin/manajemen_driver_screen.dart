@@ -376,46 +376,124 @@ class _ManajemenDriverScreenState extends ConsumerState<ManajemenDriverScreen> {
   }
 
   void _showAssignBusDialog(BuildContext context, WidgetRef ref, dynamic driver) {
+    final isReassign = driver.busId != null;
+    
     showDialog(
       context: context,
       builder: (ctx) => Consumer(
         builder: (ctx, ref, child) {
-          final busesAsync = ref.watch(availableBusesStreamProvider);
+          // Untuk reassign, tampilkan semua bus. Untuk assign baru, tampilkan bus available saja
+          final busesAsync = isReassign 
+              ? ref.watch(allBusesProvider) 
+              : ref.watch(availableBusesStreamProvider);
 
           return AlertDialog(
             backgroundColor: AppColors.card,
-            title: const Text('Assign Bus ke Driver'),
+            title: Text(isReassign ? 'Reassign Bus untuk Driver' : 'Assign Bus ke Driver'),
             content: SizedBox(
               width: double.maxFinite,
               child: busesAsync.when(
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (e, _) => Text('Error: $e'),
                 data: (buses) {
-                  if (buses.isEmpty) {
+                  // Filter bus yang aktif
+                  final activeBuses = buses.where((b) => b.status == 'aktif').toList();
+                  
+                  if (activeBuses.isEmpty) {
                     return const Padding(
                       padding: EdgeInsets.symmetric(vertical: 20),
-                      child: Text('Tidak ada bus yang tersedia'),
+                      child: Text('Tidak ada bus aktif yang tersedia'),
                     );
                   }
-                  return ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: buses.length,
-                    itemBuilder: (context, index) {
-                      final bus = buses[index];
-                      return ListTile(
-                        leading: const Icon(Icons.directions_bus, color: AppColors.accent),
-                        title: Text(bus.nomorBus, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        subtitle: Text(bus.platNomor),
-                        onTap: () async {
-                          Navigator.pop(ctx);
-                          await ref.read(adminProvider.notifier).assignDriverToBus(
-                                bus.id!,
-                                driver.uid,
-                                driver.nama,
-                              );
-                        },
-                      );
-                    },
+                  
+                  return Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (isReassign)
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: AppColors.warning.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: AppColors.warning.withOpacity(0.3)),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.info_outline, color: AppColors.warning, size: 20),
+                              SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  'Driver akan dipindahkan dari bus lama ke bus baru',
+                                  style: TextStyle(
+                                    fontFamily: 'Inter',
+                                    color: AppColors.textSecondary,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      Expanded(
+                        child: ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: activeBuses.length,
+                          itemBuilder: (context, index) {
+                            final bus = activeBuses[index];
+                            final isCurrent = bus.id == driver.busId;
+                            final hasDriver = bus.driverId != null && !isCurrent;
+                            
+                            return ListTile(
+                              leading: Icon(
+                                Icons.directions_bus,
+                                color: isCurrent 
+                                    ? AppColors.success 
+                                    : hasDriver 
+                                        ? AppColors.textTertiary 
+                                        : AppColors.accent,
+                              ),
+                              title: Text(
+                                bus.nomorBus,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: isCurrent ? AppColors.success : AppColors.textPrimary,
+                                ),
+                              ),
+                              subtitle: Text(
+                                isCurrent 
+                                    ? '${bus.platNomor} (Bus saat ini)'
+                                    : hasDriver
+                                        ? '${bus.platNomor} (Driver: ${bus.driverNama})'
+                                        : bus.platNomor,
+                                style: TextStyle(
+                                  color: isCurrent ? AppColors.success : AppColors.textSecondary,
+                                ),
+                              ),
+                              trailing: isCurrent 
+                                  ? const Icon(Icons.check_circle, color: AppColors.success, size: 20)
+                                  : null,
+                              enabled: !isCurrent,
+                              onTap: isCurrent ? null : () async {
+                                Navigator.pop(ctx);
+                                
+                                // Untuk reassign, unassign dari bus lama dulu
+                                if (isReassign && driver.busId != null) {
+                                  await ref.read(adminProvider.notifier).unassignDriverFromBus(driver.busId);
+                                }
+                                
+                                // Assign ke bus baru
+                                await ref.read(adminProvider.notifier).assignDriverToBus(
+                                      bus.id!,
+                                      driver.uid,
+                                      driver.nama,
+                                    );
+                              },
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   );
                 },
               ),
