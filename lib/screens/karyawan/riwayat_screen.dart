@@ -7,7 +7,9 @@ import '../../utils/constants.dart';
 import '../../utils/helpers.dart';
 
 class RiwayatScreen extends ConsumerWidget {
-  const RiwayatScreen({super.key});
+  final bool isStandalone;
+  
+  const RiwayatScreen({super.key, this.isStandalone = false});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -15,6 +17,7 @@ class RiwayatScreen extends ConsumerWidget {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.surface,
+        automaticallyImplyLeading: isStandalone,
         title: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

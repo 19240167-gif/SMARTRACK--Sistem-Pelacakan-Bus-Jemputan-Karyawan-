@@ -405,7 +405,7 @@ class DashboardAdminScreen extends ConsumerWidget {
       ('Manajemen Karyawan', Icons.people_rounded, AppColors.secondary, AppRoutes.manajemenKaryawan),
       ('Titik Jemput', Icons.location_on_rounded, AppColors.statusTiba, AppRoutes.manajemenTitikJemput),
       ('Rute Perjalanan', Icons.map_rounded, AppColors.statusMendekati, AppRoutes.manajemenRute),
-      ('Riwayat Trip', Icons.history_rounded, AppColors.statusMacet, AppRoutes.riwayat),
+      ('Riwayat Trip', Icons.history_rounded, AppColors.statusMacet, AppRoutes.adminRiwayat),
     ];
 
     return GridView.builder(
