@@ -64,6 +64,7 @@ class _AppTextFieldState extends State<AppTextField> {
         prefixIcon: widget.prefixIcon != null
             ? Icon(widget.prefixIcon, size: 20)
             : null,
+        // Cuma show suffixIcon kalo password ATAU ada suffix widget
         suffixIcon: widget.isPassword
             ? IconButton(
                 icon: Icon(
@@ -71,15 +72,11 @@ class _AppTextFieldState extends State<AppTextField> {
                       ? Icons.visibility_outlined
                       : Icons.visibility_off_outlined,
                   size: 20,
+                  color: AppColors.textSecondary,
                 ),
-                onPressed: () =>
-                    setState(() => _obscureText = !_obscureText),
+                onPressed: () => setState(() => _obscureText = !_obscureText),
               )
             : widget.suffix,
-        // Override theme suffixIcon biar ga dobel
-        suffixIconConstraints: widget.isPassword 
-            ? const BoxConstraints(minWidth: 48, minHeight: 48)
-            : null,
       ),
     );
   }
