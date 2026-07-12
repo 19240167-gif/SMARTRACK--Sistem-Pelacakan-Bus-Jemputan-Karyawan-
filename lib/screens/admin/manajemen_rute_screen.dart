@@ -114,22 +114,24 @@ class ManajemenRuteScreen extends ConsumerWidget {
               ),
               Row(
                 children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.accent.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: AppColors.accent.withOpacity(0.3)),
+                  if (rute.daftarTitik.isNotEmpty) ...[
+                    Container(
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppColors.accent.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: AppColors.accent.withOpacity(0.3)),
+                      ),
+                      child: Text('${rute.daftarTitik.length} titik',
+                          style: const TextStyle(
+                              fontFamily: 'Inter',
+                              color: AppColors.accent,
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600)),
                     ),
-                    child: Text('${rute.daftarTitik.length} titik',
-                        style: const TextStyle(
-                            fontFamily: 'Inter',
-                            color: AppColors.accent,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600)),
-                  ),
-                  const SizedBox(width: 8),
+                    const SizedBox(width: 8),
+                  ],
                   GestureDetector(
                     onTap: () => _showDialog(context, rute),
                     child: Container(
@@ -265,8 +267,8 @@ class ManajemenRuteScreen extends ConsumerWidget {
                     color: AppColors.textPrimary, fontFamily: 'Inter'),
                 decoration: InputDecoration(
                   labelText: 'Nama Rute',
-                  hintText: 'Contoh: Karawang → KIIC',
-                  helperText: 'Format: Origin → Destination',
+                  hintText: 'Contoh: Karawang - KIIC',
+                  helperText: 'Format: Asal - Tujuan',
                   helperStyle: const TextStyle(
                       color: AppColors.textTertiary, fontSize: 11),
                   filled: true,
