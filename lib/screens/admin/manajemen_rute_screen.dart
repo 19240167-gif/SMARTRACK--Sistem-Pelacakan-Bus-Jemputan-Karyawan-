@@ -112,20 +112,52 @@ class ManajemenRuteScreen extends ConsumerWidget {
                   ],
                 ),
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.accent.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.accent.withOpacity(0.3)),
-                ),
-                child: Text('${rute.daftarTitik.length} titik',
-                    style: const TextStyle(
-                        fontFamily: 'Inter',
-                        color: AppColors.accent,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600)),
+              Row(
+                children: [
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppColors.accent.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.accent.withOpacity(0.3)),
+                    ),
+                    child: Text('${rute.daftarTitik.length} titik',
+                        style: const TextStyle(
+                            fontFamily: 'Inter',
+                            color: AppColors.accent,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600)),
+                  ),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () => _showDialog(context, rute),
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: AppColors.accent.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.edit_outlined,
+                          color: AppColors.accent, size: 16),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () => _deleteRute(context, rute),
+                    child: Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        color: AppColors.error.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.delete_outline_rounded,
+                          color: AppColors.error, size: 16),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -222,45 +254,80 @@ class ManajemenRuteScreen extends ConsumerWidget {
                 fontFamily: 'Inter',
                 color: AppColors.textPrimary,
                 fontWeight: FontWeight.w700)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: namaCtrl,
-              style: const TextStyle(
-                  color: AppColors.textPrimary, fontFamily: 'Inter'),
-              decoration: InputDecoration(
-                labelText: 'Nama Rute',
-                filled: true,
-                fillColor: AppColors.surfaceVariant,
-                labelStyle: const TextStyle(color: AppColors.textSecondary),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.divider)),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.divider)),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              TextField(
+                controller: namaCtrl,
+                style: const TextStyle(
+                    color: AppColors.textPrimary, fontFamily: 'Inter'),
+                decoration: InputDecoration(
+                  labelText: 'Nama Rute',
+                  hintText: 'Contoh: Karawang → KIIC',
+                  helperText: 'Format: Origin → Destination',
+                  helperStyle: const TextStyle(
+                      color: AppColors.textTertiary, fontSize: 11),
+                  filled: true,
+                  fillColor: AppColors.surfaceVariant,
+                  labelStyle: const TextStyle(color: AppColors.textSecondary),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.divider)),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.divider)),
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: jamCtrl,
-              style: const TextStyle(
-                  color: AppColors.textPrimary, fontFamily: 'Inter'),
-              decoration: InputDecoration(
-                labelText: 'Jam Keberangkatan (HH:mm)',
-                filled: true,
-                fillColor: AppColors.surfaceVariant,
-                labelStyle: const TextStyle(color: AppColors.textSecondary),
-                border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.divider)),
-                enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.divider)),
+              const SizedBox(height: 12),
+              TextField(
+                controller: jamCtrl,
+                style: const TextStyle(
+                    color: AppColors.textPrimary, fontFamily: 'Inter'),
+                decoration: InputDecoration(
+                  labelText: 'Jam Keberangkatan',
+                  hintText: '07:00',
+                  filled: true,
+                  fillColor: AppColors.surfaceVariant,
+                  labelStyle: const TextStyle(color: AppColors.textSecondary),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.divider)),
+                  enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.divider)),
+                ),
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppColors.accent.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: AppColors.accent.withOpacity(0.3)),
+                ),
+                child: const Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('📍 Contoh Nama Rute:',
+                        style: TextStyle(
+                            fontFamily: 'Inter',
+                            color: AppColors.accent,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600)),
+                    SizedBox(height: 6),
+                    Text('• Karawang → KIIC\n• Cikampek → KIIC\n• Purwasari → KIIC\n• Klari → KIIC',
+                        style: TextStyle(
+                            fontFamily: 'Inter',
+                            color: AppColors.textSecondary,
+                            fontSize: 11,
+                            height: 1.5)),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -268,26 +335,122 @@ class ManajemenRuteScreen extends ConsumerWidget {
               child: const Text('Batal')),
           ElevatedButton(
             onPressed: () async {
+              final nama = namaCtrl.text.trim();
+              if (nama.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Nama rute tidak boleh kosong')),
+                );
+                return;
+              }
+              
               final rute = {
-                'nama_rute': namaCtrl.text.trim(),
+                'nama_rute': nama,
                 'jam_keberangkatan': jamCtrl.text.trim(),
                 'perusahaan_id': '',
-                'daftar_titik': [],
+                'daftar_titik': existing?.daftarTitik.map((t) => {
+                  'nama': t.nama,
+                  'latitude': t.latitude,
+                  'longitude': t.longitude,
+                  'estimasi_menit': t.estimasiMenit,
+                }).toList() ?? [],
               };
-              if (existing == null) {
-                await FirebaseFirestore.instance.collection('rute').add(rute);
-              } else {
-                await FirebaseFirestore.instance
-                    .collection('rute')
-                    .doc(existing.id)
-                    .update(rute);
+              
+              try {
+                if (existing == null) {
+                  await FirebaseFirestore.instance.collection('rute').add(rute);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Rute berhasil ditambahkan'),
+                        backgroundColor: AppColors.success,
+                      ),
+                    );
+                  }
+                } else {
+                  await FirebaseFirestore.instance
+                      .collection('rute')
+                      .doc(existing.id)
+                      .update(rute);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Rute berhasil diupdate'),
+                        backgroundColor: AppColors.success,
+                      ),
+                    );
+                  }
+                }
+                if (ctx.mounted) Navigator.pop(ctx);
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error: $e'),
+                      backgroundColor: AppColors.error,
+                    ),
+                  );
+                }
               }
-              if (ctx.mounted) Navigator.pop(ctx);
             },
             child: Text(existing == null ? 'Tambah' : 'Simpan'),
           ),
         ],
       ),
     );
+  }
+
+  Future<void> _deleteRute(BuildContext context, RuteModel rute) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.card,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Text('Hapus Rute?',
+            style: TextStyle(
+                fontFamily: 'Inter',
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w700)),
+        content: Text('Rute "${rute.namaRute}" akan dihapus permanen.',
+            style: const TextStyle(
+                fontFamily: 'Inter', color: AppColors.textSecondary)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: const Text('Hapus'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await FirebaseFirestore.instance
+            .collection('rute')
+            .doc(rute.id)
+            .delete();
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Rute "${rute.namaRute}" berhasil dihapus'),
+              backgroundColor: AppColors.success,
+            ),
+          );
+        }
+      } catch (e) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Gagal menghapus rute: $e'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    }
   }
 }
