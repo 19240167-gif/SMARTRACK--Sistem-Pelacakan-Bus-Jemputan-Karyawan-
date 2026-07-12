@@ -37,30 +37,37 @@ class RiwayatScreen extends ConsumerWidget {
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
             .collection('riwayat')
-            .orderBy('tanggal_berangkat', descending: true)
-            .limit(50)
             .snapshots(),
         builder: (context, snapshot) {
+          debugPrint('📊 Riwayat stream state: ${snapshot.connectionState}');
+          debugPrint('📊 Has error: ${snapshot.hasError}');
+          debugPrint('📊 Error: ${snapshot.error}');
+          debugPrint('📊 Data count: ${snapshot.data?.docs.length ?? 0}');
+          
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(color: AppColors.accent),
             );
           }
           if (snapshot.hasError) {
-            return const Center(
+            debugPrint('❌ Riwayat error: ${snapshot.error}');
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline_rounded,
+                  const Icon(Icons.error_outline_rounded,
                       size: 64, color: AppColors.error),
-                  SizedBox(height: 16),
-                  Text('Gagal memuat data',
-                      style: TextStyle(color: AppColors.textSecondary)),
+                  const SizedBox(height: 16),
+                  Text('Gagal memuat data: ${snapshot.error}',
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: AppColors.textSecondary)),
                 ],
               ),
             );
           }
           final docs = snapshot.data?.docs ?? [];
+          debugPrint('📊 Documents: ${docs.length}');
+          
           if (docs.isEmpty) {
             return Center(
               child: Column(
@@ -87,9 +94,22 @@ class RiwayatScreen extends ConsumerWidget {
             );
           }
           final list = docs
-              .map((d) =>
-                  RiwayatModel.fromMap(d.data() as Map<String, dynamic>, d.id))
+              .map((d) {
+                try {
+                  return RiwayatModel.fromMap(d.data() as Map<String, dynamic>, d.id);
+                } catch (e) {
+                  debugPrint('❌ Error parsing riwayat ${d.id}: $e');
+                  return null;
+                }
+              })
+              .whereType<RiwayatModel>()
               .toList();
+          
+          // Sort by date manually (since we removed orderBy from query)
+          list.sort((a, b) => b.tanggalBerangkat.compareTo(a.tanggalBerangkat));
+          
+          debugPrint('✅ Parsed ${list.length} riwayat successfully');
+          
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: list.length,
