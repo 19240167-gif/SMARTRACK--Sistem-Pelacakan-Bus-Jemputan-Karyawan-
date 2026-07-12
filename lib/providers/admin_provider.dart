@@ -109,6 +109,8 @@ class AdminNotifier extends StateNotifier<AdminState> {
         kapasitas: kapasitas,
         status: status,
       );
+      // Tunggu sebentar biar Firestore sempat propagate permissions
+      await Future.delayed(const Duration(milliseconds: 500));
       state = state.copyWith(
         isLoading: false,
         successMessage: 'Bus berhasil ditambahkan',
@@ -220,6 +222,8 @@ class AdminNotifier extends StateNotifier<AdminState> {
         jamJemput: jamJemput,
         urutanJemput: urutanJemput,
       );
+      // Tunggu sebentar biar Firestore sempat propagate permissions
+      await Future.delayed(const Duration(milliseconds: 500));
       state = state.copyWith(
         isLoading: false,
         successMessage: 'Titik jemput berhasil ditambahkan',
@@ -306,6 +310,8 @@ class AdminNotifier extends StateNotifier<AdminState> {
         nama: nama,
         telepon: telepon,
       );
+      // Tunggu sebentar biar Firestore sempat propagate permissions
+      await Future.delayed(const Duration(milliseconds: 500));
       state = state.copyWith(
         isLoading: false,
         successMessage: 'Akun driver berhasil dibuat',
@@ -339,6 +345,8 @@ class AdminNotifier extends StateNotifier<AdminState> {
         nip: nip,
         divisi: divisi,
       );
+      // Tunggu sebentar biar Firestore sempat propagate permissions
+      await Future.delayed(const Duration(milliseconds: 500));
       state = state.copyWith(
         isLoading: false,
         successMessage: 'Akun karyawan berhasil dibuat',
