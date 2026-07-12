@@ -240,7 +240,36 @@ class _ManajemenBusScreenState extends ConsumerState<ManajemenBusScreen> {
                           message: 'Data bus ${bus.nomorBus} akan dihapus permanen.',
                           confirmText: 'Hapus');
                       if (confirm) {
-                        ref.read(busRepositoryProvider).deleteBus(bus.id);
+                        try {
+                          await ref.read(busRepositoryProvider).deleteBus(bus.id);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Bus ${bus.nomorBus} berhasil dihapus'),
+                                backgroundColor: AppColors.success,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                margin: const EdgeInsets.all(16),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Gagal menghapus bus: $e'),
+                                backgroundColor: AppColors.error,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                margin: const EdgeInsets.all(16),
+                              ),
+                            );
+                          }
+                        }
                       }
                     },
                     child: Container(
