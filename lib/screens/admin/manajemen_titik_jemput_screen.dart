@@ -84,7 +84,7 @@ class ManajemenTitikJemputScreen extends ConsumerWidget {
           }
 
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
             itemCount: titikJemputList.length,
             itemBuilder: (context, index) {
               final titik = titikJemputList[index];
@@ -206,13 +206,63 @@ class ManajemenTitikJemputScreen extends ConsumerWidget {
                         Expanded(
                           child: OutlinedButton.icon(
                             onPressed: () async {
-                              final confirm = await AppHelpers.showConfirmDialog(
-                                context,
-                                title: 'Hapus Titik Jemput?',
-                                message: 'Yakin ingin menghapus ${titik.nama}?',
-                              );
-                              if (confirm) {
-                                ref.read(adminProvider.notifier).deleteTitikJemput(titik.id!);
+                              // Cek dulu apakah ada yang masih di-assign
+                              try {
+                                final confirm = await AppHelpers.showConfirmDialog(
+                                  context,
+                                  title: 'Hapus Titik Jemput?',
+                                  message: 'Yakin ingin menghapus ${titik.nama}?',
+                                );
+                                if (confirm) {
+                                  final success = await ref.read(adminProvider.notifier).deleteTitikJemput(titik.id!);
+                                  if (!success && context.mounted) {
+                                    // Error message already shown by provider, check if it's about assignment
+                                    final errorMsg = ref.read(adminProvider).errorMessage ?? '';
+                                    if (errorMsg.contains('masih di-assign')) {
+                                      // Show option to unassign all users first
+                                      final unassignConfirm = await showDialog<bool>(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                          backgroundColor: AppColors.card,
+                                          title: const Text('Unassign Semua User?'),
+                                          content: Text(
+                                            'Titik jemput ini masih digunakan oleh beberapa karyawan. Unassign semua karyawan terlebih dahulu?',
+                                            style: const TextStyle(color: AppColors.textSecondary),
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(ctx, false),
+                                              child: const Text('Batal'),
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () => Navigator.pop(ctx, true),
+                                              style: ElevatedButton.styleFrom(backgroundColor: AppColors.warning),
+                                              child: const Text('Unassign Semua'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                      
+                                      if (unassignConfirm == true && context.mounted) {
+                                        // Unassign all users first
+                                        final unassigned = await ref.read(adminProvider.notifier).unassignAllUsersFromTitikJemput(titik.id!);
+                                        if (unassigned && context.mounted) {
+                                          // Now try to delete again
+                                          await ref.read(adminProvider.notifier).deleteTitikJemput(titik.id!);
+                                        }
+                                      }
+                                    }
+                                  }
+                                }
+                              } catch (e) {
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text('Error: $e'),
+                                      backgroundColor: AppColors.error,
+                                    ),
+                                  );
+                                }
                               }
                             },
                             icon: const Icon(Icons.delete, size: 18),

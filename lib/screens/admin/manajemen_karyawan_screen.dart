@@ -147,7 +147,7 @@ class _ManajemenKaryawanScreenState extends ConsumerState<ManajemenKaryawanScree
                 }
 
                 return ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 100), // Tambah padding bawah biar ga ketutup FAB
                   itemCount: filteredKaryawanList.length,
                   itemBuilder: (context, index) {
                     final karyawan = filteredKaryawanList[index];

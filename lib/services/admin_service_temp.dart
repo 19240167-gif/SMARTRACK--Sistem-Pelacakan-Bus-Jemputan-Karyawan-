@@ -1,4 +1,4 @@
-// lib/services/admin_service.dart
+﻿// lib/services/admin_service.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -29,7 +29,7 @@ class AdminService {
       // User perlu re-login setelah create account
       return _auth;
     } catch (e) {
-      // debug removed
+      debugPrint(');
       return _auth;
     }
   }
@@ -54,10 +54,10 @@ class AdminService {
         'created_at': FieldValue.serverTimestamp(),
         'updated_at': FieldValue.serverTimestamp(),
       });
-      // debug removed
+      debugPrint(');
       return docRef.id;
     } catch (e) {
-      // debug removed
+      debugPrint(');
       throw Exception('Gagal membuat bus: $e');
     }
   }
@@ -69,9 +69,9 @@ class AdminService {
         ...data,
         'updated_at': FieldValue.serverTimestamp(),
       });
-      // debug removed
+      debugPrint(');
     } catch (e) {
-      // debug removed
+      debugPrint(');
       throw Exception('Gagal update bus: $e');
     }
   }
@@ -91,9 +91,9 @@ class AdminService {
       }
 
       await _firestore.collection('bus').doc(busId).delete();
-      // debug removed
+      debugPrint(');
     } catch (e) {
-      // debug removed
+      debugPrint(');
       throw Exception('Gagal hapus bus: $e');
     }
   }
@@ -124,9 +124,9 @@ class AdminService {
         'updated_at': FieldValue.serverTimestamp(),
       });
 
-      // debug removed
+      debugPrint(');
     } catch (e) {
-      // debug removed
+      debugPrint(');
       throw Exception('Gagal assign driver: $e');
     }
   }
@@ -145,9 +145,9 @@ class AdminService {
         'updated_at': FieldValue.serverTimestamp(),
       });
 
-      // debug removed
+      debugPrint(');
     } catch (e) {
-      // debug removed
+      debugPrint(');
       throw Exception('Gagal unassign driver: $e');
     }
   }
@@ -176,10 +176,10 @@ class AdminService {
         'created_at': FieldValue.serverTimestamp(),
         'updated_at': FieldValue.serverTimestamp(),
       });
-      // debug removed
+      debugPrint(');
       return docRef.id;
     } catch (e) {
-      // debug removed
+      debugPrint(');
       throw Exception('Gagal membuat titik jemput: $e');
     }
   }
@@ -191,9 +191,9 @@ class AdminService {
         ...data,
         'updated_at': FieldValue.serverTimestamp(),
       });
-      // debug removed
+      debugPrint(');
     } catch (e) {
-      // debug removed
+      debugPrint(');
       throw Exception('Gagal update titik jemput: $e');
     }
   }
@@ -221,9 +221,9 @@ class AdminService {
       }
 
       await _firestore.collection('titik_jemput').doc(titikJemputId).delete();
-      // debug removed
+      debugPrint(');
     } catch (e) {
-      // debug removed
+      debugPrint(');
       throw Exception('Gagal hapus titik jemput: $e');
     }
   }
@@ -250,10 +250,10 @@ class AdminService {
 
       await batch.commit();
       final count = usersQuery.docs.length;
-      // debug removed
+      debugPrint(');
       return count;
     } catch (e) {
-      // debug removed
+      debugPrint(');
       throw Exception('Gagal unassign users: $e');
     }
   }
@@ -299,12 +299,12 @@ class AdminService {
       
       // WARNING: Admin needs to re-login
       // Untuk production: gunakan Firebase Admin SDK di Cloud Functions
-      // debug removed
-      // debug removed
+      debugPrint(');
+      debugPrint(');
       
       return uid;
     } catch (e) {
-      // debug removed
+      debugPrint(');
       throw Exception('Gagal membuat akun driver: $e');
     }
   }
@@ -352,12 +352,12 @@ class AdminService {
       await _auth.signOut();
       
       // WARNING: Admin needs to re-login
-      // debug removed
-      // debug removed
+      debugPrint(');
+      debugPrint(');
       
       return uid;
     } catch (e) {
-      // debug removed
+      debugPrint(');
       throw Exception('Gagal membuat akun karyawan: $e');
     }
   }
@@ -369,9 +369,9 @@ class AdminService {
         ...data,
         'updated_at': FieldValue.serverTimestamp(),
       });
-      // debug removed
+      debugPrint(');
     } catch (e) {
-      // debug removed
+      debugPrint(');
       throw Exception('Gagal update user: $e');
     }
   }
@@ -388,9 +388,9 @@ class AdminService {
       // Note: Firebase Auth user tidak dihapus untuk keamanan
       // Jika ingin hapus total dari Auth, perlu Firebase Admin SDK
       
-      // debug removed
+      debugPrint(');
     } catch (e) {
-      // debug removed
+      debugPrint(');
       throw Exception('Gagal hapus user: $e');
     }
   }
@@ -407,9 +407,9 @@ class AdminService {
         'titik_jemput_id': titikJemputId,
         'updated_at': FieldValue.serverTimestamp(),
       });
-      // debug removed
+      debugPrint(');
     } catch (e) {
-      // debug removed
+      debugPrint(');
       throw Exception('Gagal assign karyawan: $e');
     }
   }

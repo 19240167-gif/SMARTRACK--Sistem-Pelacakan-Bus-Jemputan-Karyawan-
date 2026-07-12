@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../providers/admin_provider.dart';
+import '../../providers/bus_provider.dart';
 import '../../utils/constants.dart';
 import '../../utils/helpers.dart';
 import '../../widgets/common/app_text_field.dart';
@@ -25,10 +26,11 @@ class _ManajemenDriverScreenState extends ConsumerState<ManajemenDriverScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Ambil data driver dari Firestore real-time
     final driversAsync = ref.watch(allDriversStreamProvider);
     final adminState = ref.watch(adminProvider);
 
-    // Show snackbar
+    // Dengerin state buat nampilin notif sukses/error
     ref.listen(adminProvider, (prev, next) {
       if (next.successMessage != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -127,6 +129,7 @@ class _ManajemenDriverScreenState extends ConsumerState<ManajemenDriverScreen> {
                   );
                 }
 
+                // Filter driver berdasarkan search
                 final query = _searchController.text.trim().toLowerCase();
                 final filteredDrivers = query.isEmpty
                     ? drivers
@@ -153,7 +156,7 @@ class _ManajemenDriverScreenState extends ConsumerState<ManajemenDriverScreen> {
                 }
 
                 return ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 100), // Tambah padding bawah biar ga ketutup FAB
                   itemCount: filteredDrivers.length,
                   itemBuilder: (context, index) {
                     final driver = filteredDrivers[index];
@@ -248,39 +251,56 @@ class _ManajemenDriverScreenState extends ConsumerState<ManajemenDriverScreen> {
                             ),
                           ],
                           const SizedBox(height: 12),
+                          // Baris 1: Edit & Reassign
                           Row(
                             children: [
                               Expanded(
                                 child: OutlinedButton.icon(
-                                  onPressed: () => _showAssignBusDialog(context, ref, driver),
-                                  icon: const Icon(Icons.assignment, size: 18),
-                                  label: Text(driver.busId == null ? 'Assign Bus' : 'Reassign'),
+                                  onPressed: () => _showEditDriverDialog(context, ref, driver),
+                                  icon: const Icon(Icons.edit, size: 18),
+                                  label: const Text('Edit'),
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor: AppColors.accent,
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
                                   ),
                                 ),
                               ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: OutlinedButton.icon(
-                                  onPressed: () async {
-                                    final confirm = await AppHelpers.showConfirmDialog(
-                                      context,
-                                      title: 'Hapus Driver?',
-                                      message: 'Yakin ingin menghapus ${driver.nama}?',
-                                    );
-                                    if (confirm) {
-                                      ref.read(adminProvider.notifier).deleteUser(driver.uid);
-                                    }
-                                  },
-                                  icon: const Icon(Icons.delete, size: 18),
-                                  label: const Text('Hapus'),
+                                  onPressed: () => _showAssignBusDialog(context, ref, driver),
+                                  icon: const Icon(Icons.assignment, size: 18),
+                                  label: Text(driver.busId == null ? 'Assign' : 'Reassign'),
                                   style: OutlinedButton.styleFrom(
-                                    foregroundColor: AppColors.error,
+                                    foregroundColor: AppColors.accent,
+                                    padding: const EdgeInsets.symmetric(vertical: 8),
                                   ),
                                 ),
                               ),
                             ],
+                          ),
+                          const SizedBox(height: 8),
+                          // Baris 2: Hapus (full width)
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () async {
+                                final confirm = await AppHelpers.showConfirmDialog(
+                                  context,
+                                  title: 'Hapus Driver?',
+                                  message: 'Yakin ingin menghapus ${driver.nama}?',
+                                );
+                                if (confirm) {
+                                  ref.read(adminProvider.notifier).deleteUser(driver.uid);
+                                }
+                              },
+                              icon: const Icon(Icons.delete, size: 18),
+                              label: const Text('Hapus'),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppColors.error,
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -295,6 +315,8 @@ class _ManajemenDriverScreenState extends ConsumerState<ManajemenDriverScreen> {
     );
   }
 
+  // Dialog tambah driver baru
+  // Data dikirim ke Firebase Auth (buat akun) + Firestore collection 'users'
   void _showAddDriverDialog(BuildContext context, WidgetRef ref) {
     final formKey = GlobalKey<FormState>();
     final namaController = TextEditingController();
@@ -358,6 +380,7 @@ class _ManajemenDriverScreenState extends ConsumerState<ManajemenDriverScreen> {
             onPressed: () async {
               if (formKey.currentState!.validate()) {
                 Navigator.pop(ctx);
+                // Kirim data ke adminProvider -> adminService -> Firebase Auth + Firestore
                 await ref.read(adminProvider.notifier).createDriver(
                       email: emailController.text.trim(),
                       password: passwordController.text,
@@ -375,6 +398,85 @@ class _ManajemenDriverScreenState extends ConsumerState<ManajemenDriverScreen> {
     );
   }
 
+  // Dialog edit driver (nama aja, email ga bisa diubah)
+  // Update ke Firestore collection 'users'
+  void _showEditDriverDialog(BuildContext context, WidgetRef ref, dynamic driver) {
+    final formKey = GlobalKey<FormState>();
+    final namaController = TextEditingController(text: driver.nama);
+    final emailController = TextEditingController(text: driver.email);
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: AppColors.card,
+        title: const Text('Edit Driver'),
+        content: Form(
+          key: formKey,
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AppTextField(
+                  label: 'Nama Lengkap',
+                  hint: 'Nama driver',
+                  controller: namaController,
+                  prefixIcon: Icons.person,
+                  validator: (v) => v?.isEmpty ?? true ? 'Nama wajib diisi' : null,
+                ),
+                const SizedBox(height: 12),
+                AppTextField(
+                  label: 'Email',
+                  hint: 'driver@email.com',
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  prefixIcon: Icons.email,
+                  readOnly: true, // Email ga bisa diubah
+                  validator: (v) {
+                    if (v?.isEmpty ?? true) return 'Email wajib diisi';
+                    if (!v!.contains('@')) return 'Email tidak valid';
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Email tidak bisa diubah karena terikat dengan akun Firebase.',
+                  style: TextStyle(
+                    color: AppColors.textTertiary,
+                    fontSize: 11,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Batal'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              if (formKey.currentState!.validate()) {
+                Navigator.pop(ctx);
+                // Update data di Firestore 'users'
+                await ref.read(adminProvider.notifier).updateUser(driver.uid, {
+                  'nama': namaController.text.trim(),
+                });
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.accent,
+            ),
+            child: const Text('Simpan'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Dialog assign/reassign bus ke driver
+  // Kalo reassign: unassign dari bus lama dulu, baru assign ke bus baru
   void _showAssignBusDialog(BuildContext context, WidgetRef ref, dynamic driver) {
     final isReassign = driver.busId != null;
     
@@ -382,7 +484,7 @@ class _ManajemenDriverScreenState extends ConsumerState<ManajemenDriverScreen> {
       context: context,
       builder: (ctx) => Consumer(
         builder: (ctx, ref, child) {
-          // Untuk reassign, tampilkan semua bus. Untuk assign baru, tampilkan bus available saja
+          // Kalo reassign: tampilkan semua bus. Kalo assign baru: bus available aja
           final busesAsync = isReassign 
               ? ref.watch(allBusesProvider) 
               : ref.watch(availableBusesStreamProvider);
@@ -396,7 +498,7 @@ class _ManajemenDriverScreenState extends ConsumerState<ManajemenDriverScreen> {
                 loading: () => const Center(child: CircularProgressIndicator()),
                 error: (e, _) => Text('Error: $e'),
                 data: (buses) {
-                  // Filter bus yang aktif
+                  // Filter bus aktif aja
                   final activeBuses = buses.where((b) => b.status == 'aktif').toList();
                   
                   if (activeBuses.isEmpty) {
@@ -477,17 +579,34 @@ class _ManajemenDriverScreenState extends ConsumerState<ManajemenDriverScreen> {
                               onTap: isCurrent ? null : () async {
                                 Navigator.pop(ctx);
                                 
-                                // Untuk reassign, unassign dari bus lama dulu
-                                if (isReassign && driver.busId != null) {
-                                  await ref.read(adminProvider.notifier).unassignDriverFromBus(driver.busId);
-                                }
-                                
-                                // Assign ke bus baru
-                                await ref.read(adminProvider.notifier).assignDriverToBus(
-                                      bus.id!,
+                                try {
+                                  // Kalo reassign: lepas dari bus lama dulu
+                                  if (isReassign && driver.busId != null) {
+                                    await ref.read(adminProvider.notifier).unassignDriverFromBus(
+                                      driver.busId,
                                       driver.uid,
-                                      driver.nama,
                                     );
+                                    
+                                    // Tunggu dikit biar Firestore kelar sync
+                                    await Future.delayed(const Duration(milliseconds: 300));
+                                  }
+                                  
+                                  // Assign ke bus baru -> update Firestore bus + users collection
+                                  await ref.read(adminProvider.notifier).assignDriverToBus(
+                                        bus.id!,
+                                        driver.uid,
+                                        driver.nama,
+                                      );
+                                } catch (e) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Error: $e'),
+                                        backgroundColor: AppColors.error,
+                                      ),
+                                    );
+                                  }
+                                }
                               },
                             );
                           },

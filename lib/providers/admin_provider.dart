@@ -85,6 +85,7 @@ class AdminNotifier extends StateNotifier<AdminState> {
 
   // ==================== BUS OPERATIONS ====================
 
+  // Bikin bus baru -> masuk ke Firestore collection 'bus'
   Future<bool> createBus({
     required String nomorBus,
     required String platNomor,
@@ -113,6 +114,7 @@ class AdminNotifier extends StateNotifier<AdminState> {
     }
   }
 
+  // Update data bus di Firestore
   Future<bool> updateBus(String busId, Map<String, dynamic> data) async {
     state = state.copyWith(isLoading: true, clearError: true, clearSuccess: true);
     try {
@@ -131,6 +133,7 @@ class AdminNotifier extends StateNotifier<AdminState> {
     }
   }
 
+  // Hapus bus dari Firestore (cek dulu ada driver/karyawan yang pake ga)
   Future<bool> deleteBus(String busId) async {
     state = state.copyWith(isLoading: true, clearError: true, clearSuccess: true);
     try {
@@ -149,6 +152,7 @@ class AdminNotifier extends StateNotifier<AdminState> {
     }
   }
 
+  // Assign driver ke bus -> update 2 collection: 'bus' (driver_id) & 'users' (bus_id)
   Future<bool> assignDriverToBus(String busId, String driverId, String driverNama) async {
     state = state.copyWith(isLoading: true, clearError: true, clearSuccess: true);
     try {
@@ -167,8 +171,28 @@ class AdminNotifier extends StateNotifier<AdminState> {
     }
   }
 
+  // Lepas driver dari bus -> set null di 'bus' (driver_id) & 'users' (bus_id)
+  Future<bool> unassignDriverFromBus(String busId, String driverId) async {
+    state = state.copyWith(isLoading: true, clearError: true, clearSuccess: true);
+    try {
+      await _service.unassignDriverFromBus(busId, driverId);
+      state = state.copyWith(
+        isLoading: false,
+        successMessage: 'Driver berhasil di-unassign dari bus',
+      );
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString().replaceAll('Exception: ', ''),
+      );
+      return false;
+    }
+  }
+
   // ==================== TITIK JEMPUT OPERATIONS ====================
 
+  // Bikin titik jemput baru -> masuk ke Firestore collection 'titik_jemput'
   Future<bool> createTitikJemput({
     required String nama,
     required String alamat,
@@ -237,8 +261,28 @@ class AdminNotifier extends StateNotifier<AdminState> {
     }
   }
 
+  // Lepas semua user dari titik jemput -> set titik_jemput_id = null batch
+  Future<bool> unassignAllUsersFromTitikJemput(String titikJemputId) async {
+    state = state.copyWith(isLoading: true, clearError: true, clearSuccess: true);
+    try {
+      final count = await _service.unassignAllUsersFromTitikJemput(titikJemputId);
+      state = state.copyWith(
+        isLoading: false,
+        successMessage: '$count user berhasil di-unassign dari titik jemput',
+      );
+      return true;
+    } catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e.toString().replaceAll('Exception: ', ''),
+      );
+      return false;
+    }
+  }
+
   // ==================== USER OPERATIONS ====================
 
+  // Bikin akun driver baru -> Firebase Auth + Firestore 'users' (role: driver)
   Future<bool> createDriver({
     required String email,
     required String password,
@@ -267,6 +311,7 @@ class AdminNotifier extends StateNotifier<AdminState> {
     }
   }
 
+  // Bikin akun karyawan baru -> Firebase Auth + Firestore 'users' (role: karyawan)
   Future<bool> createKaryawan({
     required String email,
     required String password,
@@ -317,6 +362,7 @@ class AdminNotifier extends StateNotifier<AdminState> {
     }
   }
 
+  // Hapus user (soft delete) -> set is_active = false di Firestore 'users'
   Future<bool> deleteUser(String userId) async {
     state = state.copyWith(isLoading: true, clearError: true, clearSuccess: true);
     try {
@@ -335,6 +381,7 @@ class AdminNotifier extends StateNotifier<AdminState> {
     }
   }
 
+  // Assign karyawan ke bus + titik jemput -> update 'users' (bus_id & titik_jemput_id)
   Future<bool> assignKaryawan({
     required String userId,
     required String busId,

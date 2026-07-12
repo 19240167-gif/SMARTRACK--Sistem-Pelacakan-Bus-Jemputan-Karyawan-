@@ -130,7 +130,7 @@ class _ManajemenBusScreenState extends ConsumerState<ManajemenBusScreen> {
                 }
 
                 return ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
                   itemCount: filteredBusList.length,
                   itemBuilder: (context, i) => _buildBusCard(context, ref, filteredBusList[i]),
                 );

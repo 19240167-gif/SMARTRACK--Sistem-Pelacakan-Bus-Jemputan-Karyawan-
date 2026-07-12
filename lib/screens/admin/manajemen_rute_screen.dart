@@ -60,7 +60,7 @@ class ManajemenRuteScreen extends ConsumerWidget {
             );
           }
           return ListView.builder(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
             itemCount: list.length,
             itemBuilder: (ctx, i) => _buildCard(ctx, list[i]),
           );
@@ -299,33 +299,7 @@ class ManajemenRuteScreen extends ConsumerWidget {
                       borderSide: const BorderSide(color: AppColors.divider)),
                 ),
               ),
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.accent.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.accent.withOpacity(0.3)),
-                ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('📍 Contoh Nama Rute:',
-                        style: TextStyle(
-                            fontFamily: 'Inter',
-                            color: AppColors.accent,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w600)),
-                    SizedBox(height: 6),
-                    Text('• Karawang → KIIC\n• Cikampek → KIIC\n• Purwasari → KIIC\n• Klari → KIIC',
-                        style: TextStyle(
-                            fontFamily: 'Inter',
-                            color: AppColors.textSecondary,
-                            fontSize: 11,
-                            height: 1.5)),
-                  ],
-                ),
-              ),
+
             ],
           ),
         ),
