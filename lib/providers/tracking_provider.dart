@@ -174,19 +174,23 @@ class DriverTrackingNotifier extends StateNotifier<DriverTrackingState> {
   Future<void> selesaiPerjalanan() async {
     if (_busId == null) return;
 
+    debugPrint('🛑 Stopping journey for bus: $_busId');
+    
     _updateTimer?.cancel();
     _positionSubscription?.cancel();
 
     try {
-      // Cuma update status jadi Tiba, JANGAN hapus dari tracking_bus
-      // Biar admin masih bisa liat bus yang udah selesai
+      // Update status jadi Tiba
+      debugPrint('📝 Updating status to Tiba...');
       await _trackingService.updateBusStatus(
         busId: _busId!,
         statusPerjalanan: 'Tiba',
       );
+      debugPrint('✅ Status updated successfully');
 
       state = const DriverTrackingState();
     } catch (e) {
+      debugPrint('❌ Error stopping journey: $e');
       state = state.copyWith(errorMessage: 'Gagal selesai perjalanan: $e');
     }
   }
