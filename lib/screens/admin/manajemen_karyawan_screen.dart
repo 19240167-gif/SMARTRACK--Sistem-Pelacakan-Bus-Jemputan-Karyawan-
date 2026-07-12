@@ -25,6 +25,8 @@ class _ManajemenKaryawanScreenState extends ConsumerState<ManajemenKaryawanScree
   @override
   Widget build(BuildContext context) {
     final karyawanAsync = ref.watch(allKaryawanStreamProvider);
+    final busesAsync = ref.watch(allBusesStreamProvider);
+    final titikJemputAsync = ref.watch(allTitikJemputStreamProvider);
 
     // Show snackbar
     ref.listen(adminProvider, (prev, next) {
@@ -153,6 +155,8 @@ class _ManajemenKaryawanScreenState extends ConsumerState<ManajemenKaryawanScree
                     final karyawan = filteredKaryawanList[index];
                     final hasAssignment =
                         karyawan.busId != null && karyawan.titikJemputId != null;
+                    final busName = _resolveBusName(karyawan.busId, busesAsync.value ?? []);
+                    final titikName = _resolveTitikName(karyawan.titikJemputId, titikJemputAsync.value ?? []);
 
                     return Container(
                       margin: const EdgeInsets.only(bottom: 12),
@@ -256,9 +260,9 @@ class _ManajemenKaryawanScreenState extends ConsumerState<ManajemenKaryawanScree
                           ),
                           const Divider(height: 24),
                           if (karyawan.busId != null)
-                            _buildInfoRow(Icons.directions_bus, 'Bus: ${karyawan.busId}'),
+                            _buildInfoRow(Icons.directions_bus, 'Bus: $busName'),
                           if (karyawan.titikJemputId != null)
-                            _buildInfoRow(Icons.location_on, 'Titik: ${karyawan.titikJemputId}'),
+                            _buildInfoRow(Icons.location_on, 'Titik: $titikName'),
                           const SizedBox(height: 12),
                           Row(
                             children: [
@@ -326,6 +330,34 @@ class _ManajemenKaryawanScreenState extends ConsumerState<ManajemenKaryawanScree
         ],
       ),
     );
+  }
+
+  String _resolveBusName(String? busId, List<dynamic> buses) {
+    if (busId == null) return 'Belum ditentukan';
+    try {
+      final bus = buses.cast<dynamic>().firstWhere(
+            (item) => item.id == busId,
+            orElse: () => null,
+          );
+      if (bus == null) return busId;
+      return '${bus.nomorBus} - ${bus.platNomor}';
+    } catch (_) {
+      return busId;
+    }
+  }
+
+  String _resolveTitikName(String? titikId, List<dynamic> titikList) {
+    if (titikId == null) return 'Belum ditentukan';
+    try {
+      final titik = titikList.cast<dynamic>().firstWhere(
+            (item) => item.id == titikId,
+            orElse: () => null,
+          );
+      if (titik == null) return titikId;
+      return '${titik.nama} (${titik.jamJemput})';
+    } catch (_) {
+      return titikId;
+    }
   }
 
   void _showAddKaryawanDialog(BuildContext context, WidgetRef ref) {
